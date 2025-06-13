@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="EasyRec\Resources">
+      <UniqueIdentifier>{71531E91-80FE-7053-5E97-A6E980C6CF68}</UniqueIdentifier>
+    </Filter>
     <Filter Include="EasyRec\Source">
       <UniqueIdentifier>{FB86B9F1-3F1B-2FF9-2B35-770BC232A9C1}</UniqueIdentifier>
     </Filter>
@@ -3481,6 +3484,9 @@
     <ClCompile Include="C:\JUCE\modules\juce_gui_extra\juce_gui_extra.mm">
       <Filter>JUCE Modules\juce_gui_extra</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp">
+      <Filter>JUCE Library Code</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -3723,7 +3729,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_audio_basics\utilities\juce_SmoothedValue.h">
       <Filter>JUCE Modules\juce_audio_basics\utilities</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_audio_basics\juce_audio_basics.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_audio_basics\juce_audio_basics.h">
       <Filter>JUCE Modules\juce_audio_basics</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_audio_devices\audio_io\juce_AudioDeviceManager.h">
@@ -3990,7 +3996,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_audio_devices\sources\juce_AudioTransportSource.h">
       <Filter>JUCE Modules\juce_audio_devices\sources</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_audio_devices\juce_audio_devices.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_audio_devices\juce_audio_devices.h">
       <Filter>JUCE Modules\juce_audio_devices</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_audio_formats\codecs\flac\libFLAC\include\private\bitmath.h">
@@ -4281,7 +4287,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_audio_formats\sampler\juce_Sampler.h">
       <Filter>JUCE Modules\juce_audio_formats\sampler</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_audio_formats\juce_audio_formats.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_audio_formats\juce_audio_formats.h">
       <Filter>JUCE Modules\juce_audio_formats</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_audio_plugin_client\detail\juce_CheckSettingMacros.h">
@@ -4305,7 +4311,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_audio_plugin_client\detail\juce_VSTWindowUtilities.h">
       <Filter>JUCE Modules\juce_audio_plugin_client\detail</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client.h">
       <Filter>JUCE Modules\juce_audio_plugin_client</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_audio_processors\format\juce_AudioPluginFormat.h">
@@ -4914,7 +4920,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_audio_processors\utilities\juce_VST3ClientExtensions.h">
       <Filter>JUCE Modules\juce_audio_processors\utilities</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_audio_processors\juce_audio_processors.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_audio_processors\juce_audio_processors.h">
       <Filter>JUCE Modules\juce_audio_processors</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_audio_utils\audio_cd\juce_AudioCDBurner.h">
@@ -4959,7 +4965,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_audio_utils\players\juce_SoundPlayer.h">
       <Filter>JUCE Modules\juce_audio_utils\players</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_audio_utils\juce_audio_utils.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_audio_utils\juce_audio_utils.h">
       <Filter>JUCE Modules\juce_audio_utils</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_core\containers\juce_AbstractFifo.h">
@@ -5445,7 +5451,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_core\zip\juce_zlib.h">
       <Filter>JUCE Modules\juce_core\zip</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_core\juce_core.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_core\juce_core.h">
       <Filter>JUCE Modules\juce_core</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h">
@@ -5475,7 +5481,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_data_structures\values\juce_ValueTreeSynchroniser.h">
       <Filter>JUCE Modules\juce_data_structures\values</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_data_structures\juce_data_structures.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_data_structures\juce_data_structures.h">
       <Filter>JUCE Modules\juce_data_structures</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_events\broadcasters\juce_ActionBroadcaster.h">
@@ -5568,7 +5574,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_events\timers\juce_Timer.h">
       <Filter>JUCE Modules\juce_events\timers</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_events\juce_events.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_events\juce_events.h">
       <Filter>JUCE Modules\juce_events</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_graphics\colour\juce_Colour.h">
@@ -6732,7 +6738,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_graphics\unicode\sheenbidi\Source\StatusStack.h">
       <Filter>JUCE Modules\juce_graphics\unicode\sheenbidi\Source</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_graphics\juce_graphics.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_graphics\juce_graphics.h">
       <Filter>JUCE Modules\juce_graphics</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityActions.h">
@@ -7347,7 +7353,7 @@
     <ClInclude Include="C:\JUCE\modules\juce_gui_basics\windows\juce_WindowUtils.h">
       <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
       <Filter>JUCE Modules\juce_gui_basics</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_gui_extra\code_editor\juce_CodeDocument.h">
@@ -7440,8 +7446,11 @@
     <ClInclude Include="C:\JUCE\modules\juce_gui_extra\native\juce_NSViewFrameWatcher_mac.h">
       <Filter>JUCE Modules\juce_gui_extra\native</Filter>
     </ClInclude>
-    <ClInclude Include="C:\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
       <Filter>JUCE Modules\juce_gui_extra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h">
+      <Filter>JUCE Library Code</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
       <Filter>JUCE Library Code</Filter>
@@ -7451,6 +7460,39 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Resources\Comp_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\DeEsser_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Gameboy.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Hard_Comp.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Hard_Satur.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\LowEq_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Output_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Satur_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Soft_Comp.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Soft_Satur.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\ToneEq_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\src\common\README.md">
       <Filter>JUCE Modules\juce_audio_devices\native\oboe\src\common</Filter>
     </None>
