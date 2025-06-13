@@ -78,43 +78,46 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     // === TOGGLE COMP ===
     softHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Comp_svg, BinaryData::Soft_Comp_svgSize);
     hardHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Hard_Comp_svg, BinaryData::Hard_Comp_svgSize);
-    
+
     toggleCompButton.setAlpha(0.0f);
     toggleCompButton.setColour(juce::DrawableButton::backgroundColourId, juce::Colours::transparentBlack);
     toggleCompButton.setClickingTogglesState(true);
     toggleCompButton.setToggleState(isSoftMode, juce::dontSendNotification);
+    addAndMakeVisible(toggleCompButton);
+
+    softHighlightArea = { 253, 190, 37, 41 };
+    hardHighlightArea = { 289, 190, 37, 41 };
+    currentCompHighlightRect = softHighlightArea.toFloat();
 
     toggleCompButton.onClick = [this]()
     {
         isSoftMode = !isSoftMode;
         toggleCompButton.setToggleState(isSoftMode, juce::dontSendNotification);
-        repaint();
+        compAnimating = true;
+        startTimerHz(60);
     };
 
-    addAndMakeVisible(toggleCompButton);
-
-    softHighlightArea = { 253, 190, 37, 41 };
-    hardHighlightArea = { 289, 190, 37, 41 };
-
     // === TOGGLE SATURAZIONE ===
-    saturToggleButton.setAlpha(0.0f); // invisibile ma cliccabile
+    saturToggleButton.setAlpha(0.0f);
     saturToggleButton.setClickingTogglesState(true);
     saturToggleButton.setToggleState(isSoftSaturMode, juce::dontSendNotification);
+    addAndMakeVisible(saturToggleButton);
+
+    softSatHighlightArea = { 254, 278, 37, 41 };
+    hardSatHighlightArea = { 289, 278, 37, 41 };
+    currentSaturHighlightRect = softSatHighlightArea.toFloat();
+
+    softSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Satur_svg, BinaryData::Soft_Satur_svgSize);
+    hardSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Hard_Satur_svg, BinaryData::Hard_Satur_svgSize);
+
     saturToggleButton.onClick = [this]()
     {
         isSoftSaturMode = !isSoftSaturMode;
         saturToggleButton.setToggleState(isSoftSaturMode, juce::dontSendNotification);
-        repaint();
+        saturAnimating = true;
+        startTimerHz(60);
     };
-    addAndMakeVisible(saturToggleButton);
-
-    softSatHighlightArea = { 254, 278, 37, 41 };   // es. posizione satur soft
-    hardSatHighlightArea = { 289, 278, 37, 41 };   // es. posizione satur hard
-
-    softSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Satur_svg,BinaryData::Soft_Satur_svgSize);
-    hardSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Hard_Satur_svg,BinaryData::Hard_Satur_svgSize);
 }
-
 
 EasyRecAudioProcessorEditor::~EasyRecAudioProcessorEditor() = default;
 
@@ -122,25 +125,31 @@ EasyRecAudioProcessorEditor::~EasyRecAudioProcessorEditor() = default;
 void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::black);
-    
+
     if (backgroundImage.isValid())
-    {
-        g.drawImage(backgroundImage,
-                    getLocalBounds().toFloat(),
-                    juce::RectanglePlacement::stretchToFit);
-    }
-    
-    // Disegna highlight SVG in base al toggle
-    if (isSoftMode && softHighlightDrawable)
+        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
+
+    if (isSoftMode && softHighlightDrawable && !compAnimating)
         softHighlightDrawable->drawWithin(g, softHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    else if (!isSoftMode && hardHighlightDrawable)
+    else if (!isSoftMode && hardHighlightDrawable && !compAnimating)
         hardHighlightDrawable->drawWithin(g, hardHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    
-    // Highlight saturazione soft/hard
-    if (isSoftSaturMode && softSatHighlightDrawable)
+    else if (compAnimating)
+    {
+        auto* drawable = isSoftMode ? softHighlightDrawable.get() : hardHighlightDrawable.get();
+        if (drawable)
+            drawable->drawWithin(g, currentCompHighlightRect, juce::RectanglePlacement::centred, 1.0f);
+    }
+
+    if (isSoftSaturMode && softSatHighlightDrawable && !saturAnimating)
         softSatHighlightDrawable->drawWithin(g, softSatHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    else if (!isSoftSaturMode && hardSatHighlightDrawable)
+    else if (!isSoftSaturMode && hardSatHighlightDrawable && !saturAnimating)
         hardSatHighlightDrawable->drawWithin(g, hardSatHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+    else if (saturAnimating)
+    {
+        auto* drawable = isSoftSaturMode ? softSatHighlightDrawable.get() : hardSatHighlightDrawable.get();
+        if (drawable)
+            drawable->drawWithin(g, currentSaturHighlightRect, juce::RectanglePlacement::centred, 1.0f);
+    }
 }
 
 void EasyRecAudioProcessorEditor::resized()
@@ -151,9 +160,40 @@ void EasyRecAudioProcessorEditor::resized()
     deeKnob.setBounds(489, 194, 37, 37);
     satKnob.setBounds(344, 282, 37, 37);
     outKnob.setBounds(463, 273, 32, 32);
-    
-    // Posizione di toggle
+
     toggleCompButton.setBounds(240, 195, 100, 30);
     saturToggleButton.setBounds(240, 283, 100, 30);
-
 }
+
+void EasyRecAudioProcessorEditor::timerCallback()
+{
+    auto animate = [](juce::Rectangle<float>& current, const juce::Rectangle<float>& target) -> bool
+    {
+        constexpr float speed = 0.2f;
+        auto delta = target.getCentre() - current.getCentre();
+        if (delta.getDistanceFromOrigin() < 0.5f)
+        {
+            current = target;
+            return false;
+        }
+
+        current.setCentre(current.getCentre() + delta * speed);
+        return true;
+    };
+
+    bool stillAnimating = false;
+
+    if (compAnimating)
+        compAnimating = animate(currentCompHighlightRect, isSoftMode ? softHighlightArea.toFloat() : hardHighlightArea.toFloat());
+
+    if (saturAnimating)
+        saturAnimating = animate(currentSaturHighlightRect, isSoftSaturMode ? softSatHighlightArea.toFloat() : hardSatHighlightArea.toFloat());
+
+    stillAnimating = compAnimating || saturAnimating;
+
+    if (!stillAnimating)
+        stopTimer();
+
+    repaint();
+}
+

@@ -24,7 +24,8 @@ struct KnoblookAndFeel : public juce::LookAndFeel_V4
     }
 };
 
-class EasyRecAudioProcessorEditor  : public juce::AudioProcessorEditor
+class EasyRecAudioProcessorEditor  : public juce::AudioProcessorEditor,
+                                     private juce::Timer
 {
 public:
     EasyRecAudioProcessorEditor (EasyRecAudioProcessor&);
@@ -74,13 +75,21 @@ private:
 
     // Toggle Soft/Hard Satur
     bool isSoftSaturMode = true;
-
     juce::TextButton saturToggleButton;
     juce::Rectangle<int> softSatHighlightArea;
     juce::Rectangle<int> hardSatHighlightArea;
-
     std::unique_ptr<juce::Drawable> softSatHighlightDrawable;
     std::unique_ptr<juce::Drawable> hardSatHighlightDrawable;
-    
+
+    // Animated rectangles for transitions
+    juce::Rectangle<float> currentCompHighlightRect;
+    juce::Rectangle<float> currentSaturHighlightRect;
+
+    // Animation
+    void timerCallback() override;
+    bool compAnimating = false;
+    bool saturAnimating = false;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };
+
