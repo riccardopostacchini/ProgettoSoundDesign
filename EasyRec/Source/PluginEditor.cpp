@@ -48,6 +48,41 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     toneKnob.setLookAndFeel(&toneKnobLookAndFeel);
     addAndMakeVisible(toneKnob);
     
+    //DeEsser Knob
+    deeKnobDrawable = juce::Drawable::createFromImageData(BinaryData::DeEsser_Knob_svg, BinaryData::DeEsser_Knob_svgSize);
+    deeKnobLookAndFeel.knobImage = deeKnobDrawable.get();
+    
+    deeKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    deeKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    deeKnob.setRange(0.0, 1.0, 0.01);
+    deeKnob.setValue(0.5);
+    deeKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
+    deeKnob.setLookAndFeel(&deeKnobLookAndFeel);
+    addAndMakeVisible(deeKnob);
+    
+    //Satur Knob
+    satKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Satur_Knob_svg, BinaryData::Satur_Knob_svgSize);
+    satKnobLookAndFeel.knobImage = satKnobDrawable.get();
+    
+    satKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    satKnob.setRange(0.0, 1.0, 0.01);
+    satKnob.setValue(0.5);
+    satKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
+    satKnob.setLookAndFeel(&satKnobLookAndFeel);
+    addAndMakeVisible(satKnob);
+    
+    //Output Knob
+    outKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Output_Knob_svg, BinaryData::Output_Knob_svgSize);
+    outKnobLookAndFeel.knobImage = outKnobDrawable.get();
+    
+    outKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    outKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    outKnob.setRange(0.0, 1.0, 0.01);
+    outKnob.setValue(0.5);
+    outKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
+    outKnob.setLookAndFeel(&outKnobLookAndFeel);
+    addAndMakeVisible(outKnob);
 }
 
 
@@ -73,5 +108,7 @@ void EasyRecAudioProcessorEditor::resized()
     compKnob.setBounds(344, 194.5, 37, 37);
     lowKnob.setBounds(419, 116.3, 37, 37);
     toneKnob.setBounds(490, 115.96, 37, 37);
-
+    deeKnob.setBounds(489, 194.5, 37, 37);
+    satKnob.setBounds(344, 282, 37, 37);
+    outKnob.setBounds(463.2, 273, 32, 32);
 }

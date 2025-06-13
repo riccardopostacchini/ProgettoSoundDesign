@@ -57,7 +57,17 @@ private:
     KnoblookAndFeel toneKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> toneKnobDrawable;
     
+    juce::Slider deeKnob;
+    KnoblookAndFeel deeKnobLookAndFeel;
+    std::unique_ptr<juce::Drawable> deeKnobDrawable;
     
+    juce::Slider satKnob;
+    KnoblookAndFeel satKnobLookAndFeel;
+    std::unique_ptr<juce::Drawable> satKnobDrawable;
+    
+    juce::Slider outKnob;
+    KnoblookAndFeel outKnobLookAndFeel;
+    std::unique_ptr<juce::Drawable> outKnobDrawable;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };
