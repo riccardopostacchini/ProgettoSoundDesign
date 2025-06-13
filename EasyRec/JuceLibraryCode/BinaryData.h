@@ -23,6 +23,9 @@ namespace BinaryData
     extern const char*   Hard_Satur_svg;
     const int            Hard_Satur_svgSize = 1379;
 
+    extern const char*   Led_Rosso_svg;
+    const int            Led_Rosso_svgSize = 1383;
+
     extern const char*   LowEq_Knob_svg;
     const int            LowEq_Knob_svgSize = 1845;
 
@@ -38,11 +41,14 @@ namespace BinaryData
     extern const char*   Soft_Satur_svg;
     const int            Soft_Satur_svgSize = 1379;
 
+    extern const char*   Start_Button_svg;
+    const int            Start_Button_svgSize = 3403;
+
     extern const char*   ToneEq_Knob_svg;
     const int            ToneEq_Knob_svgSize = 1845;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 11;
+    const int namedResourceListSize = 13;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

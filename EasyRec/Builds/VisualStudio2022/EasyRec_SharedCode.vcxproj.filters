@@ -7475,6 +7475,9 @@
     <None Include="..\..\Resources\Hard_Satur.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\Led_Rosso.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\LowEq_Knob.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
@@ -7488,6 +7491,9 @@
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\Soft_Satur.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Start_Button.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\ToneEq_Knob.svg">

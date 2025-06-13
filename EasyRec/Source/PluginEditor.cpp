@@ -10,6 +10,18 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     // Background
     backgroundImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy_png, BinaryData::Gameboy_pngSize);
 
+    // === START BUTTON ===
+    startDrawable = juce::Drawable::createFromImageData(BinaryData::Start_Button_svg, BinaryData::Start_Button_svgSize);
+    startButton.setImages(startDrawable.get());
+    startButton.onClick = [this]()
+    {
+        setBypassedState(!isBypassed);
+    };
+    addAndMakeVisible(startButton);
+
+    // === LED ROSSO ===
+    ledRossoDrawable = juce::Drawable::createFromImageData(BinaryData::Led_Rosso_svg, BinaryData::Led_Rosso_svgSize);
+
     // === COMP KNOB ===
     compKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Comp_Knob_svg, BinaryData::Comp_Knob_svgSize);
     compKnobLookAndFeel.knobImage = compKnobDrawable.get();
@@ -150,6 +162,12 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         if (drawable)
             drawable->drawWithin(g, currentSaturHighlightRect, juce::RectanglePlacement::centred, 1.0f);
     }
+    // Disegna LED rosso se il plugin è bypassato
+    if (isBypassed && ledRossoDrawable)
+    {
+        juce::Rectangle<int> ledPosition(15, 590, 15, 15);
+        ledRossoDrawable->drawWithin(g, ledPosition.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+    }
 }
 
 void EasyRecAudioProcessorEditor::resized()
@@ -163,6 +181,13 @@ void EasyRecAudioProcessorEditor::resized()
 
     toggleCompButton.setBounds(240, 195, 100, 30);
     saturToggleButton.setBounds(240, 283, 100, 30);
+    
+    startButton.setBounds(10, 600, 40, 40);
+}
+
+void EasyRecAudioProcessorEditor::setBypassedState(bool shouldBeBypassed)
+{
+    isBypassed = shouldBeBypassed;
 }
 
 void EasyRecAudioProcessorEditor::timerCallback()

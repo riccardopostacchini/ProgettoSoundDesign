@@ -33,6 +33,10 @@ public:
 
     void paint (juce::Graphics&) override;
     void resized() override;
+    
+    void setBypassedState(bool shouldBeBypassed);
+    bool isBypassed = false;
+
 
 private:
     EasyRecAudioProcessor& audioProcessor;
@@ -89,6 +93,13 @@ private:
     void timerCallback() override;
     bool compAnimating = false;
     bool saturAnimating = false;
+
+    // Start Button & LED
+    juce::DrawableButton startButton { "StartButton", juce::DrawableButton::ImageRaw };
+    std::unique_ptr<juce::Drawable> startDrawable;
+    std::unique_ptr<juce::Drawable> ledRossoDrawable;
+    juce::Rectangle<int> ledPosition = { 400, 50, 12, 12 }; // posizione LED rosso
+    bool pluginIsBypassed = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };

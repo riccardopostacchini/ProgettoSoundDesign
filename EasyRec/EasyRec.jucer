@@ -10,11 +10,14 @@
       <FILE id="cRtE9w" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
       <FILE id="eCKIg6" name="Hard_Comp.svg" compile="0" resource="1" file="Resources/Hard_Comp.svg"/>
       <FILE id="itMV4J" name="Hard_Satur.svg" compile="0" resource="1" file="Resources/Hard_Satur.svg"/>
+      <FILE id="nply3P" name="Led_Rosso.svg" compile="0" resource="1" file="Resources/Led_Rosso.svg"/>
       <FILE id="tY43mB" name="LowEq_Knob.svg" compile="0" resource="1" file="Resources/LowEq_Knob.svg"/>
       <FILE id="da6RMi" name="Output_Knob.svg" compile="0" resource="1" file="Resources/Output_Knob.svg"/>
       <FILE id="qWvFr8" name="Satur_Knob.svg" compile="0" resource="1" file="Resources/Satur_Knob.svg"/>
       <FILE id="nZ0KWO" name="Soft_Comp.svg" compile="0" resource="1" file="Resources/Soft_Comp.svg"/>
       <FILE id="Pv2sKe" name="Soft_Satur.svg" compile="0" resource="1" file="Resources/Soft_Satur.svg"/>
+      <FILE id="pfsj5S" name="Start_Button.svg" compile="0" resource="1"
+            file="Resources/Start_Button.svg"/>
       <FILE id="cXddex" name="ToneEq_Knob.svg" compile="0" resource="1" file="Resources/ToneEq_Knob.svg"/>
     </GROUP>
     <GROUP id="{4F724603-4F6A-6864-3865-F466F6C0DBE4}" name="Source">
