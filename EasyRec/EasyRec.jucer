@@ -4,21 +4,22 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="EapaMv" name="EasyRec">
     <GROUP id="{6C986A6B-3211-231F-8A01-DA764D9A479F}" name="Resources">
-      <FILE id="UipJCO" name="Comp_Knob.svg" compile="0" resource="1" file="Resources/Comp_Knob.svg"/>
-      <FILE id="uMrmfT" name="DeEsser_Knob.svg" compile="0" resource="1"
+      <FILE id="bAprLE" name="DeEsser_Knob.svg" compile="0" resource="1"
             file="Resources/DeEsser_Knob.svg"/>
-      <FILE id="cRtE9w" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
+      <FILE id="hQhriA" name="LowEq_Knob.svg" compile="0" resource="1" file="Resources/LowEq_Knob.svg"/>
+      <FILE id="ePZMub" name="Output_Knob.svg" compile="0" resource="1" file="Resources/Output_Knob.svg"/>
+      <FILE id="E0S7ot" name="Satur_Knob.svg" compile="0" resource="1" file="Resources/Satur_Knob.svg"/>
+      <FILE id="dwWpKU" name="ToneEq_Knob.svg" compile="0" resource="1" file="Resources/ToneEq_Knob.svg"/>
+      <FILE id="mlt7q8" name="Comp_Knob.svg" compile="0" resource="1" file="Resources/Comp_Knob.svg"/>
+      <FILE id="bpUOfz" name="EarlyGameBoy.ttf" compile="0" resource="1"
+            file="Resources/EarlyGameBoy.ttf"/>
       <FILE id="eCKIg6" name="Hard_Comp.svg" compile="0" resource="1" file="Resources/Hard_Comp.svg"/>
       <FILE id="itMV4J" name="Hard_Satur.svg" compile="0" resource="1" file="Resources/Hard_Satur.svg"/>
-      <FILE id="nply3P" name="Led_Rosso.svg" compile="0" resource="1" file="Resources/Led_Rosso.svg"/>
-      <FILE id="tY43mB" name="LowEq_Knob.svg" compile="0" resource="1" file="Resources/LowEq_Knob.svg"/>
-      <FILE id="da6RMi" name="Output_Knob.svg" compile="0" resource="1" file="Resources/Output_Knob.svg"/>
-      <FILE id="qWvFr8" name="Satur_Knob.svg" compile="0" resource="1" file="Resources/Satur_Knob.svg"/>
       <FILE id="nZ0KWO" name="Soft_Comp.svg" compile="0" resource="1" file="Resources/Soft_Comp.svg"/>
       <FILE id="Pv2sKe" name="Soft_Satur.svg" compile="0" resource="1" file="Resources/Soft_Satur.svg"/>
       <FILE id="pfsj5S" name="Start_Button.svg" compile="0" resource="1"
             file="Resources/Start_Button.svg"/>
-      <FILE id="cXddex" name="ToneEq_Knob.svg" compile="0" resource="1" file="Resources/ToneEq_Knob.svg"/>
+      <FILE id="cy6SSx" name="Led_Rosso.svg" compile="0" resource="1" file="Resources/Led_Rosso.svg"/>
     </GROUP>
     <GROUP id="{4F724603-4F6A-6864-3865-F466F6C0DBE4}" name="Source">
       <FILE id="bTUL6T" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -29,6 +30,7 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="C2XXDG" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="kHc3Nk" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

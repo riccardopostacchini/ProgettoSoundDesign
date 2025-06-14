@@ -4143,19 +4143,20 @@
     <ClInclude Include="..\..\JuceLibraryCode\JucePluginDefines.h"/>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resources\Comp_Knob.svg"/>
     <None Include="..\..\Resources\DeEsser_Knob.svg"/>
-    <None Include="..\..\Resources\Gameboy.png"/>
-    <None Include="..\..\Resources\Hard_Comp.svg"/>
-    <None Include="..\..\Resources\Hard_Satur.svg"/>
-    <None Include="..\..\Resources\Led_Rosso.svg"/>
     <None Include="..\..\Resources\LowEq_Knob.svg"/>
     <None Include="..\..\Resources\Output_Knob.svg"/>
     <None Include="..\..\Resources\Satur_Knob.svg"/>
+    <None Include="..\..\Resources\ToneEq_Knob.svg"/>
+    <None Include="..\..\Resources\Comp_Knob.svg"/>
+    <None Include="..\..\Resources\EarlyGameBoy.ttf"/>
+    <None Include="..\..\Resources\Hard_Comp.svg"/>
+    <None Include="..\..\Resources\Hard_Satur.svg"/>
     <None Include="..\..\Resources\Soft_Comp.svg"/>
     <None Include="..\..\Resources\Soft_Satur.svg"/>
     <None Include="..\..\Resources\Start_Button.svg"/>
-    <None Include="..\..\Resources\ToneEq_Knob.svg"/>
+    <None Include="..\..\Resources\Led_Rosso.svg"/>
+    <None Include="..\..\Resources\Gameboy.png"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\src\common\README.md"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\src\flowgraph\resampler\README.md"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\CMakeLists.txt"/>

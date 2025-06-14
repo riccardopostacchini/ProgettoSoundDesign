@@ -8,32 +8,32 @@
 
 namespace BinaryData
 {
-    extern const char*   Comp_Knob_svg;
-    const int            Comp_Knob_svgSize = 1845;
-
     extern const char*   DeEsser_Knob_svg;
-    const int            DeEsser_Knob_svgSize = 1845;
+    const int            DeEsser_Knob_svgSize = 2258;
 
-    extern const char*   Gameboy_png;
-    const int            Gameboy_pngSize = 1974363;
+    extern const char*   LowEq_Knob_svg;
+    const int            LowEq_Knob_svgSize = 2258;
+
+    extern const char*   Output_Knob_svg;
+    const int            Output_Knob_svgSize = 2258;
+
+    extern const char*   Satur_Knob_svg;
+    const int            Satur_Knob_svgSize = 2258;
+
+    extern const char*   ToneEq_Knob_svg;
+    const int            ToneEq_Knob_svgSize = 2258;
+
+    extern const char*   Comp_Knob_svg;
+    const int            Comp_Knob_svgSize = 2258;
+
+    extern const char*   EarlyGameBoy_ttf;
+    const int            EarlyGameBoy_ttfSize = 10616;
 
     extern const char*   Hard_Comp_svg;
     const int            Hard_Comp_svgSize = 1374;
 
     extern const char*   Hard_Satur_svg;
     const int            Hard_Satur_svgSize = 1379;
-
-    extern const char*   Led_Rosso_svg;
-    const int            Led_Rosso_svgSize = 1383;
-
-    extern const char*   LowEq_Knob_svg;
-    const int            LowEq_Knob_svgSize = 1845;
-
-    extern const char*   Output_Knob_svg;
-    const int            Output_Knob_svgSize = 1845;
-
-    extern const char*   Satur_Knob_svg;
-    const int            Satur_Knob_svgSize = 1845;
 
     extern const char*   Soft_Comp_svg;
     const int            Soft_Comp_svgSize = 1377;
@@ -44,11 +44,14 @@ namespace BinaryData
     extern const char*   Start_Button_svg;
     const int            Start_Button_svgSize = 3403;
 
-    extern const char*   ToneEq_Knob_svg;
-    const int            ToneEq_Knob_svgSize = 1845;
+    extern const char*   Led_Rosso_svg;
+    const int            Led_Rosso_svgSize = 1383;
+
+    extern const char*   Gameboy_png;
+    const int            Gameboy_pngSize = 1995688;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 13;
+    const int namedResourceListSize = 14;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

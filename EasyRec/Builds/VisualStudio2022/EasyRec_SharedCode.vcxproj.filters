@@ -7460,22 +7460,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resources\Comp_Knob.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
     <None Include="..\..\Resources\DeEsser_Knob.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Gameboy.png">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Hard_Comp.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Hard_Satur.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Led_Rosso.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\LowEq_Knob.svg">
@@ -7487,6 +7472,21 @@
     <None Include="..\..\Resources\Satur_Knob.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\ToneEq_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Comp_Knob.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\EarlyGameBoy.ttf">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Hard_Comp.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Hard_Satur.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\Soft_Comp.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
@@ -7496,8 +7496,11 @@
     <None Include="..\..\Resources\Start_Button.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
-    <None Include="..\..\Resources\ToneEq_Knob.svg">
+    <None Include="..\..\Resources\Led_Rosso.svg">
       <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Gameboy.png">
+      <Filter>EasyRec</Filter>
     </None>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\src\common\README.md">
       <Filter>JUCE Modules\juce_audio_devices\native\oboe\src\common</Filter>

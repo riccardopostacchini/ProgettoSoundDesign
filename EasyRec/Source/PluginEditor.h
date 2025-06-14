@@ -24,6 +24,20 @@ struct KnoblookAndFeel : public juce::LookAndFeel_V4
     }
 };
 
+class ResettableSlider : public juce::Slider
+{
+public:
+    ResettableSlider(float defaultVal) : defaultValue(defaultVal) {}
+
+    void mouseDoubleClick(const juce::MouseEvent&) override
+    {
+        setValue(defaultValue, juce::sendNotificationSync);
+    }
+
+private:
+    float defaultValue;
+};
+
 class EasyRecAudioProcessorEditor  : public juce::AudioProcessorEditor,
                                      private juce::Timer
 {
@@ -34,9 +48,6 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    void setBypassedState(bool shouldBeBypassed);
-    bool isBypassed = false;
-
 
 private:
     EasyRecAudioProcessor& audioProcessor;
@@ -44,30 +55,41 @@ private:
     // Background
     juce::Image backgroundImage;
 
-    // Knobs
-    juce::Slider compKnob;
+    //COMP KNOB
+    ResettableSlider compKnob { 0.5f };
     KnoblookAndFeel compKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> compKnobDrawable;
+    juce::Label compLabel;
 
-    juce::Slider lowKnob;
+    
+    //EQ KNOB
+    ResettableSlider lowKnob { 0.5f };
     KnoblookAndFeel lowKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> lowKnobDrawable;
+    juce::Label lowLabel;
 
-    juce::Slider toneKnob;
+    ResettableSlider toneKnob { 0.5f };
     KnoblookAndFeel toneKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> toneKnobDrawable;
+    juce::Label toneLabel;
 
-    juce::Slider deeKnob;
+    //DE-ESSER KNOB
+    ResettableSlider deeKnob { 0.5f };
     KnoblookAndFeel deeKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> deeKnobDrawable;
+    juce::Label deeLabel;
 
-    juce::Slider satKnob;
+    //SATURATOR KNOB
+    ResettableSlider satKnob { 0.5f };
     KnoblookAndFeel satKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> satKnobDrawable;
+    juce::Label satLabel;
 
-    juce::Slider outKnob;
+    //OUTPUT KNOB
+    ResettableSlider outKnob { 0.5f };
     KnoblookAndFeel outKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> outKnobDrawable;
+    juce::Label outLabel;
 
     // Toggle Soft/Hard Comp
     juce::DrawableButton toggleCompButton { "ToggleComp", juce::DrawableButton::ImageRaw };
@@ -85,6 +107,9 @@ private:
     std::unique_ptr<juce::Drawable> softSatHighlightDrawable;
     std::unique_ptr<juce::Drawable> hardSatHighlightDrawable;
 
+    // FONT
+    juce::Typeface::Ptr earlyGameBoyFont;
+    
     // Animated rectangles for transitions
     juce::Rectangle<float> currentCompHighlightRect;
     juce::Rectangle<float> currentSaturHighlightRect;
@@ -93,13 +118,6 @@ private:
     void timerCallback() override;
     bool compAnimating = false;
     bool saturAnimating = false;
-
-    // Start Button & LED
-    juce::DrawableButton startButton { "StartButton", juce::DrawableButton::ImageRaw };
-    std::unique_ptr<juce::Drawable> startDrawable;
-    std::unique_ptr<juce::Drawable> ledRossoDrawable;
-    juce::Rectangle<int> ledPosition = { 400, 50, 12, 12 }; // posizione LED rosso
-    bool pluginIsBypassed = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };

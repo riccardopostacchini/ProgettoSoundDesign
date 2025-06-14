@@ -5,22 +5,16 @@
 EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    setSize (825, 660);
+    // Font
+    earlyGameBoyFont = juce::Typeface::createSystemTypefaceFor(BinaryData::EarlyGameBoy_ttf, BinaryData::EarlyGameBoy_ttfSize);
+    auto font = juce::Font(earlyGameBoyFont);
+    font.setHeight(9.0f);
+    font.setBold(true);
 
+    setSize (825, 660);
+    
     // Background
     backgroundImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy_png, BinaryData::Gameboy_pngSize);
-
-    // === START BUTTON ===
-    startDrawable = juce::Drawable::createFromImageData(BinaryData::Start_Button_svg, BinaryData::Start_Button_svgSize);
-    startButton.setImages(startDrawable.get());
-    startButton.onClick = [this]()
-    {
-        setBypassedState(!isBypassed);
-    };
-    addAndMakeVisible(startButton);
-
-    // === LED ROSSO ===
-    ledRossoDrawable = juce::Drawable::createFromImageData(BinaryData::Led_Rosso_svg, BinaryData::Led_Rosso_svgSize);
 
     // === COMP KNOB ===
     compKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Comp_Knob_svg, BinaryData::Comp_Knob_svgSize);
@@ -87,6 +81,52 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     outKnob.setLookAndFeel(&outKnobLookAndFeel);
     addAndMakeVisible(outKnob);
 
+    auto formatValue = [](float value) -> juce::String
+    {
+        if (std::floor(value) == value)
+            return juce::String((int)value); // Nessun decimale se è intero
+
+        return juce::String(value, 1);
+    };
+    
+    auto setupLabel = [this, font = font, formatValue](juce::Label& label, juce::Slider& slider)
+    {
+        label.setFont(font);
+        label.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+        label.setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack);
+        label.setJustificationType(juce::Justification::centred);
+        label.setEditable(false, false, false);
+        label.setInterceptsMouseClicks(false, false);
+        addAndMakeVisible(label);
+
+        float displayedValue = (slider.getValue() - 0.5f) * 24.0f;
+        label.setText(formatValue(displayedValue), juce::dontSendNotification);
+    };
+    
+    auto addListener = [formatValue](juce::Slider& slider, juce::Label& label)
+    {
+        slider.onValueChange = [&, formatValue]()
+        {
+            float displayedValue = (slider.getValue() - 0.5f) * 24.0f;
+            label.setText(formatValue(displayedValue), juce::dontSendNotification);
+        };
+    };
+
+    // Usa le funzioni per tutte le label e slider
+    setupLabel(compLabel, compKnob);
+    setupLabel(lowLabel, lowKnob);
+    setupLabel(toneLabel, toneKnob);
+    setupLabel(deeLabel, deeKnob);
+    setupLabel(satLabel, satKnob);
+    setupLabel(outLabel, outKnob);
+
+    addListener(compKnob, compLabel);
+    addListener(lowKnob, lowLabel);
+    addListener(toneKnob, toneLabel);
+    addListener(deeKnob, deeLabel);
+    addListener(satKnob, satLabel);
+    addListener(outKnob, outLabel);
+    
     // === TOGGLE COMP ===
     softHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Comp_svg, BinaryData::Soft_Comp_svgSize);
     hardHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Hard_Comp_svg, BinaryData::Hard_Comp_svgSize);
@@ -162,12 +202,6 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         if (drawable)
             drawable->drawWithin(g, currentSaturHighlightRect, juce::RectanglePlacement::centred, 1.0f);
     }
-    // Disegna LED rosso se il plugin è bypassato
-    if (isBypassed && ledRossoDrawable)
-    {
-        juce::Rectangle<int> ledPosition(15, 590, 15, 15);
-        ledRossoDrawable->drawWithin(g, ledPosition.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    }
 }
 
 void EasyRecAudioProcessorEditor::resized()
@@ -178,17 +212,19 @@ void EasyRecAudioProcessorEditor::resized()
     deeKnob.setBounds(489, 194, 37, 37);
     satKnob.setBounds(344, 282, 37, 37);
     outKnob.setBounds(463, 273, 32, 32);
-
+    
+    compLabel.setBounds(compKnob.getBounds());
+    lowLabel.setBounds(lowKnob.getBounds());
+    toneLabel.setBounds(toneKnob.getBounds());
+    deeLabel.setBounds(deeKnob.getBounds());
+    satLabel.setBounds(satKnob.getBounds());
+    outLabel.setBounds(outKnob.getBounds());
+    
     toggleCompButton.setBounds(240, 195, 100, 30);
     saturToggleButton.setBounds(240, 283, 100, 30);
     
-    startButton.setBounds(10, 600, 40, 40);
 }
 
-void EasyRecAudioProcessorEditor::setBypassedState(bool shouldBeBypassed)
-{
-    isBypassed = shouldBeBypassed;
-}
 
 void EasyRecAudioProcessorEditor::timerCallback()
 {
