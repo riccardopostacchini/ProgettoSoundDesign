@@ -4,7 +4,7 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="EapaMv" name="EasyRec">
     <GROUP id="{6C986A6B-3211-231F-8A01-DA764D9A479F}" name="Resources">
-      <FILE id="R9nBAJ" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
+      <FILE id="ITAdQO" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
       <FILE id="bAprLE" name="DeEsser_Knob.svg" compile="0" resource="1"
             file="Resources/DeEsser_Knob.svg"/>
       <FILE id="hQhriA" name="LowEq_Knob.svg" compile="0" resource="1" file="Resources/LowEq_Knob.svg"/>

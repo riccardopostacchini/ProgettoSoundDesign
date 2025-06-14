@@ -9,7 +9,7 @@
 namespace BinaryData
 {
     extern const char*   Gameboy_png;
-    const int            Gameboy_pngSize = 1973282;
+    const int            Gameboy_pngSize = 1973770;
 
     extern const char*   DeEsser_Knob_svg;
     const int            DeEsser_Knob_svgSize = 2258;
