@@ -8,6 +8,9 @@
 
 namespace BinaryData
 {
+    extern const char*   Gameboy_png;
+    const int            Gameboy_pngSize = 1973282;
+
     extern const char*   DeEsser_Knob_svg;
     const int            DeEsser_Knob_svgSize = 2258;
 
@@ -46,9 +49,6 @@ namespace BinaryData
 
     extern const char*   Led_Rosso_svg;
     const int            Led_Rosso_svgSize = 1383;
-
-    extern const char*   Gameboy_png;
-    const int            Gameboy_pngSize = 1995688;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
     const int namedResourceListSize = 14;

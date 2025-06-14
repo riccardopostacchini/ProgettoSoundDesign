@@ -1,6 +1,20 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+static juce::String formatHz(double hz)
+{
+    if (std::floor(hz) == hz)
+        return juce::String((int)hz);
+    return juce::String(hz, 1);
+}
+
+static juce::String formatValue(float value)
+{
+    if (std::floor(value) == value)
+        return juce::String((int)value);
+    return juce::String(value, 1);
+}
+
 //==============================================================================
 EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
@@ -32,11 +46,13 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     lowKnobLookAndFeel.knobImage = lowKnobDrawable.get();
     lowKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     lowKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    lowKnob.setRange(0.0, 1.0, 0.01);
+    lowKnob.setRange(20.0, 200.0, 0.1);
     lowKnob.setValue(0.5);
     lowKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
     lowKnob.setLookAndFeel(&lowKnobLookAndFeel);
+    
     addAndMakeVisible(lowKnob);
+    
 
     toneKnobDrawable = juce::Drawable::createFromImageData(BinaryData::ToneEq_Knob_svg, BinaryData::ToneEq_Knob_svgSize);
     toneKnobLookAndFeel.knobImage = toneKnobDrawable.get();
@@ -103,29 +119,51 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         label.setText(formatValue(displayedValue), juce::dontSendNotification);
     };
     
-    auto addListener = [formatValue](juce::Slider& slider, juce::Label& label)
+    auto setupLabelFormatted = [this, font](juce::Label& label, juce::Slider& slider, std::function<juce::String(double)> formatter)
     {
-        slider.onValueChange = [&, formatValue]()
+        label.setFont(font);
+        label.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+        label.setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack);
+        label.setJustificationType(juce::Justification::centred);
+        label.setEditable(false, false, false);
+        label.setInterceptsMouseClicks(false, false);
+        addAndMakeVisible(label);
+
+        double displayedValue = slider.getValue();
+        label.setText(formatter(displayedValue), juce::dontSendNotification);
+    };
+    
+    enum class FormatterType { FormatHz, FormatValue };
+
+    auto addListener = [](juce::Slider& slider, juce::Label& label, std::function<juce::String(double)> formatter, FormatterType type)
+    {
+        slider.onValueChange = [&slider, &label, formatter, type]()
         {
-            float displayedValue = (slider.getValue() - 0.5f) * 24.0f;
-            label.setText(formatValue(displayedValue), juce::dontSendNotification);
+            double displayedValue;
+
+            if (type == FormatterType::FormatHz)
+                displayedValue = slider.getValue(); // lowKnob: valore già in Hz
+            else
+                displayedValue = (slider.getValue() - 0.5) * 24.0; // gli altri: scala
+
+            label.setText(formatter(displayedValue), juce::dontSendNotification);
         };
     };
 
     // Usa le funzioni per tutte le label e slider
     setupLabel(compLabel, compKnob);
-    setupLabel(lowLabel, lowKnob);
+    setupLabelFormatted(lowLabel, lowKnob, formatHz);
     setupLabel(toneLabel, toneKnob);
     setupLabel(deeLabel, deeKnob);
     setupLabel(satLabel, satKnob);
     setupLabel(outLabel, outKnob);
 
-    addListener(compKnob, compLabel);
-    addListener(lowKnob, lowLabel);
-    addListener(toneKnob, toneLabel);
-    addListener(deeKnob, deeLabel);
-    addListener(satKnob, satLabel);
-    addListener(outKnob, outLabel);
+    addListener(compKnob, compLabel, formatValue, FormatterType::FormatValue);
+    addListener(lowKnob, lowLabel, formatHz, FormatterType::FormatHz);
+    addListener(toneKnob, toneLabel, formatValue, FormatterType::FormatValue);
+    addListener(deeKnob, deeLabel, formatValue, FormatterType::FormatValue);
+    addListener(satKnob, satLabel, formatValue, FormatterType::FormatValue);
+    addListener(outKnob, outLabel, formatValue, FormatterType::FormatValue);
     
     // === TOGGLE COMP ===
     softHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Comp_svg, BinaryData::Soft_Comp_svgSize);
@@ -211,14 +249,14 @@ void EasyRecAudioProcessorEditor::resized()
     toneKnob.setBounds(490, 116, 37, 37);
     deeKnob.setBounds(489, 194, 37, 37);
     satKnob.setBounds(344, 282, 37, 37);
-    outKnob.setBounds(463, 273, 32, 32);
+    outKnob.setBounds(489, 274, 38, 37);
     
-    compLabel.setBounds(compKnob.getBounds());
-    lowLabel.setBounds(lowKnob.getBounds());
-    toneLabel.setBounds(toneKnob.getBounds());
-    deeLabel.setBounds(deeKnob.getBounds());
-    satLabel.setBounds(satKnob.getBounds());
-    outLabel.setBounds(outKnob.getBounds());
+    compLabel.setBounds(compKnob.getBounds().translated(1, 0));
+    lowLabel.setBounds(lowKnob.getBounds().translated(1, 0));
+    toneLabel.setBounds(toneKnob.getBounds().translated(1, 0));
+    deeLabel.setBounds(deeKnob.getBounds().translated(1, 0));
+    satLabel.setBounds(satKnob.getBounds().translated(1, 0));
+    outLabel.setBounds(outKnob.getBounds().translated(1, 0));
     
     toggleCompButton.setBounds(240, 195, 100, 30);
     saturToggleButton.setBounds(240, 283, 100, 30);

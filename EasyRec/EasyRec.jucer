@@ -4,6 +4,7 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="EapaMv" name="EasyRec">
     <GROUP id="{6C986A6B-3211-231F-8A01-DA764D9A479F}" name="Resources">
+      <FILE id="R9nBAJ" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
       <FILE id="bAprLE" name="DeEsser_Knob.svg" compile="0" resource="1"
             file="Resources/DeEsser_Knob.svg"/>
       <FILE id="hQhriA" name="LowEq_Knob.svg" compile="0" resource="1" file="Resources/LowEq_Knob.svg"/>
@@ -30,7 +31,6 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="C2XXDG" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
-    <FILE id="kHc3Nk" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
