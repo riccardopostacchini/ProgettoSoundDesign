@@ -2,6 +2,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <juce_dsp/juce_dsp.h>
 
 class EasyRecAudioProcessor  : public juce::AudioProcessor
 {
@@ -36,7 +37,16 @@ public:
 
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    void updateEQFilters(float lowCutFreq, float toneAmount);
 
 private:
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,
+                                   juce::dsp::IIR::Coefficients<float>> lowCutFilter;
+
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,
+                                   juce::dsp::IIR::Coefficients<float>> toneShelfFilter;
+    
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessor)
 };

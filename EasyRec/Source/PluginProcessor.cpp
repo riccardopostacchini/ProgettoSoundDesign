@@ -71,9 +71,19 @@ void EasyRecAudioProcessor::changeProgramName (int index, const juce::String& ne
 //==============================================================================
 void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    
-}
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
 
+    lowCutFilter.reset();
+    lowCutFilter.prepare(spec);
+    lowCutFilter.state = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 20.0f);
+
+    toneShelfFilter.reset();
+    toneShelfFilter.prepare(spec);
+    toneShelfFilter.state = juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 8000.0f, 0.707f, 1.0f);
+}
 
 void EasyRecAudioProcessor::releaseResources()
 {
@@ -110,9 +120,30 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     {
         auto* channelData = buffer.getWritePointer(channel);
     }
+    
+    juce::dsp::AudioBlock<float> block (buffer);
+
+        // Processa il low cut
+        lowCutFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
+
+        // Processa il tone shelving
+        toneShelfFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
+void EasyRecAudioProcessor::updateEQFilters(float lowCutFreq, float toneAmount)
+{
+    auto sampleRate = getSampleRate();
 
+    // cutoff low cut da 20 a 200 Hz
+    lowCutFreq = juce::jlimit(20.0f, 200.0f, lowCutFreq);
+    *lowCutFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, lowCutFreq);
+
+    // toneAmount 0..1 mappato su guadagno shelving 0..+12 dB
+    float gainDb = juce::jmap(toneAmount, 0.0f, 1.0f, 0.0f, 12.0f);
+    float gainLinear = juce::Decibels::decibelsToGain(gainDb);
+
+    *toneShelfFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 8000.0f, 0.707f, gainLinear);
+}
 //==============================================================================
 bool EasyRecAudioProcessor::hasEditor() const
 {
@@ -134,6 +165,7 @@ void EasyRecAudioProcessor::setStateInformation (const void* data, int sizeInByt
 {
 
 }
+
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

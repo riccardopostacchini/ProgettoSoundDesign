@@ -42,6 +42,7 @@
 		600F2F807351CE5B88CECE51 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = 5824A406E02B086FDD54AAD6; };
 		613012BABA6AB342EF3C12C9 /* DiscRecording.framework */ = {isa = PBXBuildFile; fileRef = 5BD8A54895D2C512D1820A55; };
 		6345F4D82622C50672C543E7 /* include_juce_graphics_Harfbuzz.cpp */ = {isa = PBXBuildFile; fileRef = DB20E1F57FFCFBECB5CC78EF; };
+		635804E43BE2CBDAD4CB4A0D /* include_juce_dsp.mm */ = {isa = PBXBuildFile; fileRef = 553BB7C3B6346DF7A264C22E; };
 		665E17800E27FC55ACA100EC /* CoreAudio.framework */ = {isa = PBXBuildFile; fileRef = F1F45D5F11F28214CBEA4D4D; };
 		84BC2E32B4F14F8B67155579 /* include_juce_graphics_Sheenbidi.c */ = {isa = PBXBuildFile; fileRef = B6E5034362C06CE50CC21ADD; };
 		850F44114975EE5198FC0DDE /* include_juce_gui_extra.mm */ = {isa = PBXBuildFile; fileRef = 79ABF558BB1790700528A28B; };
@@ -93,7 +94,9 @@
 		458691C5908AB04CD283B19C /* juce_audio_basics */ /* juce_audio_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_basics; path = /Users/iosonospace/Documents/JUCE/modules/juce_audio_basics; sourceTree = "<absolute>"; };
 		4A13CBE74361DD2C042424E3 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = /Users/iosonospace/Documents/JUCE/modules/juce_core; sourceTree = "<absolute>"; };
 		4C6673317BAB17751B840DA2 /* Satur_Knob.svg */ /* Satur_Knob.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = Satur_Knob.svg; path = ../../Resources/Satur_Knob.svg; sourceTree = SOURCE_ROOT; };
+		500E0E5C72095BE864DE049E /* juce_dsp */ /* juce_dsp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_dsp; path = /Users/iosonospace/Documents/JUCE/modules/juce_dsp; sourceTree = "<absolute>"; };
 		507AA07E43CB97A172676CBF /* juce_gui_basics */ /* juce_gui_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_basics; path = /Users/iosonospace/Documents/JUCE/modules/juce_gui_basics; sourceTree = "<absolute>"; };
+		553BB7C3B6346DF7A264C22E /* include_juce_dsp.mm */ /* include_juce_dsp.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_dsp.mm; path = ../../JuceLibraryCode/include_juce_dsp.mm; sourceTree = SOURCE_ROOT; };
 		561B5CD24F53EBE9E9D82872 /* PluginEditor.cpp */ /* PluginEditor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PluginEditor.cpp; path = ../../Source/PluginEditor.cpp; sourceTree = SOURCE_ROOT; };
 		5824A406E02B086FDD54AAD6 /* Foundation.framework */ /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		59AB161DC82EEAC4969560B7 /* include_juce_audio_utils.mm */ /* include_juce_audio_utils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_utils.mm; path = ../../JuceLibraryCode/include_juce_audio_utils.mm; sourceTree = SOURCE_ROOT; };
@@ -266,6 +269,7 @@
 				7C65CFA8B9E5EDAE9EF0A5F6,
 				E0BAF9A9B40F63B6E032E8C1,
 				F5B524A42645FBAF49F0B3D7,
+				553BB7C3B6346DF7A264C22E,
 				890E35CF23EFB35332F4D8B3,
 				FE35C5D0EDDFA7FBBAC71AC8,
 				DB20E1F57FFCFBECB5CC78EF,
@@ -345,6 +349,7 @@
 				DAEF1A700209FAF0CB80840B,
 				4A13CBE74361DD2C042424E3,
 				9D6790BED55CC1FD3CB62506,
+				500E0E5C72095BE864DE049E,
 				30108CE16B87DE4B8C4E89B3,
 				64D971DA5D0D12EEA0A611EE,
 				507AA07E43CB97A172676CBF,
@@ -752,6 +757,7 @@
 				CF27F9A748A3A13171A24CA6,
 				965346CA1A6DCB740296E72A,
 				B9C02FCD81035F7F45CE1BB7,
+				635804E43BE2CBDAD4CB4A0D,
 				4F57E6AA2E0F6729E35A392A,
 				EC9E24955D7B3AD0D9F24839,
 				6345F4D82622C50672C543E7,
@@ -844,6 +850,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -954,6 +961,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1114,6 +1122,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1225,6 +1234,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1331,6 +1341,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1491,6 +1502,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1597,6 +1609,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1702,6 +1715,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1809,6 +1823,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
@@ -1916,6 +1931,7 @@
 					"JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
+					"JUCE_MODULE_AVAILABLE_juce_dsp=1",
 					"JUCE_MODULE_AVAILABLE_juce_events=1",
 					"JUCE_MODULE_AVAILABLE_juce_graphics=1",
 					"JUCE_MODULE_AVAILABLE_juce_gui_basics=1",

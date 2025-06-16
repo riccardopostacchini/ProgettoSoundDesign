@@ -66,12 +66,14 @@ private:
     ResettableSlider lowKnob { 0.5f };
     KnoblookAndFeel lowKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> lowKnobDrawable;
-    juce::Label lowLabel;
+    juce::Label lowLabelDescription;
+    juce::Label lowLabelValue;
 
     ResettableSlider toneKnob { 0.5f };
     KnoblookAndFeel toneKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> toneKnobDrawable;
-    juce::Label toneLabel;
+    juce::Label toneLabelDescription;
+    juce::Label toneLabelValue;
 
     //DE-ESSER KNOB
     ResettableSlider deeKnob { 0.5f };
@@ -119,6 +121,8 @@ private:
     bool compAnimating = false;
     bool saturAnimating = false;
 
+    void updateEQ();
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };
 

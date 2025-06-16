@@ -42,18 +42,33 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     addAndMakeVisible(compKnob);
 
     // === EQ KNOBS ===
+    
+    // === LOW KNOB ===
     lowKnobDrawable = juce::Drawable::createFromImageData(BinaryData::LowEq_Knob_svg, BinaryData::LowEq_Knob_svgSize);
     lowKnobLookAndFeel.knobImage = lowKnobDrawable.get();
     lowKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     lowKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     lowKnob.setRange(20.0, 200.0, 0.1);
-    lowKnob.setValue(0.5);
+    lowKnob.setValue(0.5);  // valore iniziale ragionevole
     lowKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
     lowKnob.setLookAndFeel(&lowKnobLookAndFeel);
-    
     addAndMakeVisible(lowKnob);
-    
 
+    lowLabelDescription.setText("Low Cut", juce::dontSendNotification);
+    lowLabelDescription.setFont(font);
+    lowLabelDescription.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+    //addAndMakeVisible(lowLabelDescription);
+
+    lowLabelValue.setFont(font);
+    lowLabelValue.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+    lowLabelValue.setJustificationType(juce::Justification::centred);
+    lowLabelValue.setEditable(false, false, false);
+    lowLabelValue.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(lowLabelValue);
+
+    lowLabelValue.setText(formatHz(lowKnob.getValue()), juce::dontSendNotification);
+
+    // === TONE KNOB ===
     toneKnobDrawable = juce::Drawable::createFromImageData(BinaryData::ToneEq_Knob_svg, BinaryData::ToneEq_Knob_svgSize);
     toneKnobLookAndFeel.knobImage = toneKnobDrawable.get();
     toneKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -63,6 +78,20 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     toneKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
     toneKnob.setLookAndFeel(&toneKnobLookAndFeel);
     addAndMakeVisible(toneKnob);
+
+    toneLabelDescription.setText("Tone", juce::dontSendNotification);
+    toneLabelDescription.setFont(font);
+    toneLabelDescription.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+    //addAndMakeVisible(toneLabelDescription);
+
+    toneLabelValue.setFont(font);
+    toneLabelValue.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+    toneLabelValue.setJustificationType(juce::Justification::centred);
+    toneLabelValue.setEditable(false, false, false);
+    toneLabelValue.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(toneLabelValue);
+
+    toneLabelValue.setText(formatValue(toneKnob.getValue()), juce::dontSendNotification);
 
     // === DE-ESSER KNOB ===
     deeKnobDrawable = juce::Drawable::createFromImageData(BinaryData::DeEsser_Knob_svg, BinaryData::DeEsser_Knob_svgSize);
@@ -152,15 +181,15 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     // Usa le funzioni per tutte le label e slider
     setupLabel(compLabel, compKnob);
-    setupLabelFormatted(lowLabel, lowKnob, formatHz);
-    setupLabel(toneLabel, toneKnob);
+    setupLabelFormatted(lowLabelValue, lowKnob, formatHz);
+    setupLabelFormatted(toneLabelValue, toneKnob, formatValue);
     setupLabel(deeLabel, deeKnob);
     setupLabel(satLabel, satKnob);
     setupLabel(outLabel, outKnob);
 
     addListener(compKnob, compLabel, formatValue, FormatterType::FormatValue);
-    addListener(lowKnob, lowLabel, formatHz, FormatterType::FormatHz);
-    addListener(toneKnob, toneLabel, formatValue, FormatterType::FormatValue);
+    addListener(lowKnob, lowLabelValue, formatHz, FormatterType::FormatHz);
+    addListener(toneKnob, toneLabelValue, formatValue, FormatterType::FormatValue);
     addListener(deeKnob, deeLabel, formatValue, FormatterType::FormatValue);
     addListener(satKnob, satLabel, formatValue, FormatterType::FormatValue);
     addListener(outKnob, outLabel, formatValue, FormatterType::FormatValue);
@@ -252,8 +281,10 @@ void EasyRecAudioProcessorEditor::resized()
     outKnob.setBounds(489, 274, 38, 37);
     
     compLabel.setBounds(compKnob.getBounds().translated(1, 0));
-    lowLabel.setBounds(lowKnob.getBounds().translated(1, 0));
-    toneLabel.setBounds(toneKnob.getBounds().translated(1, 0));
+    //lowLabelDescription.setBounds(lowKnob.getBounds().translated(1, 0));
+    lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));
+    //toneLabelDescription.setBounds(toneKnob.getBounds().translated(1, 0));
+    toneLabelValue.setBounds(toneKnob.getBounds().translated(1, 0));
     deeLabel.setBounds(deeKnob.getBounds().translated(1, 0));
     satLabel.setBounds(satKnob.getBounds().translated(1, 0));
     outLabel.setBounds(outKnob.getBounds().translated(1, 0));
@@ -294,5 +325,13 @@ void EasyRecAudioProcessorEditor::timerCallback()
         stopTimer();
 
     repaint();
+}
+
+void EasyRecAudioProcessorEditor::updateEQ()
+{
+    float lowFreq = (float)lowKnob.getValue();
+    float toneVal = (float)toneKnob.getValue();
+
+    audioProcessor.updateEQFilters(lowFreq, toneVal);
 }
 
