@@ -1,8 +1,11 @@
-
 #pragma once
 
 #include <JuceHeader.h>
-#include <juce_dsp/juce_dsp.h>
+#include "EQModule.h"
+#include "DeEsserModule.h"
+#include "CompressorModule.h"
+#include "SaturationModule.h"
+#include "OutputModule.h"
 
 class EasyRecAudioProcessor  : public juce::AudioProcessor
 {
@@ -39,14 +42,20 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void updateEQFilters(float lowCutFreq, float toneAmount);
+    void setDeEsserAmount(float amount);
+    void setCompressorAmount(float amount);
+    void setCompressorSoftMode(bool soft);
+    void setSaturationAmount(float amount);
+    void setSaturationSoftMode(bool soft);
+    void setOutputGainDb(float gainDb);
 
 private:
-    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,
-                                   juce::dsp::IIR::Coefficients<float>> lowCutFilter;
+    EQModule eq;
+    DeEsserModule deEsser;
+    CompressorModule compressor;
+    SaturationModule saturation;
+    OutputModule output;
+    
 
-    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,
-                                   juce::dsp::IIR::Coefficients<float>> toneShelfFilter;
-    
-    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessor)
 };

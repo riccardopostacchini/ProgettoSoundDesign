@@ -5,16 +5,17 @@
 EasyRecAudioProcessor::EasyRecAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
+#endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
+#endif
                        )
 #endif
 {
 }
+
 EasyRecAudioProcessor::~EasyRecAudioProcessor()
 {
 }
@@ -27,12 +28,12 @@ const juce::String EasyRecAudioProcessor::getName() const
 
 bool EasyRecAudioProcessor::acceptsMidi() const
 {
-   return false;
+    return false;
 }
 
 bool EasyRecAudioProcessor::producesMidi() const
 {
-   return false;
+    return false;
 }
 
 bool EasyRecAudioProcessor::isMidiEffect() const
@@ -76,17 +77,20 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
 
-    lowCutFilter.reset();
-    lowCutFilter.prepare(spec);
-    lowCutFilter.state = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 20.0f);
-
-    toneShelfFilter.reset();
-    toneShelfFilter.prepare(spec);
-    toneShelfFilter.state = juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 8000.0f, 0.707f, 1.0f);
+    eq.prepare(spec);
+    deEsser.prepare(spec);
+    compressor.prepare(spec);
+    saturation.prepare(spec);
+    output.prepare(spec);
 }
 
 void EasyRecAudioProcessor::releaseResources()
 {
+    eq.reset();
+    deEsser.reset();
+    compressor.reset();
+    saturation.reset();
+    output.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -108,42 +112,61 @@ bool EasyRecAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
 void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
-    
+
+    // Pulizia canali output extra
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
-
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer(channel);
-    }
-    
     juce::dsp::AudioBlock<float> block (buffer);
 
-        // Processa il low cut
-        lowCutFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
-
-        // Processa il tone shelving
-        toneShelfFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
+    // Elaborazione a catena
+    eq.processBlock(buffer);
+    deEsser.processBlock(buffer);
+    compressor.processBlock(buffer);
+    saturation.processBlock(buffer);
+    output.processBlock(buffer);
 }
 
+//==============================================================================
 void EasyRecAudioProcessor::updateEQFilters(float lowCutFreq, float toneAmount)
 {
-    auto sampleRate = getSampleRate();
-
-    // cutoff low cut da 20 a 200 Hz
-    lowCutFreq = juce::jlimit(20.0f, 200.0f, lowCutFreq);
-    *lowCutFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, lowCutFreq);
-
-    // toneAmount 0..1 mappato su guadagno shelving 0..+12 dB
-    float gainDb = juce::jmap(toneAmount, 0.0f, 1.0f, 0.0f, 12.0f);
-    float gainLinear = juce::Decibels::decibelsToGain(gainDb);
-
-    *toneShelfFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 8000.0f, 0.707f, gainLinear);
+    eq.setLowCutFreq(lowCutFreq);
+    eq.setToneAmount(toneAmount);
 }
+
+void EasyRecAudioProcessor::setDeEsserAmount(float amount)
+{
+    deEsser.setAmount(amount);
+}
+
+void EasyRecAudioProcessor::setCompressorAmount(float amount)
+{
+    compressor.setAmount(amount);
+}
+
+void EasyRecAudioProcessor::setCompressorSoftMode(bool soft)
+{
+    compressor.setSoftMode(soft);
+}
+
+void EasyRecAudioProcessor::setSaturationAmount(float amount)
+{
+    saturation.setAmount(amount);
+}
+
+void EasyRecAudioProcessor::setSaturationSoftMode(bool soft)
+{
+    saturation.setSoftMode(soft);
+}
+
+void EasyRecAudioProcessor::setOutputGainDb(float gainDb)
+{
+    output.setGainDb(gainDb);
+}
+
 //==============================================================================
 bool EasyRecAudioProcessor::hasEditor() const
 {
@@ -158,14 +181,13 @@ juce::AudioProcessorEditor* EasyRecAudioProcessor::createEditor()
 //==============================================================================
 void EasyRecAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    
+    // TODO: salva parametri con ValueTreeState o simili
 }
 
 void EasyRecAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-
+    // TODO: carica parametri da ValueTreeState o simili
 }
-
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

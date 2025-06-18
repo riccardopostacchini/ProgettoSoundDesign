@@ -49,7 +49,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     lowKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     lowKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     lowKnob.setRange(20.0, 200.0, 0.1);
-    lowKnob.setValue(0.5);  // valore iniziale ragionevole
+    lowKnob.setValue(110.0);  // valore iniziale centrale reale
     lowKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
     lowKnob.setLookAndFeel(&lowKnobLookAndFeel);
     addAndMakeVisible(lowKnob);

@@ -697,6 +697,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\OutputModule.cpp">
+      <Filter>EasyRec\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SaturationModule.cpp">
+      <Filter>EasyRec\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\CompressorModule.cpp">
+      <Filter>EasyRec\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\DeEsserModule.cpp">
+      <Filter>EasyRec\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\EQModule.cpp">
+      <Filter>EasyRec\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp">
       <Filter>EasyRec\Source</Filter>
     </ClCompile>
@@ -3675,6 +3690,21 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\OutputModule.h">
+      <Filter>EasyRec\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SaturationModule.h">
+      <Filter>EasyRec\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\CompressorModule.h">
+      <Filter>EasyRec\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\DeEsserModule.h">
+      <Filter>EasyRec\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\EQModule.h">
+      <Filter>EasyRec\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\PluginProcessor.h">
       <Filter>EasyRec\Source</Filter>
     </ClInclude>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="yJTR30" name="EasyRec" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" version="1.3.0">
   <MAINGROUP id="EapaMv" name="EasyRec">
     <GROUP id="{6C986A6B-3211-231F-8A01-DA764D9A479F}" name="Resources">
       <FILE id="ITAdQO" name="Gameboy.png" compile="0" resource="1" file="Resources/Gameboy.png"/>
@@ -23,6 +23,22 @@
       <FILE id="cy6SSx" name="Led_Rosso.svg" compile="0" resource="1" file="Resources/Led_Rosso.svg"/>
     </GROUP>
     <GROUP id="{4F724603-4F6A-6864-3865-F466F6C0DBE4}" name="Source">
+      <FILE id="tOKSc8" name="OutputModule.cpp" compile="1" resource="0"
+            file="Source/OutputModule.cpp"/>
+      <FILE id="R9ZHJ5" name="OutputModule.h" compile="0" resource="0" file="Source/OutputModule.h"/>
+      <FILE id="xdQJXx" name="SaturationModule.cpp" compile="1" resource="0"
+            file="Source/SaturationModule.cpp"/>
+      <FILE id="bkUxPx" name="SaturationModule.h" compile="0" resource="0"
+            file="Source/SaturationModule.h"/>
+      <FILE id="zFuwho" name="CompressorModule.cpp" compile="1" resource="0"
+            file="Source/CompressorModule.cpp"/>
+      <FILE id="ZptA4u" name="CompressorModule.h" compile="0" resource="0"
+            file="Source/CompressorModule.h"/>
+      <FILE id="coDb0V" name="DeEsserModule.cpp" compile="1" resource="0"
+            file="Source/DeEsserModule.cpp"/>
+      <FILE id="vkRhkX" name="DeEsserModule.h" compile="0" resource="0" file="Source/DeEsserModule.h"/>
+      <FILE id="L9ztH8" name="EQModule.cpp" compile="1" resource="0" file="Source/EQModule.cpp"/>
+      <FILE id="lpjhqD" name="EQModule.h" compile="0" resource="0" file="Source/EQModule.h"/>
       <FILE id="bTUL6T" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="eLuQlB" name="PluginProcessor.h" compile="0" resource="0"
