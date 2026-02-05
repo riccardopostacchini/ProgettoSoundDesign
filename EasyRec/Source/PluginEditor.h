@@ -52,6 +52,8 @@ public:
 private:
     EasyRecAudioProcessor& audioProcessor;
 
+    using APVTS = EasyRecAudioProcessor::APVTS;
+
     // Background
     juce::Image backgroundImage;
 
@@ -63,7 +65,7 @@ private:
 
     
     //EQ KNOB
-    ResettableSlider lowKnob { 0.5f };
+    ResettableSlider lowKnob { 110.0f };
     KnoblookAndFeel lowKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> lowKnobDrawable;
     juce::Label lowLabelDescription;
@@ -75,11 +77,6 @@ private:
     juce::Label toneLabelDescription;
     juce::Label toneLabelValue;
 
-    //DE-ESSER KNOB
-    ResettableSlider deeKnob { 0.5f };
-    KnoblookAndFeel deeKnobLookAndFeel;
-    std::unique_ptr<juce::Drawable> deeKnobDrawable;
-    juce::Label deeLabel;
 
     //SATURATOR KNOB
     ResettableSlider satKnob { 0.5f };
@@ -88,7 +85,7 @@ private:
     juce::Label satLabel;
 
     //OUTPUT KNOB
-    ResettableSlider outKnob { 0.5f };
+    ResettableSlider outKnob { 6.0f / 9.0f };
     KnoblookAndFeel outKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> outKnobDrawable;
     juce::Label outLabel;
@@ -122,7 +119,15 @@ private:
     bool saturAnimating = false;
 
     void updateEQ();
+
+    // APVTS attachments
+    std::unique_ptr<APVTS::SliderAttachment> compAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> lowAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> toneAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> satAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> outAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> compSoftAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> satSoftAttachment;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };
-

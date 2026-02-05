@@ -10,7 +10,7 @@ void DeEsserModule::prepare(const juce::dsp::ProcessSpec& spec)
 
     bandpassFilter.reset();
     bandpassFilter.prepare(spec);
-    *bandpassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, 6000.0f, 1.0f);
+    *bandpassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, currentCenterHz, 1.5f);
 
     compressor.reset();
     compressor.prepare(spec);
@@ -19,38 +19,91 @@ void DeEsserModule::prepare(const juce::dsp::ProcessSpec& spec)
     compressor.setRelease(100.0f);
     compressor.setRatio(4.0f);
     compressor.setThreshold(-24.0f);
+
+    dryBuffer.setSize((int)spec.numChannels, (int)spec.maximumBlockSize);
+    bandBuffer.setSize((int)spec.numChannels, (int)spec.maximumBlockSize);
+    detectBuffer.setSize((int)spec.numChannels, (int)spec.maximumBlockSize);
+
+    for (int i = 0; i < numDetectBands; ++i)
+    {
+        detectFilters[i].reset();
+        detectFilters[i].prepare(spec);
+        *detectFilters[i].state = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, detectFreqs[i], 2.0f);
+    }
 }
 
 void DeEsserModule::processBlock(juce::AudioBuffer<float>& buffer)
 {
     juce::dsp::AudioBlock<float> block(buffer);
 
-    // Creiamo una copia del buffer per il segnale originale (dry)
-    juce::AudioBuffer<float> dryBuffer;
-    dryBuffer.makeCopyOf(buffer);
+    // Copia dry (senza allocazioni in realtime)
+    if (dryBuffer.getNumSamples() < buffer.getNumSamples() || dryBuffer.getNumChannels() < buffer.getNumChannels())
+        dryBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples());
+    dryBuffer.makeCopyOf(buffer, true);
 
-    // Processa bandpass filter per ogni canale singolarmente (mono filter)
-    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+    if (bandBuffer.getNumSamples() < buffer.getNumSamples() || bandBuffer.getNumChannels() < buffer.getNumChannels())
+        bandBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples());
+    if (detectBuffer.getNumSamples() < buffer.getNumSamples() || detectBuffer.getNumChannels() < buffer.getNumChannels())
+        detectBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples());
+
+    // === Auto-detection: trova la banda più energica tra 4-10 kHz ===
+    int bestIndex = 0;
+    float bestEnergy = 0.0f;
+
+    for (int i = 0; i < numDetectBands; ++i)
     {
-        auto channelBlock = block.getSingleChannelBlock(ch);
-        juce::dsp::ProcessContextReplacing<float> channelContext(channelBlock);
+        detectBuffer.makeCopyOf(buffer, true);
+        juce::dsp::AudioBlock<float> detectBlock(detectBuffer);
+        juce::dsp::ProcessContextReplacing<float> detectContext(detectBlock);
+        detectFilters[i].process(detectContext);
 
-        bandpassFilter.process(channelContext);
+        double energy = 0.0;
+        for (int ch = 0; ch < detectBuffer.getNumChannels(); ++ch)
+        {
+            auto* data = detectBuffer.getReadPointer(ch);
+            for (int n = 0; n < detectBuffer.getNumSamples(); ++n)
+                energy += (double)data[n] * (double)data[n];
+        }
+
+        if (energy > bestEnergy)
+        {
+            bestEnergy = (float)energy;
+            bestIndex = i;
+        }
     }
 
-    // Processa compressore multicanale
-    juce::dsp::ProcessContextReplacing<float> compressorContext(block);
+    const float targetHz = detectFreqs[bestIndex];
+    if (std::abs(targetHz - currentCenterHz) > 1.0f)
+    {
+        *bandpassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, targetHz, 1.5f);
+        currentCenterHz = targetHz;
+    }
+
+    // === Split-band: estrai banda sibilante e comprimila ===
+    bandBuffer.makeCopyOf(buffer, true);
+    juce::dsp::AudioBlock<float> bandBlock(bandBuffer);
+    juce::dsp::ProcessContextReplacing<float> bandContext(bandBlock);
+    bandpassFilter.process(bandContext);
+
+    // Salva banda originale prima della compressione
+    detectBuffer.makeCopyOf(bandBuffer, true);
+
+    // Comprime solo la banda
+    juce::dsp::ProcessContextReplacing<float> compressorContext(bandBlock);
     compressor.process(compressorContext);
 
-    // Mix dry/wet controllato da amount
+    // Mix split-band: sottrae la riduzione dalla banda al segnale dry
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
     {
         auto* channelData = buffer.getWritePointer(ch);
         auto* dryData = dryBuffer.getReadPointer(ch);
+        auto* bandDry = detectBuffer.getReadPointer(ch);
+        auto* bandComp = bandBuffer.getReadPointer(ch);
 
         for (int i = 0; i < buffer.getNumSamples(); ++i)
         {
-            channelData[i] = dryData[i] * (1.0f - amount) + channelData[i] * amount;
+            const float reduction = bandDry[i] - bandComp[i];
+            channelData[i] = dryData[i] - reduction * amount;
         }
     }
 }

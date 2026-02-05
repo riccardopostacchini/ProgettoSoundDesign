@@ -91,18 +91,8 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     toneLabelValue.setInterceptsMouseClicks(false, false);
     addAndMakeVisible(toneLabelValue);
 
-    toneLabelValue.setText(formatValue(toneKnob.getValue()), juce::dontSendNotification);
+    toneLabelValue.setText(formatValue((toneKnob.getValue() - 0.5f) * 20.0f), juce::dontSendNotification);
 
-    // === DE-ESSER KNOB ===
-    deeKnobDrawable = juce::Drawable::createFromImageData(BinaryData::DeEsser_Knob_svg, BinaryData::DeEsser_Knob_svgSize);
-    deeKnobLookAndFeel.knobImage = deeKnobDrawable.get();
-    deeKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    deeKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    deeKnob.setRange(0.0, 1.0, 0.01);
-    deeKnob.setValue(0.5);
-    deeKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
-    deeKnob.setLookAndFeel(&deeKnobLookAndFeel);
-    addAndMakeVisible(deeKnob);
 
     // === SATURATION KNOB ===
     satKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Satur_Knob_svg, BinaryData::Satur_Knob_svgSize);
@@ -121,7 +111,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     outKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     outKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     outKnob.setRange(0.0, 1.0, 0.01);
-    outKnob.setValue(0.5);
+    outKnob.setValue(6.0f / 9.0f);
     outKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
     outKnob.setLookAndFeel(&outKnobLookAndFeel);
     addAndMakeVisible(outKnob);
@@ -133,8 +123,17 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
         return juce::String(value, 1);
     };
+
+    auto formatMinMax = [formatValue](double valueDb) -> juce::String
+    {
+        if (valueDb <= -9.95)
+            return "min";
+        if (valueDb >= 9.95)
+            return "max";
+        return formatValue((float)valueDb);
+    };
     
-    auto setupLabel = [this, font = font, formatValue](juce::Label& label, juce::Slider& slider)
+    auto setupLabel = [this, font = font, formatMinMax](juce::Label& label, juce::Slider& slider)
     {
         label.setFont(font);
         label.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
@@ -144,8 +143,8 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         label.setInterceptsMouseClicks(false, false);
         addAndMakeVisible(label);
 
-        float displayedValue = (slider.getValue() - 0.5f) * 24.0f;
-        label.setText(formatValue(displayedValue), juce::dontSendNotification);
+        float displayedValue = (slider.getValue() - 0.5f) * 20.0f;
+        label.setText(formatMinMax(displayedValue), juce::dontSendNotification);
     };
     
     auto setupLabelFormatted = [this, font](juce::Label& label, juce::Slider& slider, std::function<juce::String(double)> formatter)
@@ -164,35 +163,64 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     
     enum class FormatterType { FormatHz, FormatValue };
 
-    auto addListener = [](juce::Slider& slider, juce::Label& label, std::function<juce::String(double)> formatter, FormatterType type)
+    auto addListener = [formatMinMax](juce::Slider& slider, juce::Label& label, std::function<juce::String(double)> formatter, FormatterType type)
     {
-        slider.onValueChange = [&slider, &label, formatter, type]()
+        slider.onValueChange = [&slider, &label, formatter, type, formatMinMax]()
         {
             double displayedValue;
 
             if (type == FormatterType::FormatHz)
                 displayedValue = slider.getValue(); // lowKnob: valore già in Hz
             else
-                displayedValue = (slider.getValue() - 0.5) * 24.0; // gli altri: scala
+                displayedValue = (slider.getValue() - 0.5) * 20.0; // gli altri: scala
 
-            label.setText(formatter(displayedValue), juce::dontSendNotification);
+            if (type == FormatterType::FormatHz)
+                label.setText(formatter(displayedValue), juce::dontSendNotification);
+            else
+                label.setText(formatMinMax(displayedValue), juce::dontSendNotification);
         };
     };
 
     // Usa le funzioni per tutte le label e slider
     setupLabel(compLabel, compKnob);
     setupLabelFormatted(lowLabelValue, lowKnob, formatHz);
-    setupLabelFormatted(toneLabelValue, toneKnob, formatValue);
-    setupLabel(deeLabel, deeKnob);
+    setupLabel(toneLabelValue, toneKnob);
     setupLabel(satLabel, satKnob);
     setupLabel(outLabel, outKnob);
 
     addListener(compKnob, compLabel, formatValue, FormatterType::FormatValue);
     addListener(lowKnob, lowLabelValue, formatHz, FormatterType::FormatHz);
     addListener(toneKnob, toneLabelValue, formatValue, FormatterType::FormatValue);
-    addListener(deeKnob, deeLabel, formatValue, FormatterType::FormatValue);
     addListener(satKnob, satLabel, formatValue, FormatterType::FormatValue);
     addListener(outKnob, outLabel, formatValue, FormatterType::FormatValue);
+
+    auto outputValueToDb = [](double norm) -> double
+    {
+        constexpr double seg = 1.0 / 9.0;
+        if (norm <= seg * 1.0) return juce::jmap(norm, seg * 0.0, seg * 1.0, -100.0, -40.0);
+        if (norm <= seg * 2.0) return juce::jmap(norm, seg * 1.0, seg * 2.0,  -40.0, -30.0);
+        if (norm <= seg * 3.0) return juce::jmap(norm, seg * 2.0, seg * 3.0,  -30.0, -20.0);
+        if (norm <= seg * 4.0) return juce::jmap(norm, seg * 3.0, seg * 4.0,  -20.0, -15.0);
+        if (norm <= seg * 5.0) return juce::jmap(norm, seg * 4.0, seg * 5.0,  -15.0, -10.0);
+        if (norm <= seg * 6.0) return juce::jmap(norm, seg * 5.0, seg * 6.0,  -10.0,   0.0);
+        if (norm <= seg * 7.0) return juce::jmap(norm, seg * 6.0, seg * 7.0,    0.0,   3.3333);
+        if (norm <= seg * 8.0) return juce::jmap(norm, seg * 7.0, seg * 8.0,    3.3333, 6.6667);
+        return juce::jmap(norm, seg * 8.0, seg * 9.0,    6.6667, 10.0);
+    };
+
+    auto updateOutputLabel = [this, formatValue, outputValueToDb]()
+    {
+        if (outKnob.getValue() <= 0.0001)
+            outLabel.setText("-inf", juce::dontSendNotification);
+        else
+            outLabel.setText(formatValue(outputValueToDb(outKnob.getValue())), juce::dontSendNotification);
+    };
+
+    outKnob.onValueChange = [updateOutputLabel]()
+    {
+        updateOutputLabel();
+    };
+    updateOutputLabel();
     
     // === TOGGLE COMP ===
     softHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Comp_svg, BinaryData::Soft_Comp_svgSize);
@@ -210,10 +238,19 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     toggleCompButton.onClick = [this]()
     {
-        isSoftMode = !isSoftMode;
-        toggleCompButton.setToggleState(isSoftMode, juce::dontSendNotification);
+        isSoftMode = toggleCompButton.getToggleState();
         compAnimating = true;
         startTimerHz(60);
+    };
+    toggleCompButton.onStateChange = [this]()
+    {
+        const bool newMode = toggleCompButton.getToggleState();
+        if (newMode != isSoftMode)
+        {
+            isSoftMode = newMode;
+            compAnimating = true;
+            startTimerHz(60);
+        }
     };
 
     // === TOGGLE SATURAZIONE ===
@@ -231,11 +268,34 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     saturToggleButton.onClick = [this]()
     {
-        isSoftSaturMode = !isSoftSaturMode;
-        saturToggleButton.setToggleState(isSoftSaturMode, juce::dontSendNotification);
+        isSoftSaturMode = saturToggleButton.getToggleState();
         saturAnimating = true;
         startTimerHz(60);
     };
+    saturToggleButton.onStateChange = [this]()
+    {
+        const bool newMode = saturToggleButton.getToggleState();
+        if (newMode != isSoftSaturMode)
+        {
+            isSoftSaturMode = newMode;
+            saturAnimating = true;
+            startTimerHz(60);
+        }
+    };
+
+    // === APVTS Attachments ===
+    auto& apvts = audioProcessor.getAPVTS();
+    compAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "comp", compKnob);
+    lowAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "lowCut", lowKnob);
+    toneAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "tone", toneKnob);
+    satAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "satur", satKnob);
+    outAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "out", outKnob);
+    compSoftAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "compSoft", toggleCompButton);
+    satSoftAttachment  = std::make_unique<APVTS::ButtonAttachment>(apvts, "satSoft", saturToggleButton);
+
+    // Sincronizza lo stato iniziale dei toggle con i parametri
+    isSoftMode = toggleCompButton.getToggleState();
+    isSoftSaturMode = saturToggleButton.getToggleState();
 }
 
 EasyRecAudioProcessorEditor::~EasyRecAudioProcessorEditor() = default;
@@ -276,7 +336,6 @@ void EasyRecAudioProcessorEditor::resized()
     compKnob.setBounds(344, 194, 37, 37);
     lowKnob.setBounds(419, 116, 37, 37);
     toneKnob.setBounds(490, 116, 37, 37);
-    deeKnob.setBounds(489, 194, 37, 37);
     satKnob.setBounds(344, 282, 37, 37);
     outKnob.setBounds(489, 274, 38, 37);
     
@@ -285,7 +344,6 @@ void EasyRecAudioProcessorEditor::resized()
     lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));
     //toneLabelDescription.setBounds(toneKnob.getBounds().translated(1, 0));
     toneLabelValue.setBounds(toneKnob.getBounds().translated(1, 0));
-    deeLabel.setBounds(deeKnob.getBounds().translated(1, 0));
     satLabel.setBounds(satKnob.getBounds().translated(1, 0));
     outLabel.setBounds(outKnob.getBounds().translated(1, 0));
     
@@ -334,4 +392,3 @@ void EasyRecAudioProcessorEditor::updateEQ()
 
     audioProcessor.updateEQFilters(lowFreq, toneVal);
 }
-

@@ -2,7 +2,6 @@
 
 #include <JuceHeader.h>
 #include "EQModule.h"
-#include "DeEsserModule.h"
 #include "CompressorModule.h"
 #include "SaturationModule.h"
 #include "OutputModule.h"
@@ -10,6 +9,8 @@
 class EasyRecAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    using APVTS = juce::AudioProcessorValueTreeState;
+
     EasyRecAudioProcessor();
     ~EasyRecAudioProcessor() override;
 
@@ -42,16 +43,20 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void updateEQFilters(float lowCutFreq, float toneAmount);
-    void setDeEsserAmount(float amount);
     void setCompressorAmount(float amount);
     void setCompressorSoftMode(bool soft);
     void setSaturationAmount(float amount);
     void setSaturationSoftMode(bool soft);
     void setOutputGainDb(float gainDb);
 
+    APVTS& getAPVTS() { return parameters; }
+
 private:
+    static APVTS::ParameterLayout createParameterLayout();
+
+    APVTS parameters;
+
     EQModule eq;
-    DeEsserModule deEsser;
     CompressorModule compressor;
     SaturationModule saturation;
     OutputModule output;

@@ -11,42 +11,86 @@ void EQModule::prepare(const juce::dsp::ProcessSpec& spec)
     filterChain.reset();
     filterChain.prepare(spec);
 
-    setLowCutFreq(110.0f);
-    setToneAmount(0.0f);
+    lowCutSmoothed.reset(sampleRate, 0.05); // 50 ms smoothing
+    lowCutSmoothed.setCurrentAndTargetValue(110.0f);
+    lastLowCutHz = 110.0f;
+    toneSmoothedDb.reset(sampleRate, 0.05);
+    toneSmoothedDb.setCurrentAndTargetValue(0.0f);
+    lastToneDb = 0.0f;
+
+    // Inizializza coefficenti per evitare stati non definiti
+    constexpr float lowCutQ = 1.0f;
+    auto hp = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 110.0f, lowCutQ);
+    *filterChain.get<0>().state = *hp;
+    *filterChain.get<1>().state = *hp;
+    *filterChain.get<2>().state = *hp;
+    *filterChain.get<3>().state = *hp;
+    *filterChain.get<4>().state = *hp;
+    *filterChain.get<5>().state = *hp;
+    *filterChain.get<6>().state = *hp;
+    *filterChain.get<7>().state = *hp;
+
+    auto shelf = juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 6000.0f, 0.7f, 1.0f);
+    *filterChain.get<8>().state = *shelf;
 }
 
 void EQModule::processBlock(juce::AudioBuffer<float>& buffer)
 {
+    // Aggiorna lentamente la frequenza di taglio per evitare scatti
+    const float smoothedHz = lowCutSmoothed.getNextValue();
+    // Avanza lo smoothing per la dimensione del blocco
+    if (buffer.getNumSamples() > 1)
+        lowCutSmoothed.skip((size_t)buffer.getNumSamples() - 1);
+    if (lastLowCutHz < 0.0f || std::abs(smoothedHz - lastLowCutHz) > 0.01f)
+    {
+        constexpr float lowCutQ = 1.0f; // ginocchio più ripido
+        auto coeffs = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, smoothedHz, lowCutQ);
+        *filterChain.get<0>().state = *coeffs;
+        *filterChain.get<1>().state = *coeffs;
+        *filterChain.get<2>().state = *coeffs;
+        *filterChain.get<3>().state = *coeffs;
+        *filterChain.get<4>().state = *coeffs;
+        *filterChain.get<5>().state = *coeffs;
+        *filterChain.get<6>().state = *coeffs;
+        *filterChain.get<7>().state = *coeffs;
+        lastLowCutHz = smoothedHz;
+    }
+
+    const float smoothedToneDb = toneSmoothedDb.getNextValue();
+    if (buffer.getNumSamples() > 1)
+        toneSmoothedDb.skip((size_t)buffer.getNumSamples() - 1);
+    if (std::abs(smoothedToneDb - lastToneDb) > 0.01f)
+    {
+        const float gain = juce::Decibels::decibelsToGain(smoothedToneDb);
+        // High-shelf per una brillantezza più naturale sulla voce
+        *filterChain.get<8>().state =
+            *juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 6000.0f, 0.7f, gain);
+        lastToneDb = smoothedToneDb;
+    }
+
     juce::dsp::AudioBlock<float> block(buffer);
 
-        for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-        {
-            auto channelBlock = block.getSingleChannelBlock(ch);
-            juce::dsp::ProcessContextReplacing<float> context(channelBlock);
-
-            // Processa ogni filtro IIR individualmente per il canale
-            filterChain.get<0>().process(context); // Low Cut
-            filterChain.get<1>().process(context); // Tone
-        }
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    filterChain.process(context);
 }
 
 void EQModule::reset()
 {
     filterChain.reset();
+    lowCutSmoothed.reset(sampleRate, 0.05);
+    lowCutSmoothed.setCurrentAndTargetValue(lastLowCutHz);
+    toneSmoothedDb.reset(sampleRate, 0.05);
+    toneSmoothedDb.setCurrentAndTargetValue(lastToneDb);
 }
 
 void EQModule::setLowCutFreq(float freq)
 {
-    freq = juce::jlimit(20.0f, 150.0f, freq);
+    freq = juce::jlimit(20.0f, 200.0f, freq);
 
-    *filterChain.get<0>().coefficients =
-        *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, freq);
+    lowCutSmoothed.setTargetValue(freq);
 }
 
 void EQModule::setToneAmount(float amountDb)
 {
-    float gain = juce::Decibels::decibelsToGain(amountDb);
-
-    *filterChain.get<1>().coefficients =
-        *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, 5000.0f, 0.5f, gain);
+    toneSmoothedDb.setTargetValue(amountDb);
 }
