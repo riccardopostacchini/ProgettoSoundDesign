@@ -26,9 +26,13 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     font.setBold(true);
 
     setSize (825, 660);
+
+    // Timer per animazioni (micro-movimenti + highlight)
+    startTimerHz(60);
     
     // Background
     backgroundImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy_png, BinaryData::Gameboy_pngSize);
+    backgroundImageAlt = juce::ImageCache::getFromMemory(BinaryData::Gameboy2_prova_png, BinaryData::Gameboy2_prova_pngSize);
 
     // === COMP KNOB ===
     compKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Comp_Knob_svg, BinaryData::Comp_Knob_svgSize);
@@ -265,6 +269,10 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     softSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Satur_svg, BinaryData::Soft_Satur_svgSize);
     hardSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Hard_Satur_svg, BinaryData::Hard_Satur_svgSize);
+    compBDrawable = juce::Drawable::createFromImageData(BinaryData::compB_png, BinaryData::compB_pngSize);
+    satBDrawable = juce::Drawable::createFromImageData(BinaryData::satB_png, BinaryData::satB_pngSize);
+    compADrawable = juce::Drawable::createFromImageData(BinaryData::compA_png, BinaryData::compA_pngSize);
+    satADrawable = juce::Drawable::createFromImageData(BinaryData::satA_png, BinaryData::satA_pngSize);
 
     saturToggleButton.onClick = [this]()
     {
@@ -283,6 +291,46 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         }
     };
 
+    // === D-pad RIGHT toggle (background switch) ===
+    dpadRightButton.setClickingTogglesState(true);
+    dpadRightButton.setToggleState(false, juce::dontSendNotification);
+    dpadRightButton.setAlpha(0.0f);
+    dpadRightButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    dpadRightButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    dpadRightButton.onClick = [this]()
+    {
+        showAltBackground = dpadRightButton.getToggleState();
+        auto setVisibleAlt = [this](bool showAlt)
+        {
+            // Versione B: mostra EQ + Output + slider comp/sat
+            const bool isB = showAlt;
+
+            compKnob.setVisible(true);
+            compLabel.setVisible(!isB);
+            toggleCompButton.setVisible(true);
+
+            satKnob.setVisible(true);
+            satLabel.setVisible(!isB);
+            saturToggleButton.setVisible(true);
+
+            // Output sempre visibile
+            outKnob.setVisible(true);
+            outLabel.setVisible(true);
+
+            // EQ sempre visibile
+            lowKnob.setVisible(true);
+            lowLabelValue.setVisible(true);
+            toneKnob.setVisible(true);
+            toneLabelValue.setVisible(true);
+        };
+        setVisibleAlt(showAltBackground);
+        resized();
+        if (showAltBackground)
+            startTimerHz(60);
+        repaint();
+    };
+    addAndMakeVisible(dpadRightButton);
+
     // === APVTS Attachments ===
     auto& apvts = audioProcessor.getAPVTS();
     compAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "comp", compKnob);
@@ -296,6 +344,9 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     // Sincronizza lo stato iniziale dei toggle con i parametri
     isSoftMode = toggleCompButton.getToggleState();
     isSoftSaturMode = saturToggleButton.getToggleState();
+
+    // Stato iniziale visibilità (Versione A)
+    dpadRightButton.setToggleState(false, juce::dontSendNotification);
 }
 
 EasyRecAudioProcessorEditor::~EasyRecAudioProcessorEditor() = default;
@@ -305,8 +356,16 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::black);
 
-    if (backgroundImage.isValid())
-        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
+    if (showAltBackground)
+    {
+        if (backgroundImageAlt.isValid())
+            g.drawImage(backgroundImageAlt, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
+    }
+    else
+    {
+        if (backgroundImage.isValid())
+            g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
+    }
 
     if (isSoftMode && softHighlightDrawable && !compAnimating)
         softHighlightDrawable->drawWithin(g, softHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
@@ -329,6 +388,38 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         if (drawable)
             drawable->drawWithin(g, currentSaturHighlightRect, juce::RectanglePlacement::centred, 1.0f);
     }
+
+    // Versione B: indicatori hard (satB/compB)
+    if (showAltBackground)
+    {
+        const int satOffset = (int)std::round(std::sin(spritePhase) * spriteAmplitudePx);
+        const int compOffset = (int)std::round(std::sin(spritePhase + juce::MathConstants<float>::halfPi) * spriteAmplitudePx);
+
+        auto satRect = satBRect.translated(0, satOffset);
+        auto compRect = compBRect.translated(0, compOffset);
+
+        if (isSoftSaturMode)
+        {
+            if (satADrawable)
+                satADrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+        }
+        else
+        {
+            if (satBDrawable)
+                satBDrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+        }
+
+        if (isSoftMode)
+        {
+            if (compADrawable)
+                compADrawable->drawWithin(g, compRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+        }
+        else
+        {
+            if (compBDrawable)
+                compBDrawable->drawWithin(g, compRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+        }
+    }
 }
 
 void EasyRecAudioProcessorEditor::resized()
@@ -338,6 +429,41 @@ void EasyRecAudioProcessorEditor::resized()
     toneKnob.setBounds(490, 116, 37, 37);
     satKnob.setBounds(344, 282, 37, 37);
     outKnob.setBounds(489, 274, 38, 37);
+
+    // Versione B: layout alternativo
+    if (showAltBackground)
+    {
+        lowKnob.setBounds(443, 308, 37, 37);  // +1px dx
+        toneKnob.setBounds(496, 308, 37, 37); // -1px sx
+        outKnob.setBounds(377, 308, 38, 37);  // 1px a sinistra
+
+        // Slider orizzontali per Compressor e Saturator
+        compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
+        compKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+        compKnob.setLookAndFeel(nullptr);
+        compKnob.setBounds(420, 280, 220, 18);
+
+        satKnob.setSliderStyle(juce::Slider::LinearHorizontal);
+        satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+        satKnob.setLookAndFeel(nullptr);
+        satKnob.setBounds(250, 165, 220, 18);
+
+        // Aree cliccabili Soft/Hard sui personaggi
+        saturToggleButton.setBounds(418, 98, 90, 90);    // ok
+        toggleCompButton.setBounds(265, 197, 80, 80);    // -5px su
+
+        // Rettangoli per satB/compB (stessa posizione dei bottoni)
+        satBRect = saturToggleButton.getBounds();
+        compBRect = toggleCompButton.getBounds();
+    }
+    else
+    {
+        // Ripristina stile knob in interfaccia A
+        compKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+        compKnob.setLookAndFeel(&compKnobLookAndFeel);
+        satKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+        satKnob.setLookAndFeel(&satKnobLookAndFeel);
+    }
     
     compLabel.setBounds(compKnob.getBounds().translated(1, 0));
     //lowLabelDescription.setBounds(lowKnob.getBounds().translated(1, 0));
@@ -347,8 +473,14 @@ void EasyRecAudioProcessorEditor::resized()
     satLabel.setBounds(satKnob.getBounds().translated(1, 0));
     outLabel.setBounds(outKnob.getBounds().translated(1, 0));
     
-    toggleCompButton.setBounds(240, 195, 100, 30);
-    saturToggleButton.setBounds(240, 283, 100, 30);
+    if (!showAltBackground)
+    {
+        toggleCompButton.setBounds(240, 195, 100, 30);
+        saturToggleButton.setBounds(240, 283, 100, 30);
+    }
+
+    // D-pad RIGHT area (adjust if needed)
+    dpadRightButton.setBounds(324, 427, 60, 80);
     
 }
 
@@ -371,6 +503,11 @@ void EasyRecAudioProcessorEditor::timerCallback()
 
     bool stillAnimating = false;
 
+    // Micro-movimento in loop
+    spritePhase += spriteSpeed;
+    if (spritePhase > juce::MathConstants<float>::twoPi)
+        spritePhase -= juce::MathConstants<float>::twoPi;
+
     if (compAnimating)
         compAnimating = animate(currentCompHighlightRect, isSoftMode ? softHighlightArea.toFloat() : hardHighlightArea.toFloat());
 
@@ -378,9 +515,6 @@ void EasyRecAudioProcessorEditor::timerCallback()
         saturAnimating = animate(currentSaturHighlightRect, isSoftSaturMode ? softSatHighlightArea.toFloat() : hardSatHighlightArea.toFloat());
 
     stillAnimating = compAnimating || saturAnimating;
-
-    if (!stillAnimating)
-        stopTimer();
 
     repaint();
 }

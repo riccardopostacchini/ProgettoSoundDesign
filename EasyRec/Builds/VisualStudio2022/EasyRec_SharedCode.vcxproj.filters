@@ -3703,6 +3703,9 @@
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData2.cpp">
+      <Filter>JUCE Library Code</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -7994,7 +7997,28 @@
     <None Include="..\..\Resources\Soft_Comp.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\compA.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\Soft_Satur.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\satA.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\compB.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\Gameboy2_prova.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\satB.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\compB.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\satB.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\Start_Button.svg">

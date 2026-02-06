@@ -56,6 +56,8 @@ private:
 
     // Background
     juce::Image backgroundImage;
+    juce::Image backgroundImageAlt;
+    bool showAltBackground = false;
 
     //COMP KNOB
     ResettableSlider compKnob { 0.5f };
@@ -105,6 +107,12 @@ private:
     juce::Rectangle<int> hardSatHighlightArea;
     std::unique_ptr<juce::Drawable> softSatHighlightDrawable;
     std::unique_ptr<juce::Drawable> hardSatHighlightDrawable;
+    std::unique_ptr<juce::Drawable> compBDrawable;
+    std::unique_ptr<juce::Drawable> satBDrawable;
+    std::unique_ptr<juce::Drawable> compADrawable;
+    std::unique_ptr<juce::Drawable> satADrawable;
+    juce::Rectangle<int> compBRect;
+    juce::Rectangle<int> satBRect;
 
     // FONT
     juce::Typeface::Ptr earlyGameBoyFont;
@@ -119,6 +127,14 @@ private:
     bool saturAnimating = false;
 
     void updateEQ();
+
+    // D-pad right toggle (invisible button)
+    juce::TextButton dpadRightButton;
+
+    // Micro-movimento stile Game Boy (interfaccia B)
+    float spritePhase = 0.0f;
+    float spriteSpeed = 0.08f;
+    int spriteAmplitudePx = 2;
 
     // APVTS attachments
     std::unique_ptr<APVTS::SliderAttachment> compAttachment;

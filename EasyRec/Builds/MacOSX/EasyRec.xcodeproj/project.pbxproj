@@ -49,6 +49,7 @@
 		653D7FD99EBBE747367A3384 /* SaturationModule.cpp */ = {isa = PBXBuildFile; fileRef = CC527A42E46EB4C35E8715D7; };
 		665E17800E27FC55ACA100EC /* CoreAudio.framework */ = {isa = PBXBuildFile; fileRef = F1F45D5F11F28214CBEA4D4D; };
 		72447516619F2D6EB945062B /* include_juce_audio_processors_headless.mm */ = {isa = PBXBuildFile; fileRef = 100A298A50E6F083EBCA5C5C; };
+		75A10AE097CE4354B7C9DE12 /* BinaryData2.cpp */ = {isa = PBXBuildFile; fileRef = 653657A24D2E5FE9930004D8; };
 		84BC2E32B4F14F8B67155579 /* include_juce_graphics_Sheenbidi.c */ = {isa = PBXBuildFile; fileRef = B6E5034362C06CE50CC21ADD; };
 		850F44114975EE5198FC0DDE /* include_juce_gui_extra.mm */ = {isa = PBXBuildFile; fileRef = 79ABF558BB1790700528A28B; };
 		86C8D82EC52B840CAC68926C /* PluginEditor.cpp */ = {isa = PBXBuildFile; fileRef = 561B5CD24F53EBE9E9D82872; };
@@ -91,6 +92,7 @@
 		19D5D7D7FC80F106D492D39A /* VST3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EasyRec.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		1C75D88AE32D457B25159044 /* OutputModule.cpp */ /* OutputModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = OutputModule.cpp; path = ../../Source/OutputModule.cpp; sourceTree = SOURCE_ROOT; };
 		2A19B95E1101FE4F1C778F15 /* QuartzCore.framework */ /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		2CEEFBA0867B147D63004220 /* Gameboy2_prova.png */ /* Gameboy2_prova.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Gameboy2_prova.png; path = ../../Resources/Gameboy2_prova.png; sourceTree = SOURCE_ROOT; };
 		30108CE16B87DE4B8C4E89B3 /* juce_events */ /* juce_events */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_events; path = /Users/iosonospace/Documents/JUCE/modules/juce_events; sourceTree = "<absolute>"; };
 		30C4224754292498B42055AA /* juce_gui_extra */ /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_extra; path = /Users/iosonospace/Documents/JUCE/modules/juce_gui_extra; sourceTree = "<absolute>"; };
 		31D0E6C257829C2AF0579CE2 /* Shared Code */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libEasyRec.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,19 +104,23 @@
 		3B9EC0B80193D9D99BD9DF5C /* CompressorModule.h */ /* CompressorModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CompressorModule.h; path = ../../Source/CompressorModule.h; sourceTree = SOURCE_ROOT; };
 		3DD8B07B0FD5A95B1B0634CC /* include_juce_audio_plugin_client_AU_2.mm */ /* include_juce_audio_plugin_client_AU_2.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_AU_2.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_AU_2.mm; sourceTree = SOURCE_ROOT; };
 		458691C5908AB04CD283B19C /* juce_audio_basics */ /* juce_audio_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_basics; path = /Users/iosonospace/Documents/JUCE/modules/juce_audio_basics; sourceTree = "<absolute>"; };
+		4688BAF0C0D35222797B7732 /* compB.png */ /* compB.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = compB.png; path = ../../Resources/compB.png; sourceTree = SOURCE_ROOT; };
 		4A13CBE74361DD2C042424E3 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = /Users/iosonospace/Documents/JUCE/modules/juce_core; sourceTree = "<absolute>"; };
 		4C6673317BAB17751B840DA2 /* Satur_Knob.svg */ /* Satur_Knob.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = Satur_Knob.svg; path = ../../Resources/Satur_Knob.svg; sourceTree = SOURCE_ROOT; };
 		500E0E5C72095BE864DE049E /* juce_dsp */ /* juce_dsp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_dsp; path = /Users/iosonospace/Documents/JUCE/modules/juce_dsp; sourceTree = "<absolute>"; };
 		507AA07E43CB97A172676CBF /* juce_gui_basics */ /* juce_gui_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_basics; path = /Users/iosonospace/Documents/JUCE/modules/juce_gui_basics; sourceTree = "<absolute>"; };
 		553BB7C3B6346DF7A264C22E /* include_juce_dsp.mm */ /* include_juce_dsp.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_dsp.mm; path = ../../JuceLibraryCode/include_juce_dsp.mm; sourceTree = SOURCE_ROOT; };
 		561B5CD24F53EBE9E9D82872 /* PluginEditor.cpp */ /* PluginEditor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PluginEditor.cpp; path = ../../Source/PluginEditor.cpp; sourceTree = SOURCE_ROOT; };
+		56A21ACB8044EBD8ABFED107 /* satB.png */ /* satB.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = satB.png; path = ../../Resources/satB.png; sourceTree = SOURCE_ROOT; };
 		5824A406E02B086FDD54AAD6 /* Foundation.framework */ /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		59AB161DC82EEAC4969560B7 /* include_juce_audio_utils.mm */ /* include_juce_audio_utils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_utils.mm; path = ../../JuceLibraryCode/include_juce_audio_utils.mm; sourceTree = SOURCE_ROOT; };
 		5A6C5762B2547DB6899571A2 /* Standalone Plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyRec.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BD8A54895D2C512D1820A55 /* DiscRecording.framework */ /* DiscRecording.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiscRecording.framework; path = System/Library/Frameworks/DiscRecording.framework; sourceTree = SDKROOT; };
 		5FB0F7A6C7351E325BFC1ECD /* Comp_Knob.svg */ /* Comp_Knob.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = Comp_Knob.svg; path = ../../Resources/Comp_Knob.svg; sourceTree = SOURCE_ROOT; };
 		60656C471B4908B2B797F33B /* Accelerate.framework */ /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		6248776A6638D6BC8A1D1164 /* compB.svg */ /* compB.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = compB.svg; path = ../../Resources/compB.svg; sourceTree = SOURCE_ROOT; };
 		64D971DA5D0D12EEA0A611EE /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = /Users/iosonospace/Documents/JUCE/modules/juce_graphics; sourceTree = "<absolute>"; };
+		653657A24D2E5FE9930004D8 /* BinaryData2.cpp */ /* BinaryData2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BinaryData2.cpp; path = ../../JuceLibraryCode/BinaryData2.cpp; sourceTree = SOURCE_ROOT; };
 		66B4D122B5ACA865B3F0B1FD /* Security.framework */ /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		721E5B28569FC70B25E1B485 /* JucePluginDefines.h */ /* JucePluginDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JucePluginDefines.h; path = ../../JuceLibraryCode/JucePluginDefines.h; sourceTree = SOURCE_ROOT; };
 		72D996709570172719E238C9 /* Info-VST3_Manifest_Helper.plist */ /* Info-VST3_Manifest_Helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-VST3_Manifest_Helper.plist"; path = "Info-VST3_Manifest_Helper.plist"; sourceTree = SOURCE_ROOT; };
@@ -148,6 +154,8 @@
 		B55A7025C5CD3DEE94367264 /* Soft_Satur.svg */ /* Soft_Satur.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = Soft_Satur.svg; path = ../../Resources/Soft_Satur.svg; sourceTree = SOURCE_ROOT; };
 		B672D2C54B6764EAB9F78893 /* MetalKit.framework */ /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		B6E5034362C06CE50CC21ADD /* include_juce_graphics_Sheenbidi.c */ /* include_juce_graphics_Sheenbidi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = include_juce_graphics_Sheenbidi.c; path = ../../JuceLibraryCode/include_juce_graphics_Sheenbidi.c; sourceTree = SOURCE_ROOT; };
+		B86A213E992FA07BC83EBBA7 /* compA.png */ /* compA.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = compA.png; path = ../../Resources/compA.png; sourceTree = SOURCE_ROOT; };
+		BA023A914E12454CC6F47FC1 /* satA.png */ /* satA.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = satA.png; path = ../../Resources/satA.png; sourceTree = SOURCE_ROOT; };
 		BB5D872ABBF242F843A20D2D /* juce_audio_plugin_client */ /* juce_audio_plugin_client */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_plugin_client; path = /Users/iosonospace/Documents/JUCE/modules/juce_audio_plugin_client; sourceTree = "<absolute>"; };
 		BCDA06FE5AA69E198CCA5955 /* EarlyGameBoy.ttf */ /* EarlyGameBoy.ttf */ = {isa = PBXFileReference; lastKnownFileType = file.ttf; name = EarlyGameBoy.ttf; path = ../../Resources/EarlyGameBoy.ttf; sourceTree = SOURCE_ROOT; };
 		BD2A71EC6EC03BE84BF6B7F6 /* Hard_Satur.svg */ /* Hard_Satur.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = Hard_Satur.svg; path = ../../Resources/Hard_Satur.svg; sourceTree = SOURCE_ROOT; };
@@ -168,6 +176,7 @@
 		DCBF323C16B6ABBA550335E5 /* Output_Knob.svg */ /* Output_Knob.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = Output_Knob.svg; path = ../../Resources/Output_Knob.svg; sourceTree = SOURCE_ROOT; };
 		E0BAF9A9B40F63B6E032E8C1 /* include_juce_core_CompilationTime.cpp */ /* include_juce_core_CompilationTime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_core_CompilationTime.cpp; path = ../../JuceLibraryCode/include_juce_core_CompilationTime.cpp; sourceTree = SOURCE_ROOT; };
 		E17A72EAB1D67D62FF4A4873 /* include_juce_audio_plugin_client_Standalone.cpp */ /* include_juce_audio_plugin_client_Standalone.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_plugin_client_Standalone.cpp; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_Standalone.cpp; sourceTree = SOURCE_ROOT; };
+		E389FA4F1889B46132ED49BF /* satB.svg */ /* satB.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = satB.svg; path = ../../Resources/satB.svg; sourceTree = SOURCE_ROOT; };
 		E641156F60DE8CB8B0B94C8A /* juce_VST3ManifestHelper.mm */ /* juce_VST3ManifestHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = juce_VST3ManifestHelper.mm; path = /Users/iosonospace/Documents/JUCE/modules/juce_audio_plugin_client/VST3/juce_VST3ManifestHelper.mm; sourceTree = "<absolute>"; };
 		F1F45D5F11F28214CBEA4D4D /* CoreAudio.framework */ /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		F3A2566568102463AB8F1DFF /* ToneEq_Knob.svg */ /* ToneEq_Knob.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = ToneEq_Knob.svg; path = ../../Resources/ToneEq_Knob.svg; sourceTree = SOURCE_ROOT; };
@@ -272,6 +281,7 @@
 			children = (
 				D4F4103FCF69D29F0CB49A29,
 				C2BCC565F9BB2F113A203B90,
+				653657A24D2E5FE9930004D8,
 				367E3E2B5104F8A4B7E6B5BB,
 				ADC911541E8E305CAAB253F6,
 				09408706D692E9C254E40A4D,
@@ -328,7 +338,14 @@
 				8F82A3ED1E45E95B4E65C04A,
 				BD2A71EC6EC03BE84BF6B7F6,
 				39D3B3F821BAC5A99A0A2615,
+				B86A213E992FA07BC83EBBA7,
 				B55A7025C5CD3DEE94367264,
+				BA023A914E12454CC6F47FC1,
+				4688BAF0C0D35222797B7732,
+				2CEEFBA0867B147D63004220,
+				56A21ACB8044EBD8ABFED107,
+				6248776A6638D6BC8A1D1164,
+				E389FA4F1889B46132ED49BF,
 				C1BEB04C521E667C62C8C249,
 				FC36EC1EC5628F37B319AF05,
 			);
@@ -781,6 +798,7 @@
 				DED8C179F307A2B82597B1B9,
 				86C8D82EC52B840CAC68926C,
 				44B647C07F90EC581927AC99,
+				75A10AE097CE4354B7C9DE12,
 				5D653D67FD32D1A75300985C,
 				D1E397429E3421E49F29F360,
 				A6C36547DE8D2EC5930D7C59,

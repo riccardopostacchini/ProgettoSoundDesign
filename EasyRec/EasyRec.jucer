@@ -17,7 +17,15 @@
       <FILE id="eCKIg6" name="Hard_Comp.svg" compile="0" resource="1" file="Resources/Hard_Comp.svg"/>
       <FILE id="itMV4J" name="Hard_Satur.svg" compile="0" resource="1" file="Resources/Hard_Satur.svg"/>
       <FILE id="nZ0KWO" name="Soft_Comp.svg" compile="0" resource="1" file="Resources/Soft_Comp.svg"/>
+      <FILE id="vWX8Zm" name="compA.png" compile="0" resource="1" file="Resources/compA.png"/>
       <FILE id="Pv2sKe" name="Soft_Satur.svg" compile="0" resource="1" file="Resources/Soft_Satur.svg"/>
+      <FILE id="vC2xjB" name="satA.png" compile="0" resource="1" file="Resources/satA.png"/>
+      <FILE id="y07nlv" name="compB.png" compile="0" resource="1" file="Resources/compB.png"/>
+      <FILE id="a8FNpQ" name="Gameboy2_prova.png" compile="0" resource="1"
+            file="Resources/Gameboy2_prova.png"/>
+      <FILE id="Rg4c2e" name="satB.png" compile="0" resource="1" file="Resources/satB.png"/>
+      <FILE id="y0r6Si" name="compB.svg" compile="0" resource="1" file="Resources/compB.svg"/>
+      <FILE id="N1ahJF" name="satB.svg" compile="0" resource="1" file="Resources/satB.svg"/>
       <FILE id="pfsj5S" name="Start_Button.svg" compile="0" resource="1"
             file="Resources/Start_Button.svg"/>
       <FILE id="cy6SSx" name="Led_Rosso.svg" compile="0" resource="1" file="Resources/Led_Rosso.svg"/>

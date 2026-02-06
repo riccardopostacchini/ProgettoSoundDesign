@@ -2972,6 +2972,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp"/>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData2.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_devices.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_formats.cpp"/>
@@ -4415,7 +4416,14 @@
     <None Include="..\..\Resources\Hard_Comp.svg"/>
     <None Include="..\..\Resources\Hard_Satur.svg"/>
     <None Include="..\..\Resources\Soft_Comp.svg"/>
+    <None Include="..\..\Resources\compA.png"/>
     <None Include="..\..\Resources\Soft_Satur.svg"/>
+    <None Include="..\..\Resources\satA.png"/>
+    <None Include="..\..\Resources\compB.png"/>
+    <None Include="..\..\Resources\Gameboy2_prova.png"/>
+    <None Include="..\..\Resources\satB.png"/>
+    <None Include="..\..\Resources\compB.svg"/>
+    <None Include="..\..\Resources\satB.svg"/>
     <None Include="..\..\Resources\Start_Button.svg"/>
     <None Include="..\..\Resources\Led_Rosso.svg"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\asio\LICENSE.txt"/>

@@ -41,8 +41,29 @@ namespace BinaryData
     extern const char*   Soft_Comp_svg;
     const int            Soft_Comp_svgSize = 1377;
 
+    extern const char*   compA_png;
+    const int            compA_pngSize = 23387;
+
     extern const char*   Soft_Satur_svg;
     const int            Soft_Satur_svgSize = 1379;
+
+    extern const char*   satA_png;
+    const int            satA_pngSize = 28417;
+
+    extern const char*   compB_png;
+    const int            compB_pngSize = 19540;
+
+    extern const char*   Gameboy2_prova_png;
+    const int            Gameboy2_prova_pngSize = 7682114;
+
+    extern const char*   satB_png;
+    const int            satB_pngSize = 29239;
+
+    extern const char*   compB_svg;
+    const int            compB_svgSize = 255442;
+
+    extern const char*   satB_svg;
+    const int            satB_svgSize = 311521;
 
     extern const char*   Start_Button_svg;
     const int            Start_Button_svgSize = 3403;
@@ -51,7 +72,7 @@ namespace BinaryData
     const int            Led_Rosso_svgSize = 1383;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 14;
+    const int namedResourceListSize = 21;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];
