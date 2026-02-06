@@ -30,21 +30,17 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     // Timer per animazioni (micro-movimenti + highlight)
     startTimerHz(60);
     
-    // Background
-    backgroundImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy_png, BinaryData::Gameboy_pngSize);
-    backgroundImageAlt = juce::ImageCache::getFromMemory(BinaryData::Gameboy2_prova_png, BinaryData::Gameboy2_prova_pngSize);
+    // Background (solo interfaccia B)
+    backgroundImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy2_prova_png, BinaryData::Gameboy2_prova_pngSize);
     buttonSliderImage = juce::ImageCache::getFromMemory(BinaryData::buttonSlider_png, BinaryData::buttonSlider_pngSize);
     eqOnImage = juce::ImageCache::getFromMemory(BinaryData::eqon_png, BinaryData::eqon_pngSize);
 
-    // === COMP KNOB ===
-    compKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Comp_Knob_svg, BinaryData::Comp_Knob_svgSize);
-    compKnobLookAndFeel.knobImage = compKnobDrawable.get();
-    compKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    // === COMP SLIDER ===
+    compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
     compKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     compKnob.setRange(0.0, 1.0, 0.01);
     compKnob.setValue(0.5);
-    compKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
-    compKnob.setLookAndFeel(&compKnobLookAndFeel);
+    compKnob.setLookAndFeel(nullptr);
     addAndMakeVisible(compKnob);
 
     // === EQ KNOBS ===
@@ -100,15 +96,12 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     toneLabelValue.setText(formatValue((toneKnob.getValue() - 0.5f) * 20.0f), juce::dontSendNotification);
 
 
-    // === SATURATION KNOB ===
-    satKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Satur_Knob_svg, BinaryData::Satur_Knob_svgSize);
-    satKnobLookAndFeel.knobImage = satKnobDrawable.get();
-    satKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    // === SATURATION SLIDER ===
+    satKnob.setSliderStyle(juce::Slider::LinearHorizontal);
     satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     satKnob.setRange(0.0, 1.0, 0.01);
     satKnob.setValue(0.5);
-    satKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
-    satKnob.setLookAndFeel(&satKnobLookAndFeel);
+    satKnob.setLookAndFeel(nullptr);
     addAndMakeVisible(satKnob);
 
     // === OUTPUT KNOB ===
@@ -201,6 +194,28 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     addListener(satKnob, satLabel, formatValue, FormatterType::FormatValue);
     addListener(outKnob, outLabel, formatValue, FormatterType::FormatValue);
 
+    // Aggiorna subito le label in interfaccia B (valori /10)
+    auto updateBLabels = [this]()
+    {
+        auto toOutOfTen = [](double v) -> int
+        {
+            return (int)juce::jlimit(0.0, 10.0, std::round(v * 10.0));
+        };
+        auto formatOutOfTen = [](int v) -> juce::String
+        {
+            if (v <= 0) return "min/10";
+            if (v >= 10) return "max/10";
+            return juce::String(v) + "/10";
+        };
+
+        compLabel.setText(formatOutOfTen(toOutOfTen(compKnob.getValue())), juce::dontSendNotification);
+        satLabel.setText(formatOutOfTen(toOutOfTen(satKnob.getValue())), juce::dontSendNotification);
+    };
+
+    compKnob.onValueChange = [updateBLabels]() { updateBLabels(); };
+    satKnob.onValueChange = [updateBLabels]() { updateBLabels(); };
+    updateBLabels();
+
     auto outputValueToDb = [](double norm) -> double
     {
         constexpr double seg = 1.0 / 9.0;
@@ -229,25 +244,15 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     };
     updateOutputLabel();
     
-    // === TOGGLE COMP ===
-    softHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Comp_svg, BinaryData::Soft_Comp_svgSize);
-    hardHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Hard_Comp_svg, BinaryData::Hard_Comp_svgSize);
-
     toggleCompButton.setAlpha(0.0f);
     toggleCompButton.setColour(juce::DrawableButton::backgroundColourId, juce::Colours::transparentBlack);
     toggleCompButton.setClickingTogglesState(true);
     toggleCompButton.setToggleState(isSoftMode, juce::dontSendNotification);
     addAndMakeVisible(toggleCompButton);
 
-    softHighlightArea = { 253, 190, 37, 41 };
-    hardHighlightArea = { 289, 190, 37, 41 };
-    currentCompHighlightRect = softHighlightArea.toFloat();
-
     toggleCompButton.onClick = [this]()
     {
         isSoftMode = toggleCompButton.getToggleState();
-        compAnimating = true;
-        startTimerHz(60);
     };
     toggleCompButton.onStateChange = [this]()
     {
@@ -255,8 +260,6 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         if (newMode != isSoftMode)
         {
             isSoftMode = newMode;
-            compAnimating = true;
-            startTimerHz(60);
         }
     };
 
@@ -266,12 +269,6 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     saturToggleButton.setToggleState(isSoftSaturMode, juce::dontSendNotification);
     addAndMakeVisible(saturToggleButton);
 
-    softSatHighlightArea = { 254, 278, 37, 41 };
-    hardSatHighlightArea = { 289, 278, 37, 41 };
-    currentSaturHighlightRect = softSatHighlightArea.toFloat();
-
-    softSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Soft_Satur_svg, BinaryData::Soft_Satur_svgSize);
-    hardSatHighlightDrawable = juce::Drawable::createFromImageData(BinaryData::Hard_Satur_svg, BinaryData::Hard_Satur_svgSize);
     compBDrawable = juce::Drawable::createFromImageData(BinaryData::compB_png, BinaryData::compB_pngSize);
     satBDrawable = juce::Drawable::createFromImageData(BinaryData::satB_png, BinaryData::satB_pngSize);
     compADrawable = juce::Drawable::createFromImageData(BinaryData::compA_png, BinaryData::compA_pngSize);
@@ -280,8 +277,6 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     saturToggleButton.onClick = [this]()
     {
         isSoftSaturMode = saturToggleButton.getToggleState();
-        saturAnimating = true;
-        startTimerHz(60);
     };
     saturToggleButton.onStateChange = [this]()
     {
@@ -289,69 +284,43 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         if (newMode != isSoftSaturMode)
         {
             isSoftSaturMode = newMode;
-            saturAnimating = true;
-            startTimerHz(60);
         }
     };
 
-    // === D-pad RIGHT toggle (background switch) ===
-    dpadRightButton.setClickingTogglesState(true);
-    dpadRightButton.setToggleState(false, juce::dontSendNotification);
-    dpadRightButton.setAlpha(0.0f);
-    dpadRightButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
-    dpadRightButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
-    dpadRightButton.onClick = [this]()
-    {
-        showAltBackground = dpadRightButton.getToggleState();
-        auto setVisibleAlt = [this](bool showAlt)
-        {
-            // Versione B: mostra EQ + Output + slider comp/sat
-            const bool isB = showAlt;
-
-            compKnob.setVisible(true);
-            compLabel.setVisible(true);
-            toggleCompButton.setVisible(true);
-
-            satKnob.setVisible(true);
-            satLabel.setVisible(true);
-            saturToggleButton.setVisible(true);
-
-            // Output sempre visibile
-            outKnob.setVisible(true);
-            outLabel.setVisible(true);
-
-            // EQ sempre visibile
-            lowKnob.setVisible(true);
-            lowLabelValue.setVisible(true);
-            toneKnob.setVisible(true);
-            toneLabelValue.setVisible(true);
-        };
-        setVisibleAlt(showAltBackground);
-        resized();
-        if (showAltBackground)
-            startTimerHz(60);
-        repaint();
-    };
-    addAndMakeVisible(dpadRightButton);
 
     // On/Off buttons (B)
     satOnOffButton.setClickingTogglesState(true);
     satOnOffButton.setAlpha(0.0f);
     satOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
     satOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    satOnOffButton.setToggleState(true, juce::dontSendNotification);
     addAndMakeVisible(satOnOffButton);
 
     compOnOffButton.setClickingTogglesState(true);
     compOnOffButton.setAlpha(0.0f);
     compOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
     compOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    compOnOffButton.setToggleState(true, juce::dontSendNotification);
     addAndMakeVisible(compOnOffButton);
 
     eqOnOffButton.setClickingTogglesState(true);
     eqOnOffButton.setAlpha(0.0f);
     eqOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
     eqOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    eqOnOffButton.setToggleState(true, juce::dontSendNotification);
     addAndMakeVisible(eqOnOffButton);
+
+    // Animation ON/OFF (rosso, visibile)
+    animOnOffButton.setClickingTogglesState(true);
+    animOnOffButton.setAlpha(0.0f);
+    animOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    animOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    animOnOffButton.setToggleState(true, juce::dontSendNotification);
+    animOnOffButton.onStateChange = [this]()
+    {
+        animationsEnabled = animOnOffButton.getToggleState();
+    };
+    addAndMakeVisible(animOnOffButton);
 
     // === APVTS Attachments ===
     auto& apvts = audioProcessor.getAPVTS();
@@ -386,8 +355,9 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         repaint();
     };
 
-    // Stato iniziale visibilità (Versione A)
-    dpadRightButton.setToggleState(false, juce::dontSendNotification);
+    resized();
+    repaint();
+
 }
 
 EasyRecAudioProcessorEditor::~EasyRecAudioProcessorEditor() = default;
@@ -397,42 +367,12 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::black);
 
-    if (showAltBackground)
-    {
-        if (backgroundImageAlt.isValid())
-            g.drawImage(backgroundImageAlt, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
-    }
-    else
-    {
-        if (backgroundImage.isValid())
-            g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
-    }
+    if (backgroundImage.isValid())
+        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
 
-    if (!showAltBackground && isSoftMode && softHighlightDrawable && !compAnimating)
-        softHighlightDrawable->drawWithin(g, softHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    else if (!showAltBackground && !isSoftMode && hardHighlightDrawable && !compAnimating)
-        hardHighlightDrawable->drawWithin(g, hardHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    else if (compAnimating)
-    {
-        auto* drawable = isSoftMode ? softHighlightDrawable.get() : hardHighlightDrawable.get();
-        if (drawable)
-            drawable->drawWithin(g, currentCompHighlightRect, juce::RectanglePlacement::centred, 1.0f);
-    }
+    // Soft/Hard highlight drawables disabled
 
-    if (!showAltBackground && isSoftSaturMode && softSatHighlightDrawable && !saturAnimating)
-        softSatHighlightDrawable->drawWithin(g, softSatHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    else if (!showAltBackground && !isSoftSaturMode && hardSatHighlightDrawable && !saturAnimating)
-        hardSatHighlightDrawable->drawWithin(g, hardSatHighlightArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-    else if (saturAnimating)
-    {
-        auto* drawable = isSoftSaturMode ? softSatHighlightDrawable.get() : hardSatHighlightDrawable.get();
-        if (drawable)
-            drawable->drawWithin(g, currentSaturHighlightRect, juce::RectanglePlacement::centred, 1.0f);
-    }
-
-    // Versione B: indicatori hard (satB/compB)
-    if (showAltBackground)
-    {
+    // Indicatori hard (satB/compB)
         const int satOffset = (int)std::round(std::sin(spritePhase) * spriteAmplitudePx);
         const int compOffset = (int)std::round(std::sin(spritePhase + juce::MathConstants<float>::halfPi) * spriteAmplitudePx);
 
@@ -495,158 +435,97 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
                                   juce::RectanglePlacement::stretchToFit);
             }
         }
-    }
 }
 
 void EasyRecAudioProcessorEditor::resized()
 {
-    compKnob.setBounds(344, 194, 37, 37);
-    lowKnob.setBounds(419, 116, 37, 37);
-    toneKnob.setBounds(490, 116, 37, 37);
-    satKnob.setBounds(344, 282, 37, 37);
-    outKnob.setBounds(489, 274, 38, 37);
+    // EQ + Output
+    lowKnob.setBounds(443, 308, 37, 37);
+    toneKnob.setBounds(496, 308, 37, 37);
+    outKnob.setBounds(376.7f, 308, 38, 37);
 
-    // Versione B: layout alternativo
-    if (showAltBackground)
-    {
-        lowKnob.setBounds(443, 308, 37, 37);  // +1px dx
-        toneKnob.setBounds(496, 308, 37, 37); // -1px sx
-        outKnob.setBounds(377, 308, 38, 37);  // 1px a sinistra
+    // Slider orizzontali per Compressor e Saturator
+    compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
+    compKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    compKnob.setLookAndFeel(nullptr);
+    compKnob.setBounds(437, 200, 100, 60);
+    compKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
+    compKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
+    compKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
 
-        // Slider orizzontali per Compressor e Saturator
-        compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
-        compKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        compKnob.setLookAndFeel(nullptr);
-        compKnob.setBounds(437, 200, 100, 60); // +5px su
-        compKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
-        compKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
-        compKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
+    satKnob.setSliderStyle(juce::Slider::LinearHorizontal);
+    satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    satKnob.setLookAndFeel(nullptr);
+    satKnob.setBounds(290, 89, 100, 60);
+    satKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
+    satKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
+    satKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
 
-        satKnob.setSliderStyle(juce::Slider::LinearHorizontal);
-        satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        satKnob.setLookAndFeel(nullptr);
-        satKnob.setBounds(290, 89, 100, 60);  // +5px su
-        satKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
-        satKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
-        satKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
+    // buttonSlider.png subito sotto agli slider
+    const int baseH = 12;
+    satSliderBaseRect = { satKnob.getX() - 5, satKnob.getBottom() - 36, satKnob.getWidth(), baseH };
+    compSliderBaseRect = { compKnob.getX() - 5, compKnob.getBottom() - 36, compKnob.getWidth(), baseH };
 
-        // buttonSlider.png subito sotto agli slider
-        const int baseH = 12;
-        satSliderBaseRect = { satKnob.getX() - 5, satKnob.getBottom() - 36, satKnob.getWidth(), baseH };
-        compSliderBaseRect = { compKnob.getX() - 5, compKnob.getBottom() - 36, compKnob.getWidth(), baseH };
+    // On/Off buttons
+    satOnOffButton.setBounds(satKnob.getX() + 50, satKnob.getY() + 10, 15, 15);
+    compOnOffButton.setBounds(compKnob.getX() + 60, compKnob.getY() + 8, 15, 15);
+    eqOnOffButton.setBounds(toneKnob.getX() + 25, toneKnob.getY() - 22, 15, 15);
+    animOnOffButton.setBounds(510, 420, 60, 60);
 
-        // On/Off buttons
-        satOnOffButton.setBounds(satKnob.getX() + 50, satKnob.getY() + 10, 15, 15); // -1px su
-        compOnOffButton.setBounds(compKnob.getX() + 60, compKnob.getY() + 8, 15, 15); // -2px su
-        eqOnOffButton.setBounds(toneKnob.getX() + 25, toneKnob.getY() - 22, 15, 15);
+    // eqon.png centrato sul low knob (scalato 2.5x)
+    const float scale = 2.7f;
+    const int eqBaseW = lowKnob.getWidth();
+    const int eqBaseH = lowKnob.getHeight();
+    const int newW = (int)std::round(eqBaseW * scale);
+    const int newH = (int)std::round(eqBaseH * scale);
+    eqOnRect = { lowKnob.getX() + (eqBaseW - newW) / 2 + 26,
+                 lowKnob.getY() + (eqBaseH - newH) / 2 + 2,
+                 newW, newH };
 
-        // eqon.png centrato sul low knob (scalato 2x)
-        const float scale = 2.7f;
-        const int eqBaseW = lowKnob.getWidth();
-        const int eqBaseH = lowKnob.getHeight();
-        const int newW = (int)std::round(eqBaseW * scale);
-        const int newH = (int)std::round(eqBaseH * scale);
-        eqOnRect = { lowKnob.getX() + (eqBaseW - newW) / 2 + 26,
-                     lowKnob.getY() + (eqBaseH - newH) / 2 + 2,
-                     newW, newH };
+    // Aree cliccabili Soft/Hard sui personaggi
+    saturToggleButton.setBounds(418, 98, 90, 90);
+    toggleCompButton.setBounds(265, 197, 80, 80);
+    satBRect = saturToggleButton.getBounds();
+    compBRect = toggleCompButton.getBounds();
 
-        // Aree cliccabili Soft/Hard sui personaggi
-        saturToggleButton.setBounds(418, 98, 90, 90);
-        toggleCompButton.setBounds(265, 197, 80, 80);
+    // Visibilità in base a ON/OFF
+    const bool satOn = satOnOffButton.getToggleState();
+    const bool compOn = compOnOffButton.getToggleState();
+    const bool eqOn = eqOnOffButton.getToggleState();
+    satKnob.setVisible(satOn);
+    satLabel.setVisible(satOn);
+    compKnob.setVisible(compOn);
+    compLabel.setVisible(compOn);
+    lowKnob.setVisible(eqOn);
+    toneKnob.setVisible(eqOn);
+    lowLabelValue.setVisible(eqOn);
+    toneLabelValue.setVisible(eqOn);
+    satOnOffButton.setVisible(true);
+    compOnOffButton.setVisible(true);
+    eqOnOffButton.setVisible(true);
 
-        // Rettangoli per satB/compB (stessa posizione dei bottoni)
-        satBRect = saturToggleButton.getBounds();
-        compBRect = toggleCompButton.getBounds();
-
-        // Visibilità in base a ON/OFF
-        const bool satOn = satOnOffButton.getToggleState();
-        const bool compOn = compOnOffButton.getToggleState();
-        const bool eqOn = eqOnOffButton.getToggleState();
-        satKnob.setVisible(satOn);
-        satLabel.setVisible(satOn);
-        compKnob.setVisible(compOn);
-        compLabel.setVisible(compOn);
-        lowKnob.setVisible(eqOn);
-        toneKnob.setVisible(eqOn);
-        lowLabelValue.setVisible(eqOn);
-        toneLabelValue.setVisible(eqOn);
-        satOnOffButton.setVisible(true);
-        compOnOffButton.setVisible(true);
-        eqOnOffButton.setVisible(true);
-    }
-    else
-    {
-        // Ripristina stile knob in interfaccia A
-        compKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        compKnob.setLookAndFeel(&compKnobLookAndFeel);
-        satKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        satKnob.setLookAndFeel(&satKnobLookAndFeel);
-
-        satOnOffButton.setVisible(false);
-        compOnOffButton.setVisible(false);
-        eqOnOffButton.setVisible(false);
-    }
-    
-    compLabel.setBounds(compKnob.getBounds().translated(1, 0));
-    //lowLabelDescription.setBounds(lowKnob.getBounds().translated(1, 0));
+    // Label placement
     lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));
-    //toneLabelDescription.setBounds(toneKnob.getBounds().translated(1, 0));
     toneLabelValue.setBounds(toneKnob.getBounds().translated(1, 0));
-    satLabel.setBounds(satKnob.getBounds().translated(1, 0));
     outLabel.setBounds(outKnob.getBounds().translated(1, 0));
-    
-    if (!showAltBackground)
-    {
-        toggleCompButton.setBounds(240, 195, 100, 30);
-        saturToggleButton.setBounds(240, 283, 100, 30);
-    }
-
-    // D-pad RIGHT area (adjust if needed)
-    dpadRightButton.setBounds(324, 427, 60, 80);
-
-    if (showAltBackground)
-    {
-        satLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
-        compLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
-        satLabel.setBounds(satKnob.getX() + 25, satKnob.getBottom() - 25, satKnob.getWidth(), 16);
-        compLabel.setBounds(compKnob.getX() + 25, compKnob.getBottom() - 25, compKnob.getWidth(), 16);
-    }
-    
+    satLabel.setBounds(satKnob.getX() + 25, satKnob.getBottom() - 24, satKnob.getWidth(), 16);
+    compLabel.setBounds(compKnob.getX() + 25, compKnob.getBottom() - 24, compKnob.getWidth(), 16);
+    satLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
+    compLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
 }
+
 
 
 void EasyRecAudioProcessorEditor::timerCallback()
 {
-    auto animate = [](juce::Rectangle<float>& current, const juce::Rectangle<float>& target) -> bool
-    {
-        constexpr float speed = 0.2f;
-        auto delta = target.getCentre() - current.getCentre();
-        if (delta.getDistanceFromOrigin() < 0.5f)
-        {
-            current = target;
-            return false;
-        }
-
-        current.setCentre(current.getCentre() + delta * speed);
-        return true;
-    };
-
-    bool stillAnimating = false;
-
     // Micro-movimento in loop
-    spritePhase += spriteSpeed;
-    if (spritePhase > juce::MathConstants<float>::twoPi)
-        spritePhase -= juce::MathConstants<float>::twoPi;
+    if (animationsEnabled)
+    {
+        spritePhase += spriteSpeed;
+        if (spritePhase > juce::MathConstants<float>::twoPi)
+            spritePhase -= juce::MathConstants<float>::twoPi;
+    }
 
-    if (compAnimating)
-        compAnimating = animate(currentCompHighlightRect, isSoftMode ? softHighlightArea.toFloat() : hardHighlightArea.toFloat());
-
-    if (saturAnimating)
-        saturAnimating = animate(currentSaturHighlightRect, isSoftSaturMode ? softSatHighlightArea.toFloat() : hardSatHighlightArea.toFloat());
-
-    stillAnimating = compAnimating || saturAnimating;
-
-    if (showAltBackground)
     {
         auto toOutOfTen = [](double v) -> int
         {

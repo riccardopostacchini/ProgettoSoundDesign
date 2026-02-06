@@ -147,7 +147,6 @@
     <ClCompile Include="..\..\Source\OutputModule.cpp"/>
     <ClCompile Include="..\..\Source\SaturationModule.cpp"/>
     <ClCompile Include="..\..\Source\CompressorModule.cpp"/>
-    <ClCompile Include="..\..\Source\DeEsserModule.cpp"/>
     <ClCompile Include="..\..\Source\EQModule.cpp"/>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp"/>
     <ClCompile Include="..\..\Source\PluginEditor.cpp"/>
@@ -2973,6 +2972,7 @@
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData2.cpp"/>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData3.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_devices.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_formats.cpp"/>
@@ -4405,26 +4405,19 @@
     <ClInclude Include="..\..\JuceLibraryCode\JucePluginDefines.h"/>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resources\Gameboy.png"/>
-    <None Include="..\..\Resources\DeEsser_Knob.svg"/>
     <None Include="..\..\Resources\LowEq_Knob.svg"/>
     <None Include="..\..\Resources\Output_Knob.svg"/>
-    <None Include="..\..\Resources\Satur_Knob.svg"/>
     <None Include="..\..\Resources\ToneEq_Knob.svg"/>
-    <None Include="..\..\Resources\Comp_Knob.svg"/>
     <None Include="..\..\Resources\EarlyGameBoy.ttf"/>
-    <None Include="..\..\Resources\Hard_Comp.svg"/>
-    <None Include="..\..\Resources\Hard_Satur.svg"/>
-    <None Include="..\..\Resources\Soft_Comp.svg"/>
     <None Include="..\..\Resources\compA.png"/>
-    <None Include="..\..\Resources\Soft_Satur.svg"/>
     <None Include="..\..\Resources\satA.png"/>
     <None Include="..\..\Resources\compB.png"/>
+    <None Include="..\..\Resources\gamevoice.svg"/>
     <None Include="..\..\Resources\Gameboy2_prova.png"/>
+    <None Include="..\..\Resources\nomi.svg"/>
     <None Include="..\..\Resources\satB.png"/>
+    <None Include="..\..\Resources\Gameboy_intro.png"/>
     <None Include="..\..\Resources\eqon.png"/>
-    <None Include="..\..\Resources\Start_Button.svg"/>
-    <None Include="..\..\Resources\Led_Rosso.svg"/>
     <None Include="..\..\Resources\buttonSlider.png"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\asio\LICENSE.txt"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\src\common\README.md"/>

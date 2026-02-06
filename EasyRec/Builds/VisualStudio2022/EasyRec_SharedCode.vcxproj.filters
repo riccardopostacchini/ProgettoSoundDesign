@@ -715,9 +715,6 @@
     <ClCompile Include="..\..\Source\CompressorModule.cpp">
       <Filter>EasyRec\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\DeEsserModule.cpp">
-      <Filter>EasyRec\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\EQModule.cpp">
       <Filter>EasyRec\Source</Filter>
     </ClCompile>
@@ -3704,6 +3701,9 @@
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData2.cpp">
+      <Filter>JUCE Library Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData3.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
@@ -7964,43 +7964,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resources\Gameboy.png">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\DeEsser_Knob.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
     <None Include="..\..\Resources\LowEq_Knob.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\Output_Knob.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
-    <None Include="..\..\Resources\Satur_Knob.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
     <None Include="..\..\Resources\ToneEq_Knob.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Comp_Knob.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\EarlyGameBoy.ttf">
       <Filter>EasyRec\Resources</Filter>
     </None>
-    <None Include="..\..\Resources\Hard_Comp.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Hard_Satur.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Soft_Comp.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
     <None Include="..\..\Resources\compA.png">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Soft_Satur.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\satA.png">
@@ -8009,19 +7985,22 @@
     <None Include="..\..\Resources\compB.png">
       <Filter>EasyRec\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\gamevoice.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\Gameboy2_prova.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\nomi.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\satB.png">
       <Filter>EasyRec\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\Gameboy_intro.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\eqon.png">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Start_Button.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\Led_Rosso.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\buttonSlider.png">

@@ -54,15 +54,11 @@ private:
 
     using APVTS = EasyRecAudioProcessor::APVTS;
 
-    // Background
+    // Background (solo interfaccia B)
     juce::Image backgroundImage;
-    juce::Image backgroundImageAlt;
-    bool showAltBackground = false;
 
-    //COMP KNOB
+    //COMP SLIDER
     ResettableSlider compKnob { 0.5f };
-    KnoblookAndFeel compKnobLookAndFeel;
-    std::unique_ptr<juce::Drawable> compKnobDrawable;
     juce::Label compLabel;
 
     
@@ -80,10 +76,8 @@ private:
     juce::Label toneLabelValue;
 
 
-    //SATURATOR KNOB
+    //SATURATOR SLIDER
     ResettableSlider satKnob { 0.5f };
-    KnoblookAndFeel satKnobLookAndFeel;
-    std::unique_ptr<juce::Drawable> satKnobDrawable;
     juce::Label satLabel;
 
     //OUTPUT KNOB
@@ -101,22 +95,16 @@ private:
     juce::TextButton satOnOffButton;
     juce::TextButton compOnOffButton;
     juce::TextButton eqOnOffButton;
+    juce::TextButton animOnOffButton;
+    bool animationsEnabled = true;
 
     // Toggle Soft/Hard Comp
     juce::DrawableButton toggleCompButton { "ToggleComp", juce::DrawableButton::ImageRaw };
-    std::unique_ptr<juce::Drawable> softHighlightDrawable;
-    std::unique_ptr<juce::Drawable> hardHighlightDrawable;
     bool isSoftMode = true;
-    juce::Rectangle<int> softHighlightArea;
-    juce::Rectangle<int> hardHighlightArea;
 
     // Toggle Soft/Hard Satur
     bool isSoftSaturMode = true;
     juce::TextButton saturToggleButton;
-    juce::Rectangle<int> softSatHighlightArea;
-    juce::Rectangle<int> hardSatHighlightArea;
-    std::unique_ptr<juce::Drawable> softSatHighlightDrawable;
-    std::unique_ptr<juce::Drawable> hardSatHighlightDrawable;
     std::unique_ptr<juce::Drawable> compBDrawable;
     std::unique_ptr<juce::Drawable> satBDrawable;
     std::unique_ptr<juce::Drawable> compADrawable;
@@ -127,19 +115,10 @@ private:
     // FONT
     juce::Typeface::Ptr earlyGameBoyFont;
     
-    // Animated rectangles for transitions
-    juce::Rectangle<float> currentCompHighlightRect;
-    juce::Rectangle<float> currentSaturHighlightRect;
-
     // Animation
     void timerCallback() override;
-    bool compAnimating = false;
-    bool saturAnimating = false;
 
     void updateEQ();
-
-    // D-pad right toggle (invisible button)
-    juce::TextButton dpadRightButton;
 
     // Micro-movimento stile Game Boy (interfaccia B)
     float spritePhase = 0.0f;
