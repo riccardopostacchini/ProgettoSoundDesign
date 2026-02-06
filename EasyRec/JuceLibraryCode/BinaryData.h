@@ -54,22 +54,22 @@ namespace BinaryData
     const int            compB_pngSize = 19540;
 
     extern const char*   Gameboy2_prova_png;
-    const int            Gameboy2_prova_pngSize = 7682114;
+    const int            Gameboy2_prova_pngSize = 7650710;
 
     extern const char*   satB_png;
     const int            satB_pngSize = 29239;
 
-    extern const char*   compB_svg;
-    const int            compB_svgSize = 255442;
-
-    extern const char*   satB_svg;
-    const int            satB_svgSize = 311521;
+    extern const char*   eqon_png;
+    const int            eqon_pngSize = 3195;
 
     extern const char*   Start_Button_svg;
     const int            Start_Button_svgSize = 3403;
 
     extern const char*   Led_Rosso_svg;
     const int            Led_Rosso_svgSize = 1383;
+
+    extern const char*   buttonSlider_png;
+    const int            buttonSlider_pngSize = 611;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
     const int namedResourceListSize = 21;

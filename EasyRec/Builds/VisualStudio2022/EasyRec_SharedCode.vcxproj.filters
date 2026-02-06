@@ -8015,16 +8015,16 @@
     <None Include="..\..\Resources\satB.png">
       <Filter>EasyRec\Resources</Filter>
     </None>
-    <None Include="..\..\Resources\compB.svg">
-      <Filter>EasyRec\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\satB.svg">
+    <None Include="..\..\Resources\eqon.png">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\Start_Button.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\Led_Rosso.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\buttonSlider.png">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\asio\LICENSE.txt">

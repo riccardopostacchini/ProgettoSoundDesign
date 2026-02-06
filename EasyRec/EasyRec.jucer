@@ -24,11 +24,12 @@
       <FILE id="a8FNpQ" name="Gameboy2_prova.png" compile="0" resource="1"
             file="Resources/Gameboy2_prova.png"/>
       <FILE id="Rg4c2e" name="satB.png" compile="0" resource="1" file="Resources/satB.png"/>
-      <FILE id="y0r6Si" name="compB.svg" compile="0" resource="1" file="Resources/compB.svg"/>
-      <FILE id="N1ahJF" name="satB.svg" compile="0" resource="1" file="Resources/satB.svg"/>
+      <FILE id="Fb06UV" name="eqon.png" compile="0" resource="1" file="Resources/eqon.png"/>
       <FILE id="pfsj5S" name="Start_Button.svg" compile="0" resource="1"
             file="Resources/Start_Button.svg"/>
       <FILE id="cy6SSx" name="Led_Rosso.svg" compile="0" resource="1" file="Resources/Led_Rosso.svg"/>
+      <FILE id="Ey07yK" name="buttonSlider.png" compile="0" resource="1"
+            file="Resources/buttonSlider.png"/>
     </GROUP>
     <GROUP id="{4F724603-4F6A-6864-3865-F466F6C0DBE4}" name="Source">
       <FILE id="tOKSc8" name="OutputModule.cpp" compile="1" resource="0"

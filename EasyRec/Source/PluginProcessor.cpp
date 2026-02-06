@@ -125,10 +125,13 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // === Parametri (APVTS) ===
     const float lowCutHz   = *parameters.getRawParameterValue("lowCut");
     const float toneNorm   = *parameters.getRawParameterValue("tone");
+    const float eqOnV      = *parameters.getRawParameterValue("eqOn");
     const float compAmt    = *parameters.getRawParameterValue("comp");
     const float compSoftV  = *parameters.getRawParameterValue("compSoft");
     const float satAmt     = *parameters.getRawParameterValue("satur");
     const float satSoftV   = *parameters.getRawParameterValue("satSoft");
+    const float compOnV    = *parameters.getRawParameterValue("compOn");
+    const float satOnV     = *parameters.getRawParameterValue("satOn");
     const float outNorm    = *parameters.getRawParameterValue("out");
 
     // Mapping: tone 0..1 -> -10..+10 dB
@@ -149,8 +152,15 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     };
     const float outDb = normToDb(outNorm);
 
-    eq.setLowCutFreq(lowCutHz);
-    eq.setToneAmount(toneDb);
+    const bool eqOn = (eqOnV >= 0.5f);
+    if (eqOn)
+    {
+        eq.setLowCutFreq(lowCutHz);
+        eq.setToneAmount(toneDb);
+    }
+    const bool compOn = (compOnV >= 0.5f);
+    const bool satOn = (satOnV >= 0.5f);
+
     compressor.setSoftMode(compSoftV >= 0.5f);
     compressor.setAmount(compAmt);
     saturation.setSoftMode(satSoftV >= 0.5f);
@@ -161,9 +171,12 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         output.setGainDb(outDb);
 
     // Elaborazione a catena
-    eq.processBlock(buffer);
-    compressor.processBlock(buffer);
-    saturation.processBlock(buffer);
+    if (eqOn)
+        eq.processBlock(buffer);
+    if (compOn)
+        compressor.processBlock(buffer);
+    if (satOn)
+        saturation.processBlock(buffer);
     output.processBlock(buffer);
 }
 
@@ -244,6 +257,10 @@ EasyRecAudioProcessor::APVTS::ParameterLayout EasyRecAudioProcessor::createParam
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
         0.5f));
 
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "eqOn", 1 }, "EQ On",
+        true));
+
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "comp", 1 }, "Compressor",
@@ -261,6 +278,14 @@ EasyRecAudioProcessor::APVTS::ParameterLayout EasyRecAudioProcessor::createParam
 
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         juce::ParameterID { "satSoft", 1 }, "Saturation Soft Mode",
+        true));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "compOn", 1 }, "Comp On",
+        true));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "satOn", 1 }, "Saturation On",
         true));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(

@@ -91,6 +91,16 @@ private:
     KnoblookAndFeel outKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> outKnobDrawable;
     juce::Label outLabel;
+    juce::Image buttonSliderImage;
+    juce::Rectangle<int> satSliderBaseRect;
+    juce::Rectangle<int> compSliderBaseRect;
+    juce::Image eqOnImage;
+    juce::Rectangle<int> eqOnRect;
+
+    // On/Off buttons (B)
+    juce::TextButton satOnOffButton;
+    juce::TextButton compOnOffButton;
+    juce::TextButton eqOnOffButton;
 
     // Toggle Soft/Hard Comp
     juce::DrawableButton toggleCompButton { "ToggleComp", juce::DrawableButton::ImageRaw };
@@ -144,6 +154,9 @@ private:
     std::unique_ptr<APVTS::SliderAttachment> outAttachment;
     std::unique_ptr<APVTS::ButtonAttachment> compSoftAttachment;
     std::unique_ptr<APVTS::ButtonAttachment> satSoftAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> compOnAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> satOnAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> eqOnAttachment;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };

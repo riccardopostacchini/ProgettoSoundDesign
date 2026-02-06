@@ -4422,10 +4422,10 @@
     <None Include="..\..\Resources\compB.png"/>
     <None Include="..\..\Resources\Gameboy2_prova.png"/>
     <None Include="..\..\Resources\satB.png"/>
-    <None Include="..\..\Resources\compB.svg"/>
-    <None Include="..\..\Resources\satB.svg"/>
+    <None Include="..\..\Resources\eqon.png"/>
     <None Include="..\..\Resources\Start_Button.svg"/>
     <None Include="..\..\Resources\Led_Rosso.svg"/>
+    <None Include="..\..\Resources\buttonSlider.png"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\asio\LICENSE.txt"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\src\common\README.md"/>
     <None Include="C:\JUCE\modules\juce_audio_devices\native\oboe\src\flowgraph\resampler\README.md"/>
