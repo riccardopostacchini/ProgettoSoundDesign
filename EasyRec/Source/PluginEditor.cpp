@@ -27,13 +27,16 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     setSize (825, 660);
 
-    // Timer per animazioni (micro-movimenti + highlight)
+    // Timer per animazioni (micro-movimenti + intro)
     startTimerHz(60);
     
     // Background (solo interfaccia B)
     backgroundImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy2_prova_png, BinaryData::Gameboy2_prova_pngSize);
     buttonSliderImage = juce::ImageCache::getFromMemory(BinaryData::buttonSlider_png, BinaryData::buttonSlider_pngSize);
     eqOnImage = juce::ImageCache::getFromMemory(BinaryData::eqon_png, BinaryData::eqon_pngSize);
+    introImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy_intro_png, BinaryData::Gameboy_intro_pngSize);
+    introGamevoiceDrawable = juce::Drawable::createFromImageData(BinaryData::gamevoice_svg, BinaryData::gamevoice_svgSize);
+    introNomiDrawable = juce::Drawable::createFromImageData(BinaryData::nomi_svg, BinaryData::nomi_svgSize);
 
     // === COMP SLIDER ===
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -355,6 +358,22 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         repaint();
     };
 
+    // Evita flash all'apertura: durante l'intro UI parte invisibile (ma bottoni restano cliccabili)
+    if (introActive)
+    {
+        const float uiAlpha = 0.0f;
+        satKnob.setAlpha(uiAlpha);
+        compKnob.setAlpha(uiAlpha);
+        lowKnob.setAlpha(uiAlpha);
+        toneKnob.setAlpha(uiAlpha);
+        outKnob.setAlpha(uiAlpha);
+        satLabel.setAlpha(uiAlpha);
+        compLabel.setAlpha(uiAlpha);
+        lowLabelValue.setAlpha(uiAlpha);
+        toneLabelValue.setAlpha(uiAlpha);
+        outLabel.setAlpha(uiAlpha);
+    }
+
     resized();
     repaint();
 
@@ -435,6 +454,39 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
                                   juce::RectanglePlacement::stretchToFit);
             }
         }
+
+    // Intro overlay (in primo piano; nomi/gamevoice sopra l'intro)
+    if (introActive)
+    {
+        const float t = juce::jlimit(0.0f, 1.0f, introProgress);
+        // Dissolvenza: 0.9s effettivi
+        const float fadeT = juce::jlimit(0.0f, 1.0f, t / 1.0f);
+        const float alpha = 1.0f - fadeT; // dissolve
+
+        if (introImage.isValid())
+        {
+            const float imageAlpha = 1.0f - juce::jlimit(0.0f, 1.0f, introImageFade);
+            juce::Graphics::ScopedSaveState state(g);
+            g.setOpacity(imageAlpha);
+            g.drawImage(introImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
+        }
+
+        if (introGamevoiceDrawable)
+        {
+            const float gwScale = (1.0f / 6.0f) * 1.7f;
+            auto bounds = getLocalBounds().toFloat().translated(-25.0f, -110.0f);
+            auto scaled = bounds.withSizeKeepingCentre(bounds.getWidth() * gwScale, bounds.getHeight() * gwScale);
+            introGamevoiceDrawable->drawWithin(g, scaled, juce::RectanglePlacement::centred, alpha);
+        }
+
+        if (introNomiDrawable)
+        {
+            const float nomiScale = (1.0f / 6.0f) * 1.2f;
+            auto bounds = getLocalBounds().toFloat().translated(-25.0f, -75.0f);
+            auto scaled = bounds.withSizeKeepingCentre(bounds.getWidth() * nomiScale, bounds.getHeight() * nomiScale);
+            introNomiDrawable->drawWithin(g, scaled, juce::RectanglePlacement::centred, alpha);
+        }
+    }
 }
 
 void EasyRecAudioProcessorEditor::resized()
@@ -448,7 +500,7 @@ void EasyRecAudioProcessorEditor::resized()
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
     compKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     compKnob.setLookAndFeel(nullptr);
-    compKnob.setBounds(437, 200, 100, 60);
+    compKnob.setBounds(435, 200, 100, 60);
     compKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
     compKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
     compKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
@@ -456,7 +508,7 @@ void EasyRecAudioProcessorEditor::resized()
     satKnob.setSliderStyle(juce::Slider::LinearHorizontal);
     satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     satKnob.setLookAndFeel(nullptr);
-    satKnob.setBounds(290, 89, 100, 60);
+    satKnob.setBounds(288, 89, 100, 60);
     satKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
     satKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
     satKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
@@ -488,21 +540,25 @@ void EasyRecAudioProcessorEditor::resized()
     satBRect = saturToggleButton.getBounds();
     compBRect = toggleCompButton.getBounds();
 
-    // Visibilità in base a ON/OFF
+    // Visibilità in base a ON/OFF (e intro)
     const bool satOn = satOnOffButton.getToggleState();
     const bool compOn = compOnOffButton.getToggleState();
     const bool eqOn = eqOnOffButton.getToggleState();
-    satKnob.setVisible(satOn);
-    satLabel.setVisible(satOn);
-    compKnob.setVisible(compOn);
-    compLabel.setVisible(compOn);
-    lowKnob.setVisible(eqOn);
-    toneKnob.setVisible(eqOn);
-    lowLabelValue.setVisible(eqOn);
-    toneLabelValue.setVisible(eqOn);
-    satOnOffButton.setVisible(true);
-    compOnOffButton.setVisible(true);
-    eqOnOffButton.setVisible(true);
+    const bool showUi = true;
+
+    satKnob.setVisible(showUi && satOn);
+    satLabel.setVisible(showUi && satOn);
+    compKnob.setVisible(showUi && compOn);
+    compLabel.setVisible(showUi && compOn);
+    lowKnob.setVisible(showUi && eqOn);
+    toneKnob.setVisible(showUi && eqOn);
+    lowLabelValue.setVisible(showUi && eqOn);
+    toneLabelValue.setVisible(showUi && eqOn);
+    outKnob.setVisible(showUi);
+    outLabel.setVisible(showUi);
+    satOnOffButton.setVisible(showUi);
+    compOnOffButton.setVisible(showUi);
+    eqOnOffButton.setVisible(showUi);
 
     // Label placement
     lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));
@@ -524,6 +580,58 @@ void EasyRecAudioProcessorEditor::timerCallback()
         spritePhase += spriteSpeed;
         if (spritePhase > juce::MathConstants<float>::twoPi)
             spritePhase -= juce::MathConstants<float>::twoPi;
+    }
+
+    // Intro progress (0.5s)
+    if (introActive && !introPaused)
+    {
+        if (introDelayFrames > 0)
+        {
+            --introDelayFrames;
+        }
+        else if (introProgress < 1.0f)
+        {
+            constexpr float introSeconds = 0.7f;
+            introProgress += (1.0f / (introSeconds * 60.0f)); // 0.7 secondi a 60fps
+            if (introProgress >= 1.0f)
+                introProgress = 1.0f;
+        }
+        else
+        {
+            // attende un attimo dopo la dissolvenza di nomi/gamevoice
+            if (introHoldFrames > 0)
+            {
+                --introHoldFrames;
+            }
+            else if (introImageFade < 1.0f)
+            {
+                constexpr float imageFadeSeconds = 0.5f;
+                introImageFade += (1.0f / (imageFadeSeconds * 60.0f));
+                if (introImageFade >= 1.0f)
+                    introImageFade = 1.0f;
+            }
+            else
+            {
+                introActive = false;
+                resized();
+            }
+        }
+    }
+
+    // Fade-in UI durante la dissolvenza di gameboy_intro
+    {
+        const float uiAlpha = introActive ? juce::jlimit(0.0f, 1.0f, introImageFade) : 1.0f;
+        satKnob.setAlpha(uiAlpha);
+        compKnob.setAlpha(uiAlpha);
+        lowKnob.setAlpha(uiAlpha);
+        toneKnob.setAlpha(uiAlpha);
+        outKnob.setAlpha(uiAlpha);
+        satLabel.setAlpha(uiAlpha);
+        compLabel.setAlpha(uiAlpha);
+        lowLabelValue.setAlpha(uiAlpha);
+        toneLabelValue.setAlpha(uiAlpha);
+        outLabel.setAlpha(uiAlpha);
+        // On/off buttons restano invisibili
     }
 
     {

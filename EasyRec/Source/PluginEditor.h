@@ -90,6 +90,15 @@ private:
     juce::Rectangle<int> compSliderBaseRect;
     juce::Image eqOnImage;
     juce::Rectangle<int> eqOnRect;
+    juce::Image introImage;
+    std::unique_ptr<juce::Drawable> introGamevoiceDrawable;
+    std::unique_ptr<juce::Drawable> introNomiDrawable;
+    bool introActive = true;
+    float introProgress = 0.0f; // 0..1
+    int introDelayFrames = 90;  // 1.5s @60fps
+    int introHoldFrames = 0;
+    float introImageFade = 0.0f; // 0..1 (fade out)
+    bool introPaused = false;
 
     // On/Off buttons (B)
     juce::TextButton satOnOffButton;
