@@ -15,9 +15,9 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "FileDescription",  "GameVoice\0"
+      VALUE "FileDescription",  "EasyRec\0"
       VALUE "FileVersion",  "1.4.0\0"
-      VALUE "ProductName",  "GameVoice\0"
+      VALUE "ProductName",  "EasyRec\0"
       VALUE "ProductVersion",  "1.4.0\0"
     END
   END

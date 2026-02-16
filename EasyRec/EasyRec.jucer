@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="yJTR30" name="GameVoice" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="yJTR30" name="EasyRec" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" version="1.4.0">
-  <MAINGROUP id="EapaMv" name="GameVoice">
+  <MAINGROUP id="EapaMv" name="EasyRec">
     <GROUP id="{6C986A6B-3211-231F-8A01-DA764D9A479F}" name="Resources">
       <FILE id="hQhriA" name="LowEq_Knob.svg" compile="0" resource="1" file="Resources/LowEq_Knob.svg"/>
       <FILE id="ePZMub" name="Output_Knob.svg" compile="0" resource="1" file="Resources/Output_Knob.svg"/>

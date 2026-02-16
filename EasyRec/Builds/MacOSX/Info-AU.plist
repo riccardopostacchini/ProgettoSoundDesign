@@ -8,11 +8,11 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.GameVoice</string>
+    <string>com.yourcompany.EasyRec</string>
     <key>CFBundleName</key>
-    <string>GameVoice</string>
+    <string>EasyRec</string>
     <key>CFBundleDisplayName</key>
-    <string>GameVoice</string>
+    <string>EasyRec</string>
     <key>CFBundlePackageType</key>
     <string>BNDL</string>
     <key>CFBundleSignature</key>
@@ -29,11 +29,11 @@
     <array>
       <dict>
         <key>name</key>
-        <string>yourcompany: GameVoice</string>
+        <string>yourcompany: EasyRec</string>
         <key>description</key>
-        <string>GameVoice</string>
+        <string>EasyRec</string>
         <key>factoryFunction</key>
-        <string>GameVoiceAUFactory</string>
+        <string>EasyRecAUFactory</string>
         <key>manufacturer</key>
         <string>Manu</string>
         <key>type</key>
