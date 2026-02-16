@@ -7994,6 +7994,9 @@
     <None Include="..\..\Resources\nomi.svg">
       <Filter>EasyRec\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\bassknob.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\satB.png">
       <Filter>EasyRec\Resources</Filter>
     </None>

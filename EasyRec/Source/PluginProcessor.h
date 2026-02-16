@@ -61,11 +61,5 @@ private:
     SaturationModule saturation;
     OutputModule output;
 
-    // Auto-gain (AGC) per mantenere volume costante dopo la catena
-    double currentSampleRate = 44100.0;
-    float agcGain = 1.0f;
-    float agcAttackCoeff = 0.0f;
-    float agcReleaseCoeff = 0.0f;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessor)
 };

@@ -84,6 +84,7 @@
 /* Begin PBXFileReference section */
 		00E4CA02EA1B00992854CD38 /* include_juce_audio_processors_headless_ara.cpp */ /* include_juce_audio_processors_headless_ara.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_processors_headless_ara.cpp; path = ../../JuceLibraryCode/include_juce_audio_processors_headless_ara.cpp; sourceTree = SOURCE_ROOT; };
 		03CAA430B994550766C97FE2 /* PluginProcessor.h */ /* PluginProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PluginProcessor.h; path = ../../Source/PluginProcessor.h; sourceTree = SOURCE_ROOT; };
+		03E7C62F0A7828FFB73913D7 /* bassknob.png */ /* bassknob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bassknob.png; path = ../../Resources/bassknob.png; sourceTree = SOURCE_ROOT; };
 		050ACEA204132D2500DA0106 /* VST3 Manifest Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = juce_vst3_helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		06373B66ABE4C8F38934037F /* Info-Standalone_Plugin.plist */ /* Info-Standalone_Plugin.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-Standalone_Plugin.plist"; path = "Info-Standalone_Plugin.plist"; sourceTree = SOURCE_ROOT; };
 		09408706D692E9C254E40A4D /* include_juce_audio_formats.mm */ /* include_juce_audio_formats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_formats.mm; path = ../../JuceLibraryCode/include_juce_audio_formats.mm; sourceTree = SOURCE_ROOT; };
@@ -331,6 +332,7 @@
 				7B8B51572853CDF80EAC2FB7,
 				2CEEFBA0867B147D63004220,
 				70DB699F72D7209FBF0C9A92,
+				03E7C62F0A7828FFB73913D7,
 				56A21ACB8044EBD8ABFED107,
 				2ED656254750343D7CE64253,
 				83461B6F1C1A735832240162,

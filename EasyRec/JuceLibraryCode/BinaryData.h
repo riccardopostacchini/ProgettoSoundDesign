@@ -33,10 +33,13 @@ namespace BinaryData
     const int            gamevoice_svgSize = 1680;
 
     extern const char*   Gameboy2_prova_png;
-    const int            Gameboy2_prova_pngSize = 18842891;
+    const int            Gameboy2_prova_pngSize = 18843301;
 
     extern const char*   nomi_svg;
     const int            nomi_svgSize = 1546;
+
+    extern const char*   bassknob_png;
+    const int            bassknob_pngSize = 2076;
 
     extern const char*   satB_png;
     const int            satB_pngSize = 29239;
@@ -51,7 +54,7 @@ namespace BinaryData
     const int            buttonSlider_pngSize = 611;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 14;
+    const int namedResourceListSize = 15;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

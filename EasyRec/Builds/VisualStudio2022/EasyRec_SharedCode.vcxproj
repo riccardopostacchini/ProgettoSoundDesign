@@ -4415,6 +4415,7 @@
     <None Include="..\..\Resources\gamevoice.svg"/>
     <None Include="..\..\Resources\Gameboy2_prova.png"/>
     <None Include="..\..\Resources\nomi.svg"/>
+    <None Include="..\..\Resources\bassknob.png"/>
     <None Include="..\..\Resources\satB.png"/>
     <None Include="..\..\Resources\Gameboy_intro.png"/>
     <None Include="..\..\Resources\eqon.png"/>
