@@ -9,11 +9,11 @@ void CompressorModule::prepare(const juce::dsp::ProcessSpec& spec)
     sampleRate = (float)spec.sampleRate;
     compressor.prepare(spec);
 
-    // Parametri di default in soft mode
-    compressor.setAttack(10.0f);
-    compressor.setRelease(100.0f);
-    compressor.setRatio(2.0f);
-    compressor.setThreshold(-24.0f);
+    // Parametri di default (soft)
+    compressor.setAttack(3.005f);
+    compressor.setRelease(41.87f);
+    compressor.setRatio(3.8f);
+    compressor.setThreshold(-18.0f);
 }
 
 void CompressorModule::processBlock(juce::AudioBuffer<float>& buffer)
@@ -25,18 +25,16 @@ void CompressorModule::processBlock(juce::AudioBuffer<float>& buffer)
 
 void CompressorModule::setAmount(float amount)
 {
-    // Mappa l'amount da 0..1 a threshold e ratio a seconda della modalità
+    // Amount -> modifica solo il threshold (carattere fissato dalla modalità)
     if (softMode)
     {
-        float threshold = juce::jmap(amount, -60.0f, -10.0f);
+        const float threshold = juce::jmap(amount, -30.0f, -18.0f);
         compressor.setThreshold(threshold);
-        compressor.setRatio(2.0f);
     }
     else
     {
-        float threshold = juce::jmap(amount, -40.0f, -5.0f);
+        const float threshold = juce::jmap(amount, -20.0f, -5.0f);
         compressor.setThreshold(threshold);
-        compressor.setRatio(6.0f);
     }
 }
 
@@ -46,15 +44,17 @@ void CompressorModule::setSoftMode(bool soft)
 
     if (soft)
     {
-        compressor.setAttack(10.0f);
-        compressor.setRelease(100.0f);
-        compressor.setRatio(2.0f);
+        compressor.setAttack(3.005f);
+        compressor.setRelease(41.87f);
+        compressor.setRatio(3.8f);
+        compressor.setThreshold(-18.0f);
     }
     else
     {
-        compressor.setAttack(1.0f);
-        compressor.setRelease(50.0f);
-        compressor.setRatio(6.0f);
+        compressor.setAttack(23.0f);
+        compressor.setRelease(100.0f);
+        compressor.setRatio(101.0f);
+        compressor.setThreshold(-5.0f);
     }
 }
 

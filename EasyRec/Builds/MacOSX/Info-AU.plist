@@ -8,19 +8,19 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.EasyRec</string>
+    <string>com.yourcompany.GameVoice</string>
     <key>CFBundleName</key>
-    <string>EasyRec</string>
+    <string>GameVoice</string>
     <key>CFBundleDisplayName</key>
-    <string>EasyRec</string>
+    <string>GameVoice</string>
     <key>CFBundlePackageType</key>
     <string>BNDL</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.3.0</string>
+    <string>1.4.0</string>
     <key>CFBundleVersion</key>
-    <string>1.3.0</string>
+    <string>1.4.0</string>
     <key>NSHumanReadableCopyright</key>
     <string></string>
     <key>NSHighResolutionCapable</key>
@@ -29,11 +29,11 @@
     <array>
       <dict>
         <key>name</key>
-        <string>yourcompany: EasyRec</string>
+        <string>yourcompany: GameVoice</string>
         <key>description</key>
-        <string>EasyRec</string>
+        <string>GameVoice</string>
         <key>factoryFunction</key>
-        <string>EasyRecAUFactory</string>
+        <string>GameVoiceAUFactory</string>
         <key>manufacturer</key>
         <string>Manu</string>
         <key>type</key>
@@ -41,7 +41,7 @@
         <key>subtype</key>
         <string>Yjtr</string>
         <key>version</key>
-        <integer>66304</integer>
+        <integer>66560</integer>
         <key>resourceUsage</key>
         <dict>
           <key>network.client</key>

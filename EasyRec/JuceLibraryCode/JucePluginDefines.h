@@ -41,10 +41,10 @@
  #define JucePlugin_Enable_ARA             0
 #endif
 #ifndef  JucePlugin_Name
- #define JucePlugin_Name                   "EasyRec"
+ #define JucePlugin_Name                   "GameVoice"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "EasyRec"
+ #define JucePlugin_Desc                   "GameVoice"
 #endif
 #ifndef  JucePlugin_Manufacturer
  #define JucePlugin_Manufacturer           "yourcompany"
@@ -77,13 +77,13 @@
  #define JucePlugin_EditorRequiresKeyboardFocus  0
 #endif
 #ifndef  JucePlugin_Version
- #define JucePlugin_Version                1.3.0
+ #define JucePlugin_Version                1.4.0
 #endif
 #ifndef  JucePlugin_VersionCode
- #define JucePlugin_VersionCode            0x10300
+ #define JucePlugin_VersionCode            0x10400
 #endif
 #ifndef  JucePlugin_VersionString
- #define JucePlugin_VersionString          "1.3.0"
+ #define JucePlugin_VersionString          "1.4.0"
 #endif
 #ifndef  JucePlugin_VSTUniqueID
  #define JucePlugin_VSTUniqueID            JucePlugin_PluginCode
@@ -101,19 +101,19 @@
  #define JucePlugin_AUSubType              JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_AUExportPrefix
- #define JucePlugin_AUExportPrefix         EasyRecAU
+ #define JucePlugin_AUExportPrefix         GameVoiceAU
 #endif
 #ifndef  JucePlugin_AUExportPrefixQuoted
- #define JucePlugin_AUExportPrefixQuoted   "EasyRecAU"
+ #define JucePlugin_AUExportPrefixQuoted   "GameVoiceAU"
 #endif
 #ifndef  JucePlugin_AUManufacturerCode
  #define JucePlugin_AUManufacturerCode     JucePlugin_ManufacturerCode
 #endif
 #ifndef  JucePlugin_CFBundleIdentifier
- #define JucePlugin_CFBundleIdentifier     com.yourcompany.EasyRec
+ #define JucePlugin_CFBundleIdentifier     com.yourcompany.GameVoice
 #endif
 #ifndef  JucePlugin_AAXIdentifier
- #define JucePlugin_AAXIdentifier          com.yourcompany.EasyRec
+ #define JucePlugin_AAXIdentifier          com.yourcompany.GameVoice
 #endif
 #ifndef  JucePlugin_AAXManufacturerCode
  #define JucePlugin_AAXManufacturerCode    JucePlugin_ManufacturerCode
@@ -137,7 +137,7 @@
  #define JucePlugin_IAASubType             JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_IAAName
- #define JucePlugin_IAAName                "yourcompany: EasyRec"
+ #define JucePlugin_IAAName                "yourcompany: GameVoice"
 #endif
 #ifndef  JucePlugin_VSTNumMidiInputs
  #define JucePlugin_VSTNumMidiInputs       16
@@ -152,10 +152,10 @@
  #define JucePlugin_ARATransformationFlags  0
 #endif
 #ifndef  JucePlugin_ARAFactoryID
- #define JucePlugin_ARAFactoryID           "com.yourcompany.EasyRec.factory"
+ #define JucePlugin_ARAFactoryID           "com.yourcompany.GameVoice.factory"
 #endif
 #ifndef  JucePlugin_ARADocumentArchiveID
- #define JucePlugin_ARADocumentArchiveID   "com.yourcompany.EasyRec.aradocumentarchive.1.3.0"
+ #define JucePlugin_ARADocumentArchiveID   "com.yourcompany.GameVoice.aradocumentarchive.1.4.0"
 #endif
 #ifndef  JucePlugin_ARACompatibleArchiveIDs
  #define JucePlugin_ARACompatibleArchiveIDs  ""

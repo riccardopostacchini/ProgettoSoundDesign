@@ -85,6 +85,14 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     compressor.prepare(spec);
     saturation.prepare(spec);
     output.prepare(spec);
+
+    currentSampleRate = sampleRate;
+    agcGain = 1.0f;
+    // AGC: attacco medio e rilascio più lento per evitare pumping
+    const float agcAttackMs = 30.0f;
+    const float agcReleaseMs = 300.0f;
+    agcAttackCoeff = std::exp(-1.0f / (0.001f * agcAttackMs * (float) currentSampleRate));
+    agcReleaseCoeff = std::exp(-1.0f / (0.001f * agcReleaseMs * (float) currentSampleRate));
 }
 
 void EasyRecAudioProcessor::releaseResources()
@@ -121,6 +129,27 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
+
+    // === Misura RMS in ingresso (per AGC) ===
+    auto computeRms = [](const juce::AudioBuffer<float>& buf) -> float
+    {
+        const int numChannels = buf.getNumChannels();
+        const int numSamples = buf.getNumSamples();
+        if (numChannels == 0 || numSamples == 0)
+            return 0.0f;
+
+        double sumSquares = 0.0;
+        for (int ch = 0; ch < numChannels; ++ch)
+        {
+            const float* data = buf.getReadPointer(ch);
+            for (int n = 0; n < numSamples; ++n)
+                sumSquares += (double) data[n] * (double) data[n];
+        }
+        const double mean = sumSquares / (double) (numChannels * numSamples);
+        return (float) std::sqrt(mean);
+    };
+
+    const float preRms = computeRms(buffer);
 
     // === Parametri (APVTS) ===
     const float lowCutHz   = *parameters.getRawParameterValue("lowCut");
@@ -177,6 +206,24 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         compressor.processBlock(buffer);
     if (satOn)
         saturation.processBlock(buffer);
+
+    // === AGC: compensa il volume per lasciare l'output knob come unico controllo ===
+    {
+        const float postRms = computeRms(buffer);
+        float targetGain = 1.0f;
+        constexpr float silenceThreshold = 0.0001f;
+        if (preRms > silenceThreshold && postRms > silenceThreshold)
+            targetGain = preRms / postRms;
+
+        // Limita il guadagno per evitare boost eccessivi
+        targetGain = juce::jlimit(0.25f, 4.0f, targetGain); // circa -12dB .. +12dB
+
+        const float coeff = (targetGain < agcGain) ? agcAttackCoeff : agcReleaseCoeff;
+        agcGain = coeff * agcGain + (1.0f - coeff) * targetGain;
+
+        buffer.applyGain(agcGain);
+    }
+
     output.processBlock(buffer);
 }
 
