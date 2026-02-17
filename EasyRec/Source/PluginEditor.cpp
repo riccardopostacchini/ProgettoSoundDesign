@@ -330,7 +330,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     addAndMakeVisible(compOnOffButton);
 
     eqOnOffButton.setClickingTogglesState(true);
-    eqOnOffButton.setAlpha(0.0f);
+    eqOnOffButton.setAlpha(1.0f);
     eqOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
     eqOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     eqOnOffButton.setToggleState(true, juce::dontSendNotification);
@@ -520,9 +520,9 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 void EasyRecAudioProcessorEditor::resized()
 {
     // EQ + Output
-    lowKnob.setBounds(372, 311, 40, 40);
-    toneKnob.setBounds(437, 311, 40, 40);
-    outKnob.setBounds(495, 311, 40, 40);
+    lowKnob.setBounds(370, 308, 40, 40);
+    toneKnob.setBounds(435, 308, 40, 40);
+    outKnob.setBounds(495, 308, 40, 40);
 
     // Slider orizzontali per Compressor e Saturator
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -549,7 +549,7 @@ void EasyRecAudioProcessorEditor::resized()
     // On/Off buttons
     satOnOffButton.setBounds(satKnob.getX() + 57, satKnob.getY() + 6, 15, 15);
     compOnOffButton.setBounds(compKnob.getX() + 49, compKnob.getY() + 6, 15, 15);
-    eqOnOffButton.setBounds(toneKnob.getX() - 96, toneKnob.getY() - 21, 15, 15);
+    eqOnOffButton.setBounds(toneKnob.getX() - 35, toneKnob.getY() - 21, 15, 15);
     animOnOffButton.setBounds(510, 420, 60, 60);
 
     // bassknob.png centrato sul low knob
