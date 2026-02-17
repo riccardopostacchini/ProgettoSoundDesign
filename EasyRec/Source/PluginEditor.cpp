@@ -1,13 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-static juce::String formatHz(double hz)
-{
-    if (std::floor(hz) == hz)
-        return juce::String((int)hz);
-    return juce::String(hz, 1);
-}
-
 static juce::String formatValue(float value)
 {
     if (std::floor(value) == value)
@@ -21,7 +14,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 {
     // Font
     earlyGameBoyFont = juce::Typeface::createSystemTypefaceFor(BinaryData::EarlyGameBoy_ttf, BinaryData::EarlyGameBoy_ttfSize);
-    auto font = juce::Font(earlyGameBoyFont);
+    auto font = juce::Font(juce::FontOptions().withTypeface(earlyGameBoyFont));
     font.setHeight(9.0f);
     font.setBold(true);
 
@@ -53,8 +46,8 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     lowKnobLookAndFeel.knobImage = lowKnobDrawable.get();
     lowKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     lowKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    lowKnob.setRange(20.0, 200.0, 0.1);
-    lowKnob.setValue(110.0);  // valore iniziale centrale reale
+    lowKnob.setRange(0.0, 1.0, 0.01);
+    lowKnob.setValue(0.5);
     lowKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
     lowKnob.setLookAndFeel(&lowKnobLookAndFeel);
     addAndMakeVisible(lowKnob);
@@ -71,7 +64,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     lowLabelValue.setInterceptsMouseClicks(false, false);
     addAndMakeVisible(lowLabelValue);
 
-    lowLabelValue.setText(formatHz(lowKnob.getValue()), juce::dontSendNotification);
+    lowLabelValue.setText(formatValue((lowKnob.getValue() - 0.5f) * 20.0f), juce::dontSendNotification);
 
     // === TONE KNOB ===
     toneKnobDrawable = juce::Drawable::createFromImageData(BinaryData::ToneEq_Knob_svg, BinaryData::ToneEq_Knob_svgSize);
@@ -185,34 +178,25 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     // Usa le funzioni per tutte le label e slider
     setupLabel(compLabel, compKnob);
-    setupLabelFormatted(lowLabelValue, lowKnob, formatHz);
+    setupLabel(lowLabelValue, lowKnob);
     setupLabel(toneLabelValue, toneKnob);
     setupLabel(satLabel, satKnob);
     setupLabel(outLabel, outKnob);
 
 
     addListener(compKnob, compLabel, formatValue, FormatterType::FormatValue);
-    addListener(lowKnob, lowLabelValue, formatHz, FormatterType::FormatHz);
+    addListener(lowKnob, lowLabelValue, formatValue, FormatterType::FormatValue);
     addListener(toneKnob, toneLabelValue, formatValue, FormatterType::FormatValue);
     addListener(satKnob, satLabel, formatValue, FormatterType::FormatValue);
     addListener(outKnob, outLabel, formatValue, FormatterType::FormatValue);
 
-    // Aggiorna subito le label in interfaccia B (valori /10)
-    auto updateBLabels = [this]()
+    // Label slider in dB da -10 a +10.
+    auto updateBLabels = [this, formatMinMax]()
     {
-        auto toOutOfTen = [](double v) -> int
-        {
-            return (int)juce::jlimit(0.0, 10.0, std::round(v * 10.0));
-        };
-        auto formatOutOfTen = [](int v) -> juce::String
-        {
-            if (v <= 0) return "min/10";
-            if (v >= 10) return "max/10";
-            return juce::String(v) + "/10";
-        };
-
-        compLabel.setText(formatOutOfTen(toOutOfTen(compKnob.getValue())), juce::dontSendNotification);
-        satLabel.setText(formatOutOfTen(toOutOfTen(satKnob.getValue())), juce::dontSendNotification);
+        const float compDb = ((float) compKnob.getValue() - 0.5f) * 20.0f;
+        const float trebleDb = ((float) satKnob.getValue() - 0.5f) * 20.0f;
+        compLabel.setText(formatMinMax(compDb), juce::dontSendNotification);
+        satLabel.setText(formatMinMax(trebleDb), juce::dontSendNotification);
     };
 
     compKnob.onValueChange = [updateBLabels]() { updateBLabels(); };
@@ -289,6 +273,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
             isSoftSaturMode = newMode;
         }
     };
+    saturToggleButton.setEnabled(false);
 
 
     // On/Off buttons (B)
@@ -307,7 +292,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     addAndMakeVisible(compOnOffButton);
 
     eqOnOffButton.setClickingTogglesState(true);
-    eqOnOffButton.setAlpha(1.0f);
+    eqOnOffButton.setAlpha(0.0f);
     eqOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
     eqOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     eqOnOffButton.setToggleState(true, juce::dontSendNotification);
@@ -420,8 +405,8 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
                 compBDrawable->drawWithin(g, compRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
         }
 
-        // eqon.png visibile solo quando EQ attivo
-        if (eqOnOffButton.getToggleState() && eqOnImage.isValid())
+        // eqon.png sempre visibile come indicatore EQ.
+        if (eqOnImage.isValid())
         {
             g.drawImageWithin(eqOnImage,
                               eqOnRect.getX(),
@@ -434,25 +419,19 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         // Base sotto gli slider (buttonSlider.png)
         if (buttonSliderImage.isValid())
         {
-            if (satOnOffButton.getToggleState())
-            {
-                g.drawImageWithin(buttonSliderImage,
-                                  satSliderBaseRect.getX(),
-                                  satSliderBaseRect.getY(),
-                                  satSliderBaseRect.getWidth(),
-                                  satSliderBaseRect.getHeight(),
-                                  juce::RectanglePlacement::stretchToFit);
-            }
+            g.drawImageWithin(buttonSliderImage,
+                              satSliderBaseRect.getX(),
+                              satSliderBaseRect.getY(),
+                              satSliderBaseRect.getWidth(),
+                              satSliderBaseRect.getHeight(),
+                              juce::RectanglePlacement::stretchToFit);
 
-            if (compOnOffButton.getToggleState())
-            {
-                g.drawImageWithin(buttonSliderImage,
-                                  compSliderBaseRect.getX(),
-                                  compSliderBaseRect.getY(),
-                                  compSliderBaseRect.getWidth(),
-                                  compSliderBaseRect.getHeight(),
-                                  juce::RectanglePlacement::stretchToFit);
-            }
+            g.drawImageWithin(buttonSliderImage,
+                              compSliderBaseRect.getX(),
+                              compSliderBaseRect.getY(),
+                              compSliderBaseRect.getWidth(),
+                              compSliderBaseRect.getHeight(),
+                              juce::RectanglePlacement::stretchToFit);
         }
 
     // Intro overlay (in primo piano; nomi/gamevoice sopra l'intro)
@@ -540,25 +519,21 @@ void EasyRecAudioProcessorEditor::resized()
     satBRect = saturToggleButton.getBounds();
     compBRect = toggleCompButton.getBounds();
 
-    // Visibilità in base a ON/OFF (e intro)
-    const bool satOn = satOnOffButton.getToggleState();
-    const bool compOn = compOnOffButton.getToggleState();
-    const bool eqOn = eqOnOffButton.getToggleState();
     const bool showUi = true;
 
-    satKnob.setVisible(showUi && satOn);
-    satLabel.setVisible(showUi && satOn);
-    compKnob.setVisible(showUi && compOn);
-    compLabel.setVisible(showUi && compOn);
-    lowKnob.setVisible(showUi && eqOn);
-    toneKnob.setVisible(showUi && eqOn);
-    lowLabelValue.setVisible(showUi && eqOn);
-    toneLabelValue.setVisible(showUi && eqOn);
+    satKnob.setVisible(showUi);
+    satLabel.setVisible(showUi);
+    compKnob.setVisible(showUi);
+    compLabel.setVisible(showUi);
+    lowKnob.setVisible(showUi);
+    toneKnob.setVisible(showUi);
+    lowLabelValue.setVisible(showUi);
+    toneLabelValue.setVisible(showUi);
     outKnob.setVisible(showUi);
     outLabel.setVisible(showUi);
-    satOnOffButton.setVisible(showUi);
-    compOnOffButton.setVisible(showUi);
-    eqOnOffButton.setVisible(showUi);
+    satOnOffButton.setVisible(false);
+    compOnOffButton.setVisible(false);
+    eqOnOffButton.setVisible(false);
 
     // Label placement
     lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));
@@ -635,23 +610,18 @@ void EasyRecAudioProcessorEditor::timerCallback()
     }
 
     {
-        auto toOutOfTen = [](double v) -> int
+        auto fmt = [](float valueDb) -> juce::String
         {
-            return (int)juce::jlimit(0.0, 10.0, std::round(v * 10.0));
+            if (valueDb <= -9.95f) return "min";
+            if (valueDb >= 9.95f) return "max";
+            if (std::floor(valueDb) == valueDb) return juce::String((int) valueDb);
+            return juce::String(valueDb, 1);
         };
 
-        const int compVal = toOutOfTen(compKnob.getValue());
-        const int satVal = toOutOfTen(satKnob.getValue());
-
-        auto formatOutOfTen = [](int v) -> juce::String
-        {
-            if (v <= 0) return "min/10";
-            if (v >= 10) return "max/10";
-            return juce::String(v) + "/10";
-        };
-
-        compLabel.setText(formatOutOfTen(compVal), juce::dontSendNotification);
-        satLabel.setText(formatOutOfTen(satVal), juce::dontSendNotification);
+        const float compDb = ((float) compKnob.getValue() - 0.5f) * 20.0f;
+        const float trebleDb = ((float) satKnob.getValue() - 0.5f) * 20.0f;
+        compLabel.setText(fmt(compDb), juce::dontSendNotification);
+        satLabel.setText(fmt(trebleDb), juce::dontSendNotification);
     }
 
     repaint();
@@ -659,8 +629,8 @@ void EasyRecAudioProcessorEditor::timerCallback()
 
 void EasyRecAudioProcessorEditor::updateEQ()
 {
-    float lowFreq = (float)lowKnob.getValue();
-    float toneVal = (float)toneKnob.getValue();
+    const float bassDb = ((float) lowKnob.getValue() - 0.5f) * 20.0f;
+    const float trebleDb = ((float) satKnob.getValue() - 0.5f) * 20.0f;
 
-    audioProcessor.updateEQFilters(lowFreq, toneVal);
+    audioProcessor.updateEQFilters(bassDb, trebleDb);
 }

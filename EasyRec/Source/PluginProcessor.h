@@ -61,5 +61,17 @@ private:
     SaturationModule saturation;
     OutputModule output;
 
+    // Hidden de-esser interno (broadband reduction guidata dalla banda sibilante)
+    juce::dsp::IIR::Filter<float> deEsserBandL;
+    juce::dsp::IIR::Filter<float> deEsserBandR;
+    float deEssEnv = 0.0f;
+    float deEssAttackCoeff = 0.0f;
+    float deEssReleaseCoeff = 0.0f;
+    float deEssGainSmoothed = 1.0f;
+    float deEssGainAttackCoeff = 0.0f;
+    float deEssGainReleaseCoeff = 0.0f;
+
+    void processHiddenDeEsser(juce::AudioBuffer<float>& buffer);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessor)
 };

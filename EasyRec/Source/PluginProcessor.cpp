@@ -85,6 +85,20 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     compressor.prepare(spec);
     saturation.prepare(spec);
     output.prepare(spec);
+
+    deEsserBandL.prepare(spec);
+    deEsserBandR.prepare(spec);
+    deEsserBandL.reset();
+    deEsserBandR.reset();
+    deEsserBandL.coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, 7000.0f, 2.2f);
+    deEsserBandR.coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, 7000.0f, 2.2f);
+
+    deEssEnv = 0.0f;
+    deEssGainSmoothed = 1.0f;
+    deEssAttackCoeff = std::exp(-1.0f / (0.001f * 2.0f * (float) sampleRate));
+    deEssReleaseCoeff = std::exp(-1.0f / (0.001f * 80.0f * (float) sampleRate));
+    deEssGainAttackCoeff = std::exp(-1.0f / (0.001f * 2.0f * (float) sampleRate));
+    deEssGainReleaseCoeff = std::exp(-1.0f / (0.001f * 60.0f * (float) sampleRate));
 }
 
 void EasyRecAudioProcessor::releaseResources()
@@ -93,6 +107,8 @@ void EasyRecAudioProcessor::releaseResources()
     compressor.reset();
     saturation.reset();
     output.reset();
+    deEsserBandL.reset();
+    deEsserBandR.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -123,19 +139,17 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         buffer.clear(i, 0, buffer.getNumSamples());
 
     // === Parametri (APVTS) ===
-    const float lowCutHz   = *parameters.getRawParameterValue("lowCut");
-    const float toneNorm   = *parameters.getRawParameterValue("tone");
-    const float eqOnV      = *parameters.getRawParameterValue("eqOn");
-    const float compAmt    = *parameters.getRawParameterValue("comp");
+    const float eqBassNorm = *parameters.getRawParameterValue("lowCut");
+    const float inputNorm  = *parameters.getRawParameterValue("tone");
+    const float compAmtNorm = *parameters.getRawParameterValue("comp");
     const float compSoftV  = *parameters.getRawParameterValue("compSoft");
-    const float satAmt     = *parameters.getRawParameterValue("satur");
-    const float satSoftV   = *parameters.getRawParameterValue("satSoft");
-    const float compOnV    = *parameters.getRawParameterValue("compOn");
-    const float satOnV     = *parameters.getRawParameterValue("satOn");
+    const float eqTrebleNorm = *parameters.getRawParameterValue("satur");
     const float outNorm    = *parameters.getRawParameterValue("out");
 
-    // Mapping: tone 0..1 -> -10..+10 dB
-    const float toneDb = juce::jmap(toneNorm, 0.0f, 1.0f, -10.0f, 10.0f);
+    const float inputDb = juce::jmap(inputNorm, 0.0f, 1.0f, -10.0f, 10.0f);
+    const float compAmtDb = juce::jmap(compAmtNorm, 0.0f, 1.0f, -10.0f, 10.0f);
+    const float eqBassDb = juce::jmap(eqBassNorm, 0.0f, 1.0f, -10.0f, 10.0f);
+    const float eqTrebleDb = juce::jmap(eqTrebleNorm, 0.0f, 1.0f, -10.0f, 10.0f);
     const bool outIsMute = (outNorm <= 0.0001f);
     const auto normToDb = [](float norm) -> float
     {
@@ -152,31 +166,28 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     };
     const float outDb = normToDb(outNorm);
 
-    const bool eqOn = (eqOnV >= 0.5f);
-    if (eqOn)
-    {
-        eq.setLowCutFreq(lowCutHz);
-        eq.setToneAmount(toneDb);
-    }
-    const bool compOn = (compOnV >= 0.5f);
-    const bool satOn = (satOnV >= 0.5f);
-
     compressor.setSoftMode(compSoftV >= 0.5f);
-    compressor.setAmount(compAmt);
-    saturation.setSoftMode(satSoftV >= 0.5f);
-    saturation.setAmount(satAmt);
+    compressor.setInputDriveDb(inputDb);
+    compressor.setAmount(compAmtDb);
+
+    eq.setSoftPreset(compSoftV >= 0.5f);
+    eq.setBassAmount(eqBassDb);
+    eq.setTrebleAmount(eqTrebleDb);
+
+    // Saturazione analogica nascosta sempre leggera.
+    saturation.setSoftMode(true);
+    saturation.setAmount(0.12f);
+
     if (outIsMute)
         output.setGainDb(-100.0f);
     else
         output.setGainDb(outDb);
 
-    // Elaborazione a catena
-    if (eqOn)
-        eq.processBlock(buffer);
-    if (compOn)
-        compressor.processBlock(buffer);
-    if (satOn)
-        saturation.processBlock(buffer);
+    // Nuova catena: Input -> Comp -> EQ -> De-esser interno -> Saturazione interna -> Output
+    compressor.processBlock(buffer);
+    eq.processBlock(buffer);
+    processHiddenDeEsser(buffer);
+    saturation.processBlock(buffer);
 
     output.processBlock(buffer);
 }
@@ -184,8 +195,8 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 //==============================================================================
 void EasyRecAudioProcessor::updateEQFilters(float lowCutFreq, float toneAmount)
 {
-    eq.setLowCutFreq(lowCutFreq);
-    eq.setToneAmount(toneAmount);
+    eq.setBassAmount(lowCutFreq);
+    eq.setTrebleAmount(toneAmount);
 }
 
 
@@ -212,6 +223,47 @@ void EasyRecAudioProcessor::setSaturationSoftMode(bool soft)
 void EasyRecAudioProcessor::setOutputGainDb(float gainDb)
 {
     output.setGainDb(gainDb);
+}
+
+void EasyRecAudioProcessor::processHiddenDeEsser(juce::AudioBuffer<float>& buffer)
+{
+    const int numSamples = buffer.getNumSamples();
+    const int numChannels = buffer.getNumChannels();
+    if (numSamples == 0 || numChannels == 0)
+        return;
+
+    float* left = buffer.getWritePointer(0);
+    float* right = (numChannels > 1) ? buffer.getWritePointer(1) : nullptr;
+
+    constexpr float thresholdDb = -26.0f;
+    constexpr float ratioOver = 2.2f;
+    constexpr float maxReductionDb = 6.0f;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        const float inL = left[i];
+        const float inR = right != nullptr ? right[i] : inL;
+
+        const float bandL = deEsserBandL.processSample(inL);
+        const float bandR = deEsserBandR.processSample(inR);
+        const float sib = juce::jmax(std::abs(bandL), std::abs(bandR));
+
+        const float coeffEnv = (sib > deEssEnv) ? deEssAttackCoeff : deEssReleaseCoeff;
+        deEssEnv = coeffEnv * deEssEnv + (1.0f - coeffEnv) * sib;
+
+        const float envDb = juce::Decibels::gainToDecibels(deEssEnv + 1.0e-9f);
+        float targetReductionDb = 0.0f;
+        if (envDb > thresholdDb)
+            targetReductionDb = juce::jmin(maxReductionDb, (envDb - thresholdDb) * (1.0f - (1.0f / ratioOver)));
+
+        const float targetGain = juce::Decibels::decibelsToGain(-targetReductionDb);
+        const float coeffGain = (targetGain < deEssGainSmoothed) ? deEssGainAttackCoeff : deEssGainReleaseCoeff;
+        deEssGainSmoothed = coeffGain * deEssGainSmoothed + (1.0f - coeffGain) * targetGain;
+
+        left[i] *= deEssGainSmoothed;
+        if (right != nullptr)
+            right[i] *= deEssGainSmoothed;
+    }
 }
 
 //==============================================================================
@@ -249,12 +301,12 @@ EasyRecAudioProcessor::APVTS::ParameterLayout EasyRecAudioProcessor::createParam
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID { "lowCut", 1 }, "Low Cut",
-        juce::NormalisableRange<float>(20.0f, 200.0f, 0.1f),
-        110.0f));
+        juce::ParameterID { "lowCut", 1 }, "EQ Bass",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
+        0.5f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID { "tone", 1 }, "Tone",
+        juce::ParameterID { "tone", 1 }, "Input",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
         0.5f));
 
@@ -264,7 +316,7 @@ EasyRecAudioProcessor::APVTS::ParameterLayout EasyRecAudioProcessor::createParam
 
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID { "comp", 1 }, "Compressor",
+        juce::ParameterID { "comp", 1 }, "Comp Amount",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
         0.5f));
 
@@ -273,7 +325,7 @@ EasyRecAudioProcessor::APVTS::ParameterLayout EasyRecAudioProcessor::createParam
         true));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID { "satur", 1 }, "Saturation",
+        juce::ParameterID { "satur", 1 }, "EQ Treble",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
         0.5f));
 

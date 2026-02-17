@@ -63,7 +63,7 @@ private:
 
     
     //EQ KNOB
-    ResettableSlider lowKnob { 110.0f };
+    ResettableSlider lowKnob { 0.5f };
     KnoblookAndFeel lowKnobLookAndFeel;
     std::unique_ptr<juce::Drawable> lowKnobDrawable;
     juce::Label lowLabelDescription;

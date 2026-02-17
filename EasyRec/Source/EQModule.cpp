@@ -6,70 +6,38 @@ EQModule::~EQModule() {}
 
 void EQModule::prepare(const juce::dsp::ProcessSpec& spec)
 {
-    sampleRate = (float)spec.sampleRate;
+    sampleRate = (float) spec.sampleRate;
 
     filterChain.reset();
     filterChain.prepare(spec);
 
-    lowCutSmoothed.reset(sampleRate, 0.05); // 50 ms smoothing
-    lowCutSmoothed.setCurrentAndTargetValue(110.0f);
-    lastLowCutHz = 110.0f;
-    toneSmoothedDb.reset(sampleRate, 0.05);
-    toneSmoothedDb.setCurrentAndTargetValue(0.0f);
-    lastToneDb = 0.0f;
+    bassSmoothedDb.reset(sampleRate, 0.04);
+    trebleSmoothedDb.reset(sampleRate, 0.04);
+    bassSmoothedDb.setCurrentAndTargetValue(0.0f);
+    trebleSmoothedDb.setCurrentAndTargetValue(0.0f);
 
-    // Inizializza coefficenti per evitare stati non definiti
-    constexpr float lowCutQ = 1.0f;
-    auto hp = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 110.0f, lowCutQ);
-    *filterChain.get<0>().state = *hp;
-    *filterChain.get<1>().state = *hp;
-    *filterChain.get<2>().state = *hp;
-    *filterChain.get<3>().state = *hp;
-    *filterChain.get<4>().state = *hp;
-    *filterChain.get<5>().state = *hp;
-    *filterChain.get<6>().state = *hp;
-    *filterChain.get<7>().state = *hp;
-
-    auto shelf = juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 6000.0f, 0.7f, 1.0f);
-    *filterChain.get<8>().state = *shelf;
+    lastBassDb = 0.0f;
+    lastTrebleDb = 0.0f;
+    forceUpdate = true;
+    updateFilters(0.0f, 0.0f);
 }
 
 void EQModule::processBlock(juce::AudioBuffer<float>& buffer)
 {
-    // Aggiorna lentamente la frequenza di taglio per evitare scatti
-    const float smoothedHz = lowCutSmoothed.getNextValue();
-    // Avanza lo smoothing per la dimensione del blocco
+    const float bassDb = bassSmoothedDb.getNextValue();
+    const float trebleDb = trebleSmoothedDb.getNextValue();
+
     if (buffer.getNumSamples() > 1)
-        lowCutSmoothed.skip((size_t)buffer.getNumSamples() - 1);
-    if (lastLowCutHz < 0.0f || std::abs(smoothedHz - lastLowCutHz) > 0.01f)
     {
-        constexpr float lowCutQ = 1.0f; // ginocchio più ripido
-        auto coeffs = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, smoothedHz, lowCutQ);
-        *filterChain.get<0>().state = *coeffs;
-        *filterChain.get<1>().state = *coeffs;
-        *filterChain.get<2>().state = *coeffs;
-        *filterChain.get<3>().state = *coeffs;
-        *filterChain.get<4>().state = *coeffs;
-        *filterChain.get<5>().state = *coeffs;
-        *filterChain.get<6>().state = *coeffs;
-        *filterChain.get<7>().state = *coeffs;
-        lastLowCutHz = smoothedHz;
+        const int samplesToSkip = buffer.getNumSamples() - 1;
+        bassSmoothedDb.skip(samplesToSkip);
+        trebleSmoothedDb.skip(samplesToSkip);
     }
 
-    const float smoothedToneDb = toneSmoothedDb.getNextValue();
-    if (buffer.getNumSamples() > 1)
-        toneSmoothedDb.skip((size_t)buffer.getNumSamples() - 1);
-    if (std::abs(smoothedToneDb - lastToneDb) > 0.01f)
-    {
-        const float gain = juce::Decibels::decibelsToGain(smoothedToneDb);
-        // High-shelf per una brillantezza più naturale sulla voce
-        *filterChain.get<8>().state =
-            *juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, 6000.0f, 0.7f, gain);
-        lastToneDb = smoothedToneDb;
-    }
+    if (forceUpdate || std::abs(bassDb - lastBassDb) > 0.01f || std::abs(trebleDb - lastTrebleDb) > 0.01f)
+        updateFilters(bassDb, trebleDb);
 
     juce::dsp::AudioBlock<float> block(buffer);
-
     juce::dsp::ProcessContextReplacing<float> context(block);
     filterChain.process(context);
 }
@@ -77,20 +45,62 @@ void EQModule::processBlock(juce::AudioBuffer<float>& buffer)
 void EQModule::reset()
 {
     filterChain.reset();
-    lowCutSmoothed.reset(sampleRate, 0.05);
-    lowCutSmoothed.setCurrentAndTargetValue(lastLowCutHz);
-    toneSmoothedDb.reset(sampleRate, 0.05);
-    toneSmoothedDb.setCurrentAndTargetValue(lastToneDb);
+    bassSmoothedDb.reset(sampleRate, 0.04);
+    trebleSmoothedDb.reset(sampleRate, 0.04);
+    bassSmoothedDb.setCurrentAndTargetValue(lastBassDb);
+    trebleSmoothedDb.setCurrentAndTargetValue(lastTrebleDb);
+    forceUpdate = true;
 }
 
-void EQModule::setLowCutFreq(float freq)
+void EQModule::setBassAmount(float bassAmountDb)
 {
-    freq = juce::jlimit(20.0f, 200.0f, freq);
-
-    lowCutSmoothed.setTargetValue(freq);
+    bassSmoothedDb.setTargetValue(juce::jlimit(-10.0f, 10.0f, bassAmountDb));
 }
 
-void EQModule::setToneAmount(float amountDb)
+void EQModule::setTrebleAmount(float trebleAmountDb)
 {
-    toneSmoothedDb.setTargetValue(amountDb);
+    trebleSmoothedDb.setTargetValue(juce::jlimit(-10.0f, 10.0f, trebleAmountDb));
+}
+
+void EQModule::setSoftPreset(bool softPreset)
+{
+    if (isSoftPreset == softPreset)
+        return;
+
+    isSoftPreset = softPreset;
+    forceUpdate = true;
+}
+
+void EQModule::updateFilters(float bassDb, float trebleDb)
+{
+    // Rumble roll-off costante sotto 80 Hz.
+    *filterChain.get<0>().state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 80.0f, 0.707f);
+
+    // Bass control: curva logaritmica/percettiva (console-like).
+    const float bassNorm = juce::jlimit(-1.0f, 1.0f, bassDb / 10.0f);
+    const float bassCurve = std::copysign(std::pow(std::abs(bassNorm), 0.75f), bassNorm);
+    const float bassShelfDb = bassCurve * 10.0f;
+    const float bassGain = juce::Decibels::decibelsToGain(bassShelfDb);
+    *filterChain.get<1>().state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate, 120.0f, 0.75f, bassGain);
+
+    // Treble control: high-shelf + presence peak dipendenti dal preset.
+    const bool soft = isSoftPreset;
+    const float trebleNorm = juce::jlimit(-1.0f, 1.0f, trebleDb / 10.0f);
+    const float maxShelfDb = soft ? 6.0f : 9.0f;
+    const float maxPresenceDb = soft ? 1.5f : 3.0f;
+    const float shelfFreq = soft ? 12000.0f : 10000.0f;
+    const float shelfQ = soft ? 0.55f : 0.70f;
+    const float presenceFreq = soft ? 4500.0f : 5000.0f;
+    const float presenceQ = soft ? 0.65f : 1.0f;
+
+    const float shelfDb = trebleNorm * maxShelfDb;
+    const float presenceDb = trebleNorm * maxPresenceDb;
+    *filterChain.get<2>().state = *juce::dsp::IIR::Coefficients<float>::makeHighShelf(
+        sampleRate, shelfFreq, shelfQ, juce::Decibels::decibelsToGain(shelfDb));
+    *filterChain.get<3>().state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(
+        sampleRate, presenceFreq, presenceQ, juce::Decibels::decibelsToGain(presenceDb));
+
+    lastBassDb = bassDb;
+    lastTrebleDb = trebleDb;
+    forceUpdate = false;
 }
