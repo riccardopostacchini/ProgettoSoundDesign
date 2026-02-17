@@ -55,38 +55,64 @@ void CompressorModule::processBlock(juce::AudioBuffer<float>& buffer)
     float* left = buffer.getWritePointer(0);
     float* right = (numChannels > 1) ? buffer.getWritePointer(1) : nullptr;
 
-    const float inDrive = juce::Decibels::decibelsToGain(inputDriveDb);
-    const float inDriveInv = 1.0f / juce::jmax(0.001f, inDrive);
-
-    const float amountScale = juce::jmap(amountDb, -10.0f, 10.0f, 0.0f, 2.0f);
+    // One-knob vocal leveling style:
+    // -10 = quasi bypass, +10 = controllo deciso ma musicale.
+    const float intensity = juce::jmap(amountDb, -10.0f, 10.0f, 0.0f, 1.0f);
+    const float effectiveThreshold = thresholdDb + (1.0f - intensity) * 22.0f;
+    const float effectiveRatio = juce::jmap(intensity, 0.0f, 1.0f, 1.20f, ratio);
+    const float effectiveKnee = juce::jmap(intensity, 0.0f, 1.0f, 10.0f, kneeDb);
+    const float makeupFactor = softMode ? 0.62f : 0.80f;
+    // CLA-style input: pre-gain nel detector+segnale, con trim parziale per non esplodere di livello.
+    const float inputDriveGain = juce::Decibels::decibelsToGain(inputDriveDb);
+    const float inputTrimGain = juce::Decibels::decibelsToGain(-inputDriveDb * 0.7f);
 
     for (int i = 0; i < numSamples; ++i)
     {
-        float inL = left[i] * inDrive;
-        float inR = right != nullptr ? right[i] * inDrive : inL;
+        const float inL = left[i] * inputDriveGain;
+        const float inR = (right != nullptr ? right[i] : left[i]) * inputDriveGain;
 
         const float sidechain = juce::jmax(std::abs(inL), std::abs(inR));
         const float levelDb = juce::Decibels::gainToDecibels(sidechain + 1.0e-9f);
+        const float overDb = levelDb - effectiveThreshold;
+        const float slope = 1.0f - (1.0f / effectiveRatio);
+        float reductionDb = 0.0f;
 
-        const float reductionDb = computeGainReductionDb(levelDb) * amountScale;
+        if (effectiveKnee <= 0.0f)
+        {
+            if (overDb > 0.0f)
+                reductionDb = slope * overDb;
+        }
+        else
+        {
+            const float halfKnee = 0.5f * effectiveKnee;
+            if (overDb >= halfKnee)
+            {
+                reductionDb = slope * overDb;
+            }
+            else if (overDb > -halfKnee)
+            {
+                const float x = overDb + halfKnee;
+                reductionDb = slope * (x * x) / (2.0f * effectiveKnee);
+            }
+        }
 
         const float coeff = (reductionDb > gainReductionDbSmoothed) ? attackCoeff : releaseCoeff;
         gainReductionDbSmoothed = coeff * gainReductionDbSmoothed + (1.0f - coeff) * reductionDb;
 
         const float compGain = juce::Decibels::decibelsToGain(-gainReductionDbSmoothed);
+        const float makeupGain = juce::Decibels::decibelsToGain(gainReductionDbSmoothed * makeupFactor);
         float outL = inL * compGain;
         float outR = inR * compGain;
 
         // Micro-saturazione analogica sui transienti compressi.
-        const float satDrive = softMode ? 1.12f : 1.22f;
+        const float satDrive = softMode ? 1.15f : 1.28f;
         const float satNorm = std::tanh(satDrive);
-        outL = std::tanh(outL * satDrive) / satNorm;
-        outR = std::tanh(outR * satDrive) / satNorm;
+        outL = (std::tanh(outL * satDrive) / satNorm) * makeupGain;
+        outR = (std::tanh(outR * satDrive) / satNorm) * makeupGain;
 
-        // Compensa input drive: controlla pressione, non volume finale.
-        left[i] = outL * inDriveInv;
+        left[i] = outL * inputTrimGain;
         if (right != nullptr)
-            right[i] = outR * inDriveInv;
+            right[i] = outR * inputTrimGain;
     }
 }
 
@@ -110,7 +136,7 @@ void CompressorModule::setSoftMode(bool soft)
         attackMs = 5.0f;
         releaseMs = 50.0f;
         kneeDb = 8.0f;
-        thresholdDb = -24.0f;
+        thresholdDb = -18.0f;
     }
     else
     {
@@ -118,7 +144,7 @@ void CompressorModule::setSoftMode(bool soft)
         attackMs = 1.0f;
         releaseMs = 20.0f;
         kneeDb = 0.0f;
-        thresholdDb = -20.0f;
+        thresholdDb = -18.0f;
     }
 
     updateTimeConstants();

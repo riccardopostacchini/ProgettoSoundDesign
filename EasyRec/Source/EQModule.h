@@ -23,6 +23,7 @@ private:
     juce::dsp::ProcessorChain<
         IIRFilter,  // Rumble roll-off < 80 Hz
         IIRFilter,  // Low shelf (body)
+        IIRFilter,  // Mud control peak (~280 Hz)
         IIRFilter,  // High shelf (air)
         IIRFilter   // Presence peak
     > filterChain;

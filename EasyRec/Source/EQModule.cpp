@@ -73,31 +73,58 @@ void EQModule::setSoftPreset(bool softPreset)
 
 void EQModule::updateFilters(float bassDb, float trebleDb)
 {
-    // Rumble roll-off costante sotto 80 Hz.
-    *filterChain.get<0>().state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 80.0f, 0.707f);
+    // Rumble roll-off leggero, più vicino al comportamento "vocal bass" tipo CLA.
+    *filterChain.get<0>().state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 75.0f, 0.72f);
 
-    // Bass control: curva logaritmica/percettiva (console-like).
+    // Bass control "CLA-like": body su 115 Hz + anti-mud su 280 Hz.
     const float bassNorm = juce::jlimit(-1.0f, 1.0f, bassDb / 10.0f);
-    const float bassCurve = std::copysign(std::pow(std::abs(bassNorm), 0.75f), bassNorm);
-    const float bassShelfDb = bassCurve * 10.0f;
+    float bassCurve = 0.0f;
+    if (bassNorm >= 0.0f)
+        bassCurve = std::pow(bassNorm, 1.12f);
+    else
+        bassCurve = -std::pow(std::abs(bassNorm), 0.90f);
+
+    const float bassShelfDb = juce::jmap(bassCurve, -1.0f, 1.0f, -6.0f, 9.0f);
     const float bassGain = juce::Decibels::decibelsToGain(bassShelfDb);
-    *filterChain.get<1>().state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate, 120.0f, 0.75f, bassGain);
+    *filterChain.get<1>().state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate, 105.0f, 0.68f, bassGain);
 
-    // Treble control: high-shelf + presence peak dipendenti dal preset.
+    // Mud control: attivo soprattutto quando il bass e' in boost.
+    const float mudCutDb = (bassCurve > 0.0f) ? (-3.2f * std::pow(bassCurve, 0.9f))
+                                              : (0.6f * bassCurve);
+    *filterChain.get<2>().state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(
+        sampleRate, 260.0f, 1.0f, juce::Decibels::decibelsToGain(mudCutDb));
+
+    // Treble in stile vocal-strip: presence + air, con risposta musicale.
     const bool soft = isSoftPreset;
+    const float presetScale = soft ? 0.75f : 1.0f;
     const float trebleNorm = juce::jlimit(-1.0f, 1.0f, trebleDb / 10.0f);
-    const float maxShelfDb = soft ? 6.0f : 9.0f;
-    const float maxPresenceDb = soft ? 1.5f : 3.0f;
-    const float shelfFreq = soft ? 12000.0f : 10000.0f;
-    const float shelfQ = soft ? 0.55f : 0.70f;
-    const float presenceFreq = soft ? 4500.0f : 5000.0f;
-    const float presenceQ = soft ? 0.65f : 1.0f;
 
-    const float shelfDb = trebleNorm * maxShelfDb;
-    const float presenceDb = trebleNorm * maxPresenceDb;
-    *filterChain.get<2>().state = *juce::dsp::IIR::Coefficients<float>::makeHighShelf(
+    // Curva: piu' dolce vicino a 0, piu' incisiva salendo.
+    float trebleCurve = 0.0f;
+    if (trebleNorm >= 0.0f)
+        trebleCurve = std::pow(trebleNorm, 1.08f);
+    else
+        trebleCurve = -std::pow(std::abs(trebleNorm), 1.0f);
+
+    // Range target "CLA-like"
+    float presenceDb = juce::jmap(trebleCurve, -1.0f, 1.0f, -2.5f, 5.0f) * presetScale;
+    float shelfDb = juce::jmap(trebleCurve, -1.0f, 1.0f, -4.0f, 10.0f) * presetScale;
+
+    // Protezione sibilanti: oltre +5 riduce leggermente la presence.
+    if (trebleDb > 5.0f)
+    {
+        const float t = juce::jlimit(0.0f, 1.0f, (trebleDb - 5.0f) / 5.0f);
+        presenceDb -= 0.8f * t;
+    }
+
+    const float shelfFreq = 11000.0f;
+    const float shelfQ = 0.62f;
+    const float presenceFreq = 5000.0f;
+    const float presenceQ = 0.8f;
+
+    *filterChain.get<3>().state = *juce::dsp::IIR::Coefficients<float>::makeHighShelf(
         sampleRate, shelfFreq, shelfQ, juce::Decibels::decibelsToGain(shelfDb));
-    *filterChain.get<3>().state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(
+    *filterChain.get<4>().state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(
         sampleRate, presenceFreq, presenceQ, juce::Decibels::decibelsToGain(presenceDb));
 
     lastBassDb = bassDb;

@@ -99,6 +99,24 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     deEssReleaseCoeff = std::exp(-1.0f / (0.001f * 80.0f * (float) sampleRate));
     deEssGainAttackCoeff = std::exp(-1.0f / (0.001f * 2.0f * (float) sampleRate));
     deEssGainReleaseCoeff = std::exp(-1.0f / (0.001f * 60.0f * (float) sampleRate));
+
+    safetyHpL.prepare(spec);
+    safetyHpR.prepare(spec);
+    safetyLpL.prepare(spec);
+    safetyLpR.prepare(spec);
+    safetyHpL.reset();
+    safetyHpR.reset();
+    safetyLpL.reset();
+    safetyLpR.reset();
+    // Hidden profile: aggressive pop
+    safetyHpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 45.0f, 0.72f);
+    safetyHpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 45.0f, 0.72f);
+    safetyLpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 17000.0f, 0.72f);
+    safetyLpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 17000.0f, 0.72f);
+
+    hiddenLimiterGain = 1.0f;
+    hiddenLimiterAttackCoeff = std::exp(-1.0f / (0.001f * 0.3f * (float) sampleRate));
+    hiddenLimiterReleaseCoeff = std::exp(-1.0f / (0.001f * 25.0f * (float) sampleRate));
 }
 
 void EasyRecAudioProcessor::releaseResources()
@@ -109,6 +127,10 @@ void EasyRecAudioProcessor::releaseResources()
     output.reset();
     deEsserBandL.reset();
     deEsserBandR.reset();
+    safetyHpL.reset();
+    safetyHpR.reset();
+    safetyLpL.reset();
+    safetyLpR.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -184,9 +206,9 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     eq.setBassAmount(lowOn ? eqBassDb : 0.0f);
     eq.setTrebleAmount(trebleOn ? eqTrebleDb : 0.0f);
 
-    // Saturazione analogica nascosta sempre leggera.
+    // Saturazione analogica nascosta (profilo pop: piu' evidente).
     saturation.setSoftMode(true);
-    saturation.setAmount(0.12f);
+    saturation.setAmount(0.18f);
 
     if (outIsMute)
         output.setGainDb(-100.0f);
@@ -202,6 +224,8 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
     processHiddenDeEsser(buffer);
     saturation.processBlock(buffer);
+    processHiddenSafetyFilters(buffer);
+    processHiddenPeakProtector(buffer);
 
     output.processBlock(buffer);
 }
@@ -249,9 +273,9 @@ void EasyRecAudioProcessor::processHiddenDeEsser(juce::AudioBuffer<float>& buffe
     float* left = buffer.getWritePointer(0);
     float* right = (numChannels > 1) ? buffer.getWritePointer(1) : nullptr;
 
-    constexpr float thresholdDb = -26.0f;
-    constexpr float ratioOver = 2.2f;
-    constexpr float maxReductionDb = 6.0f;
+    constexpr float thresholdDb = -30.0f;
+    constexpr float ratioOver = 3.0f;
+    constexpr float maxReductionDb = 8.0f;
 
     for (int i = 0; i < numSamples; ++i)
     {
@@ -277,6 +301,62 @@ void EasyRecAudioProcessor::processHiddenDeEsser(juce::AudioBuffer<float>& buffe
         left[i] *= deEssGainSmoothed;
         if (right != nullptr)
             right[i] *= deEssGainSmoothed;
+    }
+}
+
+void EasyRecAudioProcessor::processHiddenSafetyFilters(juce::AudioBuffer<float>& buffer)
+{
+    const int numSamples = buffer.getNumSamples();
+    if (numSamples == 0)
+        return;
+
+    float* left = buffer.getWritePointer(0);
+    float* right = (buffer.getNumChannels() > 1) ? buffer.getWritePointer(1) : nullptr;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        left[i] = safetyLpL.processSample(safetyHpL.processSample(left[i]));
+        if (right != nullptr)
+            right[i] = safetyLpR.processSample(safetyHpR.processSample(right[i]));
+    }
+}
+
+void EasyRecAudioProcessor::processHiddenPeakProtector(juce::AudioBuffer<float>& buffer)
+{
+    const int numSamples = buffer.getNumSamples();
+    if (numSamples == 0)
+        return;
+
+    float* left = buffer.getWritePointer(0);
+    float* right = (buffer.getNumChannels() > 1) ? buffer.getWritePointer(1) : nullptr;
+
+    const float limiterThreshold = juce::Decibels::decibelsToGain(-2.0f); // ~ -2 dBFS
+    const float satDrive = 1.15f;
+    const float satNorm = std::tanh(satDrive);
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        const float inL = left[i];
+        const float inR = right != nullptr ? right[i] : inL;
+        const float peak = juce::jmax(std::abs(inL), std::abs(inR));
+
+        float targetGain = 1.0f;
+        if (peak > limiterThreshold)
+            targetGain = limiterThreshold / juce::jmax(peak, 1.0e-9f);
+
+        const float coeff = (targetGain < hiddenLimiterGain) ? hiddenLimiterAttackCoeff : hiddenLimiterReleaseCoeff;
+        hiddenLimiterGain = coeff * hiddenLimiterGain + (1.0f - coeff) * targetGain;
+
+        float outL = inL * hiddenLimiterGain;
+        float outR = inR * hiddenLimiterGain;
+
+        // Soft clip molto leggero per trattenere i transienti finali.
+        outL = std::tanh(outL * satDrive) / satNorm;
+        outR = std::tanh(outR * satDrive) / satNorm;
+
+        left[i] = outL;
+        if (right != nullptr)
+            right[i] = outR;
     }
 }
 

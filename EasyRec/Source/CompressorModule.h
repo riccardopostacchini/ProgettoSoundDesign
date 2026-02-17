@@ -25,7 +25,7 @@ private:
 
     // Parametri attivi del preset
     float ratio = 4.0f;
-    float thresholdDb = -24.0f;
+    float thresholdDb = -18.0f;
     float attackMs = 5.0f;
     float releaseMs = 50.0f;
     float kneeDb = 8.0f; // soft knee > 0, hard knee = 0

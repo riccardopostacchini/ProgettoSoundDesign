@@ -73,5 +73,18 @@ private:
 
     void processHiddenDeEsser(juce::AudioBuffer<float>& buffer);
 
+    // Hidden safety tone shaping (sub/ultra-high containment)
+    juce::dsp::IIR::Filter<float> safetyHpL;
+    juce::dsp::IIR::Filter<float> safetyHpR;
+    juce::dsp::IIR::Filter<float> safetyLpL;
+    juce::dsp::IIR::Filter<float> safetyLpR;
+    void processHiddenSafetyFilters(juce::AudioBuffer<float>& buffer);
+
+    // Hidden peak protector (gentle limiter + soft clip)
+    float hiddenLimiterGain = 1.0f;
+    float hiddenLimiterAttackCoeff = 0.0f;
+    float hiddenLimiterReleaseCoeff = 0.0f;
+    void processHiddenPeakProtector(juce::AudioBuffer<float>& buffer);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessor)
 };
