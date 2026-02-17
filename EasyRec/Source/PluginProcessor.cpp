@@ -114,12 +114,16 @@ void EasyRecAudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool EasyRecAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    // Supporta solo stereo in e stereo out
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    const auto mainOut = layouts.getMainOutputChannelSet();
+    const auto mainIn = layouts.getMainInputChannelSet();
+
+    // Supporta mono e stereo
+    if (mainOut != juce::AudioChannelSet::mono()
+        && mainOut != juce::AudioChannelSet::stereo())
         return false;
 
 #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+    if (mainIn != mainOut)
         return false;
 #endif
 
