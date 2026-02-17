@@ -2973,6 +2973,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData2.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData3.cpp"/>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData4.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_devices.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_formats.cpp"/>
@@ -4411,7 +4412,9 @@
     <None Include="..\..\Resources\compA.png"/>
     <None Include="..\..\Resources\satA.png"/>
     <None Include="..\..\Resources\compB.png"/>
+    <None Include="..\..\Resources\Gameboy_2.png"/>
     <None Include="..\..\Resources\gamevoice.svg"/>
+    <None Include="..\..\Resources\cat.png"/>
     <None Include="..\..\Resources\Gameboy2_prova.png"/>
     <None Include="..\..\Resources\nomi.svg"/>
     <None Include="..\..\Resources\bassknob.png"/>

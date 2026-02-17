@@ -27,13 +27,43 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     // Timer per animazioni (micro-movimenti + intro)
     startTimerHz(60);
     
-    // Background (solo interfaccia B)
+    // Background
     backgroundImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy2_prova_png, BinaryData::Gameboy2_prova_pngSize);
+    backgroundImageB = juce::ImageCache::getFromMemory(BinaryData::Gameboy_2_png, BinaryData::Gameboy_2_pngSize);
+    catImage = juce::ImageCache::getFromMemory(BinaryData::cat_png, BinaryData::cat_pngSize);
     buttonSliderImage = juce::ImageCache::getFromMemory(BinaryData::buttonSlider_png, BinaryData::buttonSlider_pngSize);
     eqOnImage = juce::ImageCache::getFromMemory(BinaryData::bassknob_png, BinaryData::bassknob_pngSize);
     introImage = juce::ImageCache::getFromMemory(BinaryData::Gameboy_intro_png, BinaryData::Gameboy_intro_pngSize);
     introGamevoiceDrawable = juce::Drawable::createFromImageData(BinaryData::gamevoice_svg, BinaryData::gamevoice_svgSize);
     introNomiDrawable = juce::Drawable::createFromImageData(BinaryData::nomi_svg, BinaryData::nomi_svgSize);
+
+    // Toggle schermata A/B (visibile per posizionamento)
+    screenToggleButton.setButtonText("");
+    screenToggleButton.setClickingTogglesState(false);
+    screenToggleButton.setAlpha(0.0f);
+    screenToggleButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    screenToggleButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    screenToggleButton.onClick = [this]()
+    {
+        isScreenB = !isScreenB;
+        resized();
+        repaint();
+    };
+    addAndMakeVisible(screenToggleButton);
+
+    // Bottone di ritorno (solo schermata 2)
+    screenBackButton.setButtonText("");
+    screenBackButton.setClickingTogglesState(false);
+    screenBackButton.setAlpha(0.0f);
+    screenBackButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    screenBackButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    screenBackButton.onClick = [this]()
+    {
+        isScreenB = false;
+        resized();
+        repaint();
+    };
+    addAndMakeVisible(screenBackButton);
 
     // === COMP SLIDER ===
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -414,9 +444,25 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::black);
 
-    if (backgroundImage.isValid())
-        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
+    const auto& currentBg = isScreenB ? backgroundImageB : backgroundImage;
+    if (currentBg.isValid())
+        g.drawImage(currentBg, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
 
+    if (isScreenB && catImage.isValid())
+    {
+        // Stessa animazione di compA (fase + halfPi, stessa ampiezza).
+        const int catOffset = (int) std::round(std::sin(spritePhase + juce::MathConstants<float>::halfPi) * spriteAmplitudePx);
+        const auto drawRect = catRect.translated(0, catOffset);
+        g.drawImageWithin(catImage,
+                          drawRect.getX(),
+                          drawRect.getY(),
+                          drawRect.getWidth(),
+                          drawRect.getHeight(),
+                          juce::RectanglePlacement::centred);
+    }
+
+    if (!isScreenB)
+    {
     // Soft/Hard highlight drawables disabled
 
     // Indicatori hard (satB/compB)
@@ -488,6 +534,7 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
                                   juce::RectanglePlacement::stretchToFit);
             }
         }
+    }
 
     // Intro overlay (in primo piano; nomi/gamevoice sopra l'intro)
     if (introActive)
@@ -529,6 +576,9 @@ void EasyRecAudioProcessorEditor::resized()
     lowKnob.setBounds(371, 309, 38, 38);
     toneKnob.setBounds(435, 309, 38, 38);
     outKnob.setBounds(496, 309, 38, 38);
+    screenToggleButton.setBounds(330, 460, 60, 40);
+    screenBackButton.setBounds(460, 285, 85, 70);
+    catRect = { 326, 104, 120, 120 };
 
     // Slider orizzontali per Compressor e Saturator
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -574,7 +624,7 @@ void EasyRecAudioProcessorEditor::resized()
     satBRect = saturToggleButton.getBounds();
     compBRect = toggleCompButton.getBounds();
 
-    const bool showUi = true;
+    const bool showUi = !isScreenB;
     const bool lowOn = eqOnOffButton.getToggleState();
     const bool compOn = compOnOffButton.getToggleState();
     const bool trebleOn = satOnOffButton.getToggleState();
@@ -592,6 +642,11 @@ void EasyRecAudioProcessorEditor::resized()
     satOnOffButton.setVisible(showUi);
     compOnOffButton.setVisible(showUi);
     eqOnOffButton.setVisible(showUi);
+    toggleCompButton.setVisible(showUi);
+    saturToggleButton.setVisible(showUi);
+    animOnOffButton.setVisible(true);
+    screenToggleButton.setVisible(true);
+    screenBackButton.setVisible(isScreenB);
 
     // Label placement
     lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));

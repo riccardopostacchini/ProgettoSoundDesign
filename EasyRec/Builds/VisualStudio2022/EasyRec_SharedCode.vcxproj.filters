@@ -3706,6 +3706,9 @@
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData3.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData4.cpp">
+      <Filter>JUCE Library Code</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -7982,7 +7985,13 @@
     <None Include="..\..\Resources\compB.png">
       <Filter>EasyRec\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\Gameboy_2.png">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\gamevoice.svg">
+      <Filter>EasyRec\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\cat.png">
       <Filter>EasyRec\Resources</Filter>
     </None>
     <None Include="..\..\Resources\Gameboy2_prova.png">

@@ -54,8 +54,14 @@ private:
 
     using APVTS = EasyRecAudioProcessor::APVTS;
 
-    // Background (solo interfaccia B)
+    // Background
     juce::Image backgroundImage;
+    juce::Image backgroundImageB;
+    juce::Image catImage;
+    juce::Rectangle<int> catRect;
+    bool isScreenB = false;
+    juce::TextButton screenToggleButton;
+    juce::TextButton screenBackButton;
 
     //COMP SLIDER
     ResettableSlider compKnob { 0.5f };
