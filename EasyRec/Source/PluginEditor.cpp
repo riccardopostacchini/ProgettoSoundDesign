@@ -426,26 +426,32 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         auto satRect = satBRect.translated(0, satOffset);
         auto compRect = compBRect.translated(0, compOffset);
 
-        if (isSoftSaturMode)
+        if (satOnOffButton.getToggleState())
         {
-            if (satADrawable)
-                satADrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-        }
-        else
-        {
-            if (satBDrawable)
-                satBDrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+            if (isSoftSaturMode)
+            {
+                if (satADrawable)
+                    satADrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+            }
+            else
+            {
+                if (satBDrawable)
+                    satBDrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+            }
         }
 
-        if (isSoftMode)
+        if (compOnOffButton.getToggleState())
         {
-            if (compADrawable)
-                compADrawable->drawWithin(g, compRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-        }
-        else
-        {
-            if (compBDrawable)
-                compBDrawable->drawWithin(g, compRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+            if (isSoftMode)
+            {
+                if (compADrawable)
+                    compADrawable->drawWithin(g, compRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+            }
+            else
+            {
+                if (compBDrawable)
+                    compBDrawable->drawWithin(g, compRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+            }
         }
 
         // bassknob.png visibile quando il controllo low (eqOn) e' attivo.
@@ -520,9 +526,9 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 void EasyRecAudioProcessorEditor::resized()
 {
     // EQ + Output
-    lowKnob.setBounds(370, 308, 40, 40);
-    toneKnob.setBounds(435, 308, 40, 40);
-    outKnob.setBounds(495, 308, 40, 40);
+    lowKnob.setBounds(371, 309, 38, 38);
+    toneKnob.setBounds(435, 309, 38, 38);
+    outKnob.setBounds(496, 309, 38, 38);
 
     // Slider orizzontali per Compressor e Saturator
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -553,15 +559,15 @@ void EasyRecAudioProcessorEditor::resized()
     animOnOffButton.setBounds(510, 420, 60, 60);
 
     // bassknob.png centrato sul low knob
-   /* const float scale = 1.3f;
+    const float scale = 1.25f;
     const int eqBaseW = lowKnob.getWidth();
     const int eqBaseH = lowKnob.getHeight();
     const int newW = (int)std::round(eqBaseW * scale);
     const int newH = (int)std::round(eqBaseH * scale);
-    eqOnRect = { lowKnob.getX() + (eqBaseW - newW) / 2 - 1,
-                 lowKnob.getY() + (eqBaseH - newH) / 2 - 1,
+    eqOnRect = { lowKnob.getX() + (eqBaseW - newW) / 2,
+                 lowKnob.getY() + (eqBaseH - newH) / 2,
                  newW, newH };
-    */
+    
     // Aree cliccabili Soft/Hard sui personaggi
     saturToggleButton.setBounds(418, 98, 90, 90);
     toggleCompButton.setBounds(265, 197, 80, 80);
