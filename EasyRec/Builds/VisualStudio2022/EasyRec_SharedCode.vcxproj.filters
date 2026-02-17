@@ -3774,9 +3774,6 @@
     <ClInclude Include="..\..\Source\CompressorModule.h">
       <Filter>EasyRec\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\DeEsserModule.h">
-      <Filter>EasyRec\Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\EQModule.h">
       <Filter>EasyRec\Source</Filter>
     </ClInclude>

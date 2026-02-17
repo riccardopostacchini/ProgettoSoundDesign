@@ -3007,7 +3007,6 @@
     <ClInclude Include="..\..\Source\OutputModule.h"/>
     <ClInclude Include="..\..\Source\SaturationModule.h"/>
     <ClInclude Include="..\..\Source\CompressorModule.h"/>
-    <ClInclude Include="..\..\Source\DeEsserModule.h"/>
     <ClInclude Include="..\..\Source\EQModule.h"/>
     <ClInclude Include="..\..\Source\PluginProcessor.h"/>
     <ClInclude Include="..\..\Source\PluginEditor.h"/>

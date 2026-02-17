@@ -36,7 +36,6 @@
             file="Source/CompressorModule.cpp"/>
       <FILE id="ZptA4u" name="CompressorModule.h" compile="0" resource="0"
             file="Source/CompressorModule.h"/>
-      <FILE id="vkRhkX" name="DeEsserModule.h" compile="0" resource="0" file="Source/DeEsserModule.h"/>
       <FILE id="L9ztH8" name="EQModule.cpp" compile="1" resource="0" file="Source/EQModule.cpp"/>
       <FILE id="lpjhqD" name="EQModule.h" compile="0" resource="0" file="Source/EQModule.h"/>
       <FILE id="bTUL6T" name="PluginProcessor.cpp" compile="1" resource="0"

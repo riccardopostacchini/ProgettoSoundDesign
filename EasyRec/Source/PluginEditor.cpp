@@ -225,7 +225,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         if (lowDb <= -9.95f)
             lowLabelValue.setText("-10", juce::dontSendNotification);
         else if (lowDb >= 9.95f)
-            lowLabelValue.setText("max", juce::dontSendNotification);
+            lowLabelValue.setText("+10", juce::dontSendNotification);
         else
             lowLabelValue.setText(formatValue(lowDb), juce::dontSendNotification);
     };
@@ -311,7 +311,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
             isSoftSaturMode = newMode;
         }
     };
-    saturToggleButton.setEnabled(false);
+    //saturToggleButton.setEnabled(false);
 
 
     // On/Off buttons (B)
@@ -330,7 +330,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     addAndMakeVisible(compOnOffButton);
 
     eqOnOffButton.setClickingTogglesState(true);
-    eqOnOffButton.setAlpha(1.0f);
+    eqOnOffButton.setAlpha(0.0f);
     eqOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
     eqOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     eqOnOffButton.setToggleState(true, juce::dontSendNotification);

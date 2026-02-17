@@ -33,7 +33,7 @@ namespace BinaryData
     const int            gamevoice_svgSize = 1680;
 
     extern const char*   Gameboy2_prova_png;
-    const int            Gameboy2_prova_pngSize = 18831163;
+    const int            Gameboy2_prova_pngSize = 18830989;
 
     extern const char*   nomi_svg;
     const int            nomi_svgSize = 1546;
