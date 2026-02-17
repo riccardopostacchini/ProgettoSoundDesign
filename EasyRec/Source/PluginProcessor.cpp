@@ -144,12 +144,18 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const float compAmtNorm = *parameters.getRawParameterValue("comp");
     const float compSoftV  = *parameters.getRawParameterValue("compSoft");
     const float eqTrebleNorm = *parameters.getRawParameterValue("satur");
+    const float eqOnV = *parameters.getRawParameterValue("eqOn");
+    const float compOnV = *parameters.getRawParameterValue("compOn");
+    const float satOnV = *parameters.getRawParameterValue("satOn");
     const float outNorm    = *parameters.getRawParameterValue("out");
 
     const float inputDb = juce::jmap(inputNorm, 0.0f, 1.0f, -10.0f, 10.0f);
     const float compAmtDb = juce::jmap(compAmtNorm, 0.0f, 1.0f, -10.0f, 10.0f);
     const float eqBassDb = juce::jmap(eqBassNorm, 0.0f, 1.0f, -10.0f, 10.0f);
     const float eqTrebleDb = juce::jmap(eqTrebleNorm, 0.0f, 1.0f, -10.0f, 10.0f);
+    const bool lowOn = (eqOnV >= 0.5f);
+    const bool compOn = (compOnV >= 0.5f);
+    const bool trebleOn = (satOnV >= 0.5f);
     const bool outIsMute = (outNorm <= 0.0001f);
     const auto normToDb = [](float norm) -> float
     {
@@ -171,8 +177,8 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     compressor.setAmount(compAmtDb);
 
     eq.setSoftPreset(compSoftV >= 0.5f);
-    eq.setBassAmount(eqBassDb);
-    eq.setTrebleAmount(eqTrebleDb);
+    eq.setBassAmount(lowOn ? eqBassDb : 0.0f);
+    eq.setTrebleAmount(trebleOn ? eqTrebleDb : 0.0f);
 
     // Saturazione analogica nascosta sempre leggera.
     saturation.setSoftMode(true);
@@ -184,8 +190,12 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         output.setGainDb(outDb);
 
     // Nuova catena: Input -> Comp -> EQ -> De-esser interno -> Saturazione interna -> Output
-    compressor.processBlock(buffer);
-    eq.processBlock(buffer);
+    if (compOn)
+        compressor.processBlock(buffer);
+
+    if (lowOn || trebleOn)
+        eq.processBlock(buffer);
+
     processHiddenDeEsser(buffer);
     saturation.processBlock(buffer);
 

@@ -33,13 +33,13 @@ namespace BinaryData
     const int            gamevoice_svgSize = 1680;
 
     extern const char*   Gameboy2_prova_png;
-    const int            Gameboy2_prova_pngSize = 18843301;
+    const int            Gameboy2_prova_pngSize = 18843381;
 
     extern const char*   nomi_svg;
     const int            nomi_svgSize = 1546;
 
     extern const char*   bassknob_png;
-    const int            bassknob_pngSize = 2076;
+    const int            bassknob_pngSize = 1981;
 
     extern const char*   satB_png;
     const int            satB_pngSize = 29239;
