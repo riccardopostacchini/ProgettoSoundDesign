@@ -61,6 +61,15 @@ private:
     SaturationModule saturation;
     OutputModule output;
 
+    // Screen 2 FX (CLA-style fixed engines with one send each)
+    juce::dsp::Reverb roomReverb;
+    juce::dsp::Reverb churchReverb;
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> slapDelayL { 96000 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> slapDelayR { 96000 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> eighthDelayL { 192000 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> eighthDelayR { 192000 };
+    double currentSampleRate = 44100.0;
+
     // Hidden de-esser interno (broadband reduction guidata dalla banda sibilante)
     juce::dsp::IIR::Filter<float> deEsserBandL;
     juce::dsp::IIR::Filter<float> deEsserBandR;

@@ -65,6 +65,54 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     };
     addAndMakeVisible(screenBackButton);
 
+    auto setupScreen2Slider = [this](juce::Slider& s)
+    {
+        s.setSliderStyle(juce::Slider::LinearHorizontal);
+        s.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+        s.setRange(0.0, 1.0, 0.01);
+        s.setValue(0.0);
+        s.setLookAndFeel(nullptr);
+        s.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
+        s.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
+        s.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
+        addAndMakeVisible(s);
+    };
+
+    auto setupScreen2Label = [this, font](juce::Label& l)
+    {
+        l.setFont(font);
+        l.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
+        l.setJustificationType(juce::Justification::centredLeft);
+        l.setEditable(false, false, false);
+        l.setInterceptsMouseClicks(false, false);
+        addAndMakeVisible(l);
+    };
+
+    setupScreen2Slider(roomKnob);
+    setupScreen2Slider(churchKnob);
+    setupScreen2Slider(slapKnob);
+    setupScreen2Slider(eighthKnob);
+    setupScreen2Label(roomLabel);
+    setupScreen2Label(churchLabel);
+    setupScreen2Label(slapLabel);
+    setupScreen2Label(eighthLabel);
+
+    auto setupScreen2OnOff = [this](juce::TextButton& b, juce::Colour c)
+    {
+        b.setButtonText("");
+        b.setClickingTogglesState(true);
+        b.setColour(juce::TextButton::buttonColourId, c);
+        b.setColour(juce::TextButton::buttonOnColourId, c);
+        b.setColour(juce::TextButton::textColourOffId, juce::Colours::transparentBlack);
+        b.setColour(juce::TextButton::textColourOnId, juce::Colours::transparentBlack);
+        addAndMakeVisible(b);
+    };
+
+    setupScreen2OnOff(roomOnOffButton, juce::Colours::red);
+    setupScreen2OnOff(churchOnOffButton, juce::Colours::blue);
+    setupScreen2OnOff(slapOnOffButton, juce::Colours::purple);
+    setupScreen2OnOff(eighthOnOffButton, juce::Colours::yellow);
+
     // === COMP SLIDER ===
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
     compKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
@@ -298,6 +346,21 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         updateOutputLabel();
     };
     updateOutputLabel();
+
+    auto updateScreen2Label = [formatValue](juce::Slider& s, juce::Label& l, const juce::String& title)
+    {
+        const float value = ((float) s.getValue() - 0.5f) * 20.0f;
+        l.setText(title + ": " + formatValue(value), juce::dontSendNotification);
+    };
+
+    roomKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(roomKnob, roomLabel, "Room"); };
+    churchKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(churchKnob, churchLabel, "Church"); };
+    slapKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(slapKnob, slapLabel, "Slap"); };
+    eighthKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(eighthKnob, eighthLabel, "Eight"); };
+    updateScreen2Label(roomKnob, roomLabel, "Room");
+    updateScreen2Label(churchKnob, churchLabel, "Church");
+    updateScreen2Label(slapKnob, slapLabel, "Slap");
+    updateScreen2Label(eighthKnob, eighthLabel, "Eight");
     
     toggleCompButton.setAlpha(0.0f);
     toggleCompButton.setColour(juce::DrawableButton::backgroundColourId, juce::Colours::transparentBlack);
@@ -390,6 +453,14 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     compOnAttachment   = std::make_unique<APVTS::ButtonAttachment>(apvts, "compOn", compOnOffButton);
     satOnAttachment    = std::make_unique<APVTS::ButtonAttachment>(apvts, "satOn", satOnOffButton);
     eqOnAttachment     = std::make_unique<APVTS::ButtonAttachment>(apvts, "eqOn", eqOnOffButton);
+    roomAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "room", roomKnob);
+    churchAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "church", churchKnob);
+    slapAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "slap", slapKnob);
+    eighthAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "eighth", eighthKnob);
+    roomOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "roomOn", roomOnOffButton);
+    churchOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "churchOn", churchOnOffButton);
+    slapOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "slapOn", slapOnOffButton);
+    eighthOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "eighthOn", eighthOnOffButton);
 
     // Sincronizza lo stato iniziale dei toggle con i parametri
     isSoftMode = toggleCompButton.getToggleState();
@@ -579,6 +650,18 @@ void EasyRecAudioProcessorEditor::resized()
     screenToggleButton.setBounds(330, 460, 60, 40);
     screenBackButton.setBounds(460, 285, 85, 70);
     catRect = { 326, 104, 120, 120 };
+    roomKnob.setBounds(235, 120, 145, 22);
+    churchKnob.setBounds(235, 160, 145, 22);
+    slapKnob.setBounds(425, 235, 145, 22);
+    eighthKnob.setBounds(425, 275, 145, 22);
+    roomOnOffButton.setBounds(roomKnob.getX() - 20, roomKnob.getY() + 3, 15, 15);
+    churchOnOffButton.setBounds(churchKnob.getX() - 20, churchKnob.getY() + 3, 15, 15);
+    slapOnOffButton.setBounds(slapKnob.getX() - 20, slapKnob.getY() + 3, 15, 15);
+    eighthOnOffButton.setBounds(eighthKnob.getX() - 20, eighthKnob.getY() + 3, 15, 15);
+    roomLabel.setBounds(roomKnob.getX() - 95, roomKnob.getY() - 1, 90, 24);
+    churchLabel.setBounds(churchKnob.getX() - 95, churchKnob.getY() - 1, 90, 24);
+    slapLabel.setBounds(slapKnob.getX() - 95, slapKnob.getY() - 1, 90, 24);
+    eighthLabel.setBounds(eighthKnob.getX() - 95, eighthKnob.getY() - 1, 90, 24);
 
     // Slider orizzontali per Compressor e Saturator
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -647,6 +730,18 @@ void EasyRecAudioProcessorEditor::resized()
     animOnOffButton.setVisible(true);
     screenToggleButton.setVisible(true);
     screenBackButton.setVisible(isScreenB);
+    roomKnob.setVisible(isScreenB);
+    churchKnob.setVisible(isScreenB);
+    slapKnob.setVisible(isScreenB);
+    eighthKnob.setVisible(isScreenB);
+    roomLabel.setVisible(isScreenB);
+    churchLabel.setVisible(isScreenB);
+    slapLabel.setVisible(isScreenB);
+    eighthLabel.setVisible(isScreenB);
+    roomOnOffButton.setVisible(isScreenB);
+    churchOnOffButton.setVisible(isScreenB);
+    slapOnOffButton.setVisible(isScreenB);
+    eighthOnOffButton.setVisible(isScreenB);
 
     // Label placement
     lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));

@@ -62,6 +62,18 @@ private:
     bool isScreenB = false;
     juce::TextButton screenToggleButton;
     juce::TextButton screenBackButton;
+    ResettableSlider roomKnob { 0.0f };
+    ResettableSlider churchKnob { 0.0f };
+    ResettableSlider slapKnob { 0.0f };
+    ResettableSlider eighthKnob { 0.0f };
+    juce::Label roomLabel;
+    juce::Label churchLabel;
+    juce::Label slapLabel;
+    juce::Label eighthLabel;
+    juce::TextButton roomOnOffButton;
+    juce::TextButton churchOnOffButton;
+    juce::TextButton slapOnOffButton;
+    juce::TextButton eighthOnOffButton;
 
     //COMP SLIDER
     ResettableSlider compKnob { 0.5f };
@@ -151,6 +163,14 @@ private:
     std::unique_ptr<APVTS::ButtonAttachment> compOnAttachment;
     std::unique_ptr<APVTS::ButtonAttachment> satOnAttachment;
     std::unique_ptr<APVTS::ButtonAttachment> eqOnAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> roomAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> churchAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> slapAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> eighthAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> roomOnAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> churchOnAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> slapOnAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> eighthOnAttachment;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EasyRecAudioProcessorEditor)
 };

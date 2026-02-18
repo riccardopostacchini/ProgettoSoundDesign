@@ -76,6 +76,7 @@ void EasyRecAudioProcessor::changeProgramName (int index, const juce::String& ne
 //==============================================================================
 void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    currentSampleRate = sampleRate;
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -85,6 +86,16 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     compressor.prepare(spec);
     saturation.prepare(spec);
     output.prepare(spec);
+    roomReverb.reset();
+    churchReverb.reset();
+    slapDelayL.prepare(spec);
+    slapDelayR.prepare(spec);
+    eighthDelayL.prepare(spec);
+    eighthDelayR.prepare(spec);
+    slapDelayL.reset();
+    slapDelayR.reset();
+    eighthDelayL.reset();
+    eighthDelayR.reset();
 
     deEsserBandL.prepare(spec);
     deEsserBandR.prepare(spec);
@@ -125,6 +136,12 @@ void EasyRecAudioProcessor::releaseResources()
     compressor.reset();
     saturation.reset();
     output.reset();
+    roomReverb.reset();
+    churchReverb.reset();
+    slapDelayL.reset();
+    slapDelayR.reset();
+    eighthDelayL.reset();
+    eighthDelayR.reset();
     deEsserBandL.reset();
     deEsserBandR.reset();
     safetyHpL.reset();
@@ -174,6 +191,14 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const float compOnV = *parameters.getRawParameterValue("compOn");
     const float satOnV = *parameters.getRawParameterValue("satOn");
     const float outNorm    = *parameters.getRawParameterValue("out");
+    const float roomNorm = *parameters.getRawParameterValue("room");
+    const float churchNorm = *parameters.getRawParameterValue("church");
+    const float slapNorm = *parameters.getRawParameterValue("slap");
+    const float eighthNorm = *parameters.getRawParameterValue("eighth");
+    const bool roomOn = (*parameters.getRawParameterValue("roomOn") >= 0.5f);
+    const bool churchOn = (*parameters.getRawParameterValue("churchOn") >= 0.5f);
+    const bool slapOn = (*parameters.getRawParameterValue("slapOn") >= 0.5f);
+    const bool eighthOn = (*parameters.getRawParameterValue("eighthOn") >= 0.5f);
 
     const float inputDb = juce::jmap(inputNorm, 0.0f, 1.0f, -10.0f, 10.0f);
     const float compAmtDb = juce::jmap(compAmtNorm, 0.0f, 1.0f, -10.0f, 10.0f);
@@ -197,6 +222,16 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         return juce::jmap(norm, seg * 8.0f, seg * 9.0f,    6.6667f, 10.0f);
     };
     const float outDb = normToDb(outNorm);
+    const auto sliderNormToSend = [](float paramNorm) -> float
+    {
+        const float dbValue = juce::jmap(paramNorm, 0.0f, 1.0f, -10.0f, 10.0f);
+        const float send = juce::jmap(dbValue, -10.0f, 10.0f, 0.0f, 1.0f);
+        return juce::jlimit(0.0f, 1.0f, std::pow(send, 1.2f));
+    };
+    const float roomSend = roomOn ? sliderNormToSend(roomNorm) : 0.0f;
+    const float churchSend = churchOn ? sliderNormToSend(churchNorm) : 0.0f;
+    const float slapSend = slapOn ? sliderNormToSend(slapNorm) : 0.0f;
+    const float eighthSend = eighthOn ? sliderNormToSend(eighthNorm) : 0.0f;
 
     compressor.setSoftMode(compSoftV >= 0.5f);
     compressor.setInputDriveDb(inputDb);
@@ -226,6 +261,112 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     saturation.processBlock(buffer);
     processHiddenSafetyFilters(buffer);
     processHiddenPeakProtector(buffer);
+
+    // === Screen 2 FX (parallel sends): Room, Church, Slap, Eighth ===
+    const int numSamples = buffer.getNumSamples();
+    const int numChannels = buffer.getNumChannels();
+    if (numSamples > 0 && numChannels > 0)
+    {
+        juce::AudioBuffer<float> dry(buffer);
+        juce::AudioBuffer<float> fxBuffer(numChannels, numSamples);
+        fxBuffer.clear();
+
+        // Room reverb (short/medium ambience)
+        if (roomSend > 0.0001f)
+        {
+            juce::AudioBuffer<float> roomIn(dry);
+            roomIn.applyGain(roomSend);
+
+            juce::dsp::Reverb::Parameters roomParams;
+            roomParams.roomSize = 0.42f;
+            roomParams.damping = 0.48f;
+            roomParams.width = 1.0f;
+            roomParams.freezeMode = 0.0f;
+            roomParams.wetLevel = 0.30f;
+            roomParams.dryLevel = 0.0f;
+            roomReverb.setParameters(roomParams);
+
+            juce::dsp::AudioBlock<float> roomBlock(roomIn);
+            juce::dsp::ProcessContextReplacing<float> roomContext(roomBlock);
+            roomReverb.process(roomContext);
+            for (int ch = 0; ch < numChannels; ++ch)
+                fxBuffer.addFrom(ch, 0, roomIn, ch, 0, numSamples);
+        }
+
+        // Church reverb (longer tail)
+        if (churchSend > 0.0001f)
+        {
+            juce::AudioBuffer<float> churchIn(dry);
+            churchIn.applyGain(churchSend);
+
+            juce::dsp::Reverb::Parameters churchParams;
+            churchParams.roomSize = 0.86f;
+            churchParams.damping = 0.35f;
+            churchParams.width = 1.0f;
+            churchParams.freezeMode = 0.0f;
+            churchParams.wetLevel = 0.38f;
+            churchParams.dryLevel = 0.0f;
+            churchReverb.setParameters(churchParams);
+
+            juce::dsp::AudioBlock<float> churchBlock(churchIn);
+            juce::dsp::ProcessContextReplacing<float> churchContext(churchBlock);
+            churchReverb.process(churchContext);
+            for (int ch = 0; ch < numChannels; ++ch)
+                fxBuffer.addFrom(ch, 0, churchIn, ch, 0, numSamples);
+        }
+
+        // Delay times
+        const double bpm = [this]() -> double
+        {
+            if (auto* head = getPlayHead())
+            {
+                if (auto pos = head->getPosition())
+                {
+                    if (auto bpm = pos->getBpm(); bpm.hasValue() && *bpm > 1.0)
+                        return *bpm;
+                }
+            }
+            return 120.0;
+        }();
+
+        const int slapDelaySamples = (int) juce::jlimit(1.0, 2000.0, currentSampleRate * 0.11); // ~110ms
+        const int eighthDelaySamples = (int) juce::jlimit(1.0, 4000.0, currentSampleRate * (30.0 / bpm)); // 1/8 note
+
+        for (int i = 0; i < numSamples; ++i)
+        {
+            const float inL = dry.getSample(0, i);
+            const float inR = (numChannels > 1) ? dry.getSample(1, i) : inL;
+
+            // Slap delay (low feedback)
+            slapDelayL.setDelay((float) slapDelaySamples);
+            slapDelayR.setDelay((float) slapDelaySamples);
+            const float slapReadL = slapDelayL.popSample(0);
+            const float slapReadR = slapDelayR.popSample(0);
+            slapDelayL.pushSample(0, inL * slapSend + slapReadL * 0.18f);
+            slapDelayR.pushSample(0, inR * slapSend + slapReadR * 0.18f);
+            fxBuffer.addSample(0, i, slapReadL * 0.55f);
+            if (numChannels > 1)
+                fxBuffer.addSample(1, i, slapReadR * 0.55f);
+
+            // Eighth delay (moderate feedback, ping-pong feel)
+            eighthDelayL.setDelay((float) eighthDelaySamples);
+            eighthDelayR.setDelay((float) eighthDelaySamples);
+            const float eighthReadL = eighthDelayL.popSample(0);
+            const float eighthReadR = eighthDelayR.popSample(0);
+            const float pingL = inL * eighthSend + eighthReadR * 0.33f;
+            const float pingR = inR * eighthSend + eighthReadL * 0.33f;
+            eighthDelayL.pushSample(0, pingL);
+            eighthDelayR.pushSample(0, pingR);
+            fxBuffer.addSample(0, i, eighthReadL * 0.5f);
+            if (numChannels > 1)
+                fxBuffer.addSample(1, i, eighthReadR * 0.5f);
+        }
+
+        // Sum parallel FX with safety headroom.
+        buffer.addFrom(0, 0, fxBuffer, 0, 0, numSamples, 0.7f);
+        if (numChannels > 1)
+            buffer.addFrom(1, 0, fxBuffer, 1, 0, numSamples, 0.7f);
+    }
 
     output.processBlock(buffer);
 }
@@ -439,6 +580,42 @@ EasyRecAudioProcessor::APVTS::ParameterLayout EasyRecAudioProcessor::createParam
         juce::ParameterID { "out", 1 }, "Output",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
         6.0f / 9.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "room", 1 }, "Room Reverb",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
+        0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "church", 1 }, "Church Reverb",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
+        0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "slap", 1 }, "Slap Delay",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
+        0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "eighth", 1 }, "Eighth Delay",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
+        0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "roomOn", 1 }, "Room On",
+        true));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "churchOn", 1 }, "Church On",
+        true));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "slapOn", 1 }, "Slap On",
+        true));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "eighthOn", 1 }, "Eighth On",
+        true));
 
     return { params.begin(), params.end() };
 }
