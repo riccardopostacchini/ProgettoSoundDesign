@@ -70,7 +70,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         s.setSliderStyle(juce::Slider::LinearHorizontal);
         s.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         s.setRange(0.0, 1.0, 0.01);
-        s.setValue(0.0);
+        s.setValue(0.5);
         s.setLookAndFeel(nullptr);
         s.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
         s.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
@@ -82,7 +82,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     {
         l.setFont(font);
         l.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
-        l.setJustificationType(juce::Justification::centredLeft);
+        l.setJustificationType(juce::Justification::centredRight);
         l.setEditable(false, false, false);
         l.setInterceptsMouseClicks(false, false);
         addAndMakeVisible(l);
@@ -96,22 +96,31 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     setupScreen2Label(churchLabel);
     setupScreen2Label(slapLabel);
     setupScreen2Label(eighthLabel);
+    roomLabel.setJustificationType(juce::Justification::centredLeft);
+    churchLabel.setJustificationType(juce::Justification::centredLeft);
+    slapLabel.setJustificationType(juce::Justification::centredRight);
+    eighthLabel.setJustificationType(juce::Justification::centredRight);
 
-    auto setupScreen2OnOff = [this](juce::TextButton& b, juce::Colour c)
+    auto setupScreen2OnOff = [this](juce::TextButton& b)
     {
         b.setButtonText("");
         b.setClickingTogglesState(true);
-        b.setColour(juce::TextButton::buttonColourId, c);
-        b.setColour(juce::TextButton::buttonOnColourId, c);
+        b.setAlpha(0.0f);
+        b.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+        b.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
         b.setColour(juce::TextButton::textColourOffId, juce::Colours::transparentBlack);
         b.setColour(juce::TextButton::textColourOnId, juce::Colours::transparentBlack);
         addAndMakeVisible(b);
     };
 
-    setupScreen2OnOff(roomOnOffButton, juce::Colours::red);
-    setupScreen2OnOff(churchOnOffButton, juce::Colours::blue);
-    setupScreen2OnOff(slapOnOffButton, juce::Colours::purple);
-    setupScreen2OnOff(eighthOnOffButton, juce::Colours::yellow);
+    setupScreen2OnOff(roomOnOffButton);
+    setupScreen2OnOff(churchOnOffButton);
+    setupScreen2OnOff(slapOnOffButton);
+    setupScreen2OnOff(eighthOnOffButton);
+    roomOnOffButton.setToggleState(false, juce::dontSendNotification);
+    churchOnOffButton.setToggleState(false, juce::dontSendNotification);
+    slapOnOffButton.setToggleState(false, juce::dontSendNotification);
+    eighthOnOffButton.setToggleState(false, juce::dontSendNotification);
 
     // === COMP SLIDER ===
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -347,20 +356,24 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     };
     updateOutputLabel();
 
-    auto updateScreen2Label = [formatValue](juce::Slider& s, juce::Label& l, const juce::String& title)
+    auto updateScreen2Label = [](juce::Slider& s, juce::Label& l)
     {
         const float value = ((float) s.getValue() - 0.5f) * 20.0f;
-        l.setText(title + ": " + formatValue(value), juce::dontSendNotification);
+        const float rounded = std::round(value);
+        if (std::abs(value - rounded) < 0.05f)
+            l.setText(juce::String((int) rounded), juce::dontSendNotification);
+        else
+            l.setText(juce::String(value, 1), juce::dontSendNotification);
     };
 
-    roomKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(roomKnob, roomLabel, "Room"); };
-    churchKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(churchKnob, churchLabel, "Church"); };
-    slapKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(slapKnob, slapLabel, "Slap"); };
-    eighthKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(eighthKnob, eighthLabel, "Eight"); };
-    updateScreen2Label(roomKnob, roomLabel, "Room");
-    updateScreen2Label(churchKnob, churchLabel, "Church");
-    updateScreen2Label(slapKnob, slapLabel, "Slap");
-    updateScreen2Label(eighthKnob, eighthLabel, "Eight");
+    roomKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(roomKnob, roomLabel); };
+    churchKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(churchKnob, churchLabel); };
+    slapKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(slapKnob, slapLabel); };
+    eighthKnob.onValueChange = [this, updateScreen2Label]() { updateScreen2Label(eighthKnob, eighthLabel); };
+    updateScreen2Label(roomKnob, roomLabel);
+    updateScreen2Label(churchKnob, churchLabel);
+    updateScreen2Label(slapKnob, slapLabel);
+    updateScreen2Label(eighthKnob, eighthLabel);
     
     toggleCompButton.setAlpha(0.0f);
     toggleCompButton.setColour(juce::DrawableButton::backgroundColourId, juce::Colours::transparentBlack);
@@ -462,6 +475,12 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     slapOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "slapOn", slapOnOffButton);
     eighthOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "eighthOn", eighthOnOffButton);
 
+    // Richiesta UX: schermata 2 sempre OFF all'apertura dell'editor.
+    if (auto* p = apvts.getParameter("roomOn"))   p->setValueNotifyingHost(0.0f);
+    if (auto* p = apvts.getParameter("churchOn")) p->setValueNotifyingHost(0.0f);
+    if (auto* p = apvts.getParameter("slapOn"))   p->setValueNotifyingHost(0.0f);
+    if (auto* p = apvts.getParameter("eighthOn")) p->setValueNotifyingHost(0.0f);
+
     // Sincronizza lo stato iniziale dei toggle con i parametri
     isSoftMode = toggleCompButton.getToggleState();
     isSoftSaturMode = saturToggleButton.getToggleState();
@@ -481,6 +500,10 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         resized();
         repaint();
     };
+    roomOnOffButton.onStateChange = [this]() { resized(); repaint(); };
+    churchOnOffButton.onStateChange = [this]() { resized(); repaint(); };
+    slapOnOffButton.onStateChange = [this]() { resized(); repaint(); };
+    eighthOnOffButton.onStateChange = [this]() { resized(); repaint(); };
 
     // Evita flash all'apertura: durante l'intro UI parte invisibile (ma bottoni restano cliccabili)
     if (introActive)
@@ -530,6 +553,31 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
                           drawRect.getWidth(),
                           drawRect.getHeight(),
                           juce::RectanglePlacement::centred);
+    }
+
+    if (isScreenB && buttonSliderImage.isValid())
+    {
+        const auto isFxOn = [this](const char* paramID)
+        {
+            if (auto* v = audioProcessor.getAPVTS().getRawParameterValue(paramID))
+                return v->load() >= 0.5f;
+            return false;
+        };
+
+        auto drawSliderBase = [this, &g](const juce::Slider& s)
+        {
+            g.drawImageWithin(buttonSliderImage,
+                              s.getX() - 5,
+                              s.getY() + 29,
+                              s.getWidth(),
+                              12,
+                              juce::RectanglePlacement::stretchToFit);
+        };
+
+        if (isFxOn("roomOn")) drawSliderBase(roomKnob);
+        if (isFxOn("churchOn")) drawSliderBase(churchKnob);
+        if (isFxOn("slapOn")) drawSliderBase(slapKnob);
+        if (isFxOn("eighthOn")) drawSliderBase(eighthKnob);
     }
 
     if (!isScreenB)
@@ -643,6 +691,13 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 
 void EasyRecAudioProcessorEditor::resized()
 {
+    const auto isFxOn = [this](const char* paramID)
+    {
+        if (auto* v = audioProcessor.getAPVTS().getRawParameterValue(paramID))
+            return v->load() >= 0.5f;
+        return false;
+    };
+
     // EQ + Output
     lowKnob.setBounds(371, 309, 38, 38);
     toneKnob.setBounds(435, 309, 38, 38);
@@ -650,18 +705,18 @@ void EasyRecAudioProcessorEditor::resized()
     screenToggleButton.setBounds(330, 460, 60, 40);
     screenBackButton.setBounds(460, 285, 85, 70);
     catRect = { 326, 104, 120, 120 };
-    roomKnob.setBounds(235, 120, 145, 22);
-    churchKnob.setBounds(235, 160, 145, 22);
-    slapKnob.setBounds(425, 235, 145, 22);
-    eighthKnob.setBounds(425, 275, 145, 22);
-    roomOnOffButton.setBounds(roomKnob.getX() - 20, roomKnob.getY() + 3, 15, 15);
-    churchOnOffButton.setBounds(churchKnob.getX() - 20, churchKnob.getY() + 3, 15, 15);
-    slapOnOffButton.setBounds(slapKnob.getX() - 20, slapKnob.getY() + 3, 15, 15);
-    eighthOnOffButton.setBounds(eighthKnob.getX() - 20, eighthKnob.getY() + 3, 15, 15);
-    roomLabel.setBounds(roomKnob.getX() - 95, roomKnob.getY() - 1, 90, 24);
-    churchLabel.setBounds(churchKnob.getX() - 95, churchKnob.getY() - 1, 90, 24);
-    slapLabel.setBounds(slapKnob.getX() - 95, slapKnob.getY() - 1, 90, 24);
-    eighthLabel.setBounds(eighthKnob.getX() - 95, eighthKnob.getY() - 1, 90, 24);
+    roomKnob.setBounds(250, 95, 80, 70);
+    churchKnob.setBounds(250, 185, 80, 70);
+    slapKnob.setBounds(455, 95, 80, 70);
+    eighthKnob.setBounds(455, 185, 80, 70);
+    roomOnOffButton.setBounds(roomKnob.getX() + 105, roomKnob.getY(), 15, 15);
+    churchOnOffButton.setBounds(churchKnob.getX() + 105, churchKnob.getY() + 58, 15, 15);
+    slapOnOffButton.setBounds(slapKnob.getX() - 49, slapKnob.getY(), 15, 15);
+    eighthOnOffButton.setBounds(eighthKnob.getX() - 49, eighthKnob.getY() + 58, 15, 15);
+    roomLabel.setBounds(roomKnob.getX() - 3, roomKnob.getY() + 37, 90, 24);
+    churchLabel.setBounds(churchKnob.getX() - 3, churchKnob.getY() + 9, 90, 24);
+    slapLabel.setBounds(slapKnob.getX() - 18, slapKnob.getY() + 37, 90, 24);
+    eighthLabel.setBounds(eighthKnob.getX() - 18, eighthKnob.getY() + 9, 90, 24);
 
     // Slider orizzontali per Compressor e Saturator
     compKnob.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -730,14 +785,14 @@ void EasyRecAudioProcessorEditor::resized()
     animOnOffButton.setVisible(true);
     screenToggleButton.setVisible(true);
     screenBackButton.setVisible(isScreenB);
-    roomKnob.setVisible(isScreenB);
-    churchKnob.setVisible(isScreenB);
-    slapKnob.setVisible(isScreenB);
-    eighthKnob.setVisible(isScreenB);
-    roomLabel.setVisible(isScreenB);
-    churchLabel.setVisible(isScreenB);
-    slapLabel.setVisible(isScreenB);
-    eighthLabel.setVisible(isScreenB);
+    roomKnob.setVisible(isScreenB && isFxOn("roomOn"));
+    churchKnob.setVisible(isScreenB && isFxOn("churchOn"));
+    slapKnob.setVisible(isScreenB && isFxOn("slapOn"));
+    eighthKnob.setVisible(isScreenB && isFxOn("eighthOn"));
+    roomLabel.setVisible(isScreenB && isFxOn("roomOn"));
+    churchLabel.setVisible(isScreenB && isFxOn("churchOn"));
+    slapLabel.setVisible(isScreenB && isFxOn("slapOn"));
+    eighthLabel.setVisible(isScreenB && isFxOn("eighthOn"));
     roomOnOffButton.setVisible(isScreenB);
     churchOnOffButton.setVisible(isScreenB);
     slapOnOffButton.setVisible(isScreenB);

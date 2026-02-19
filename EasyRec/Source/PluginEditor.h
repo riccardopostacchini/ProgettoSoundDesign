@@ -62,10 +62,10 @@ private:
     bool isScreenB = false;
     juce::TextButton screenToggleButton;
     juce::TextButton screenBackButton;
-    ResettableSlider roomKnob { 0.0f };
-    ResettableSlider churchKnob { 0.0f };
-    ResettableSlider slapKnob { 0.0f };
-    ResettableSlider eighthKnob { 0.0f };
+    ResettableSlider roomKnob { 0.5f };
+    ResettableSlider churchKnob { 0.5f };
+    ResettableSlider slapKnob { 0.5f };
+    ResettableSlider eighthKnob { 0.5f };
     juce::Label roomLabel;
     juce::Label churchLabel;
     juce::Label slapLabel;

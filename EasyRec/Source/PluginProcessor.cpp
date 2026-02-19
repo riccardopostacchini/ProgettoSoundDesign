@@ -584,38 +584,38 @@ EasyRecAudioProcessor::APVTS::ParameterLayout EasyRecAudioProcessor::createParam
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "room", 1 }, "Room Reverb",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
-        0.0f));
+        0.5f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "church", 1 }, "Church Reverb",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
-        0.0f));
+        0.5f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "slap", 1 }, "Slap Delay",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
-        0.0f));
+        0.5f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "eighth", 1 }, "Eighth Delay",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),
-        0.0f));
+        0.5f));
 
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         juce::ParameterID { "roomOn", 1 }, "Room On",
-        true));
+        false));
 
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         juce::ParameterID { "churchOn", 1 }, "Church On",
-        true));
+        false));
 
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         juce::ParameterID { "slapOn", 1 }, "Slap On",
-        true));
+        false));
 
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         juce::ParameterID { "eighthOn", 1 }, "Eighth On",
-        true));
+        false));
 
     return { params.begin(), params.end() };
 }
