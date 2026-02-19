@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <atomic>
 #include "EQModule.h"
 #include "CompressorModule.h"
 #include "SaturationModule.h"
@@ -50,6 +51,7 @@ public:
     void setOutputGainDb(float gainDb);
 
     APVTS& getAPVTS() { return parameters; }
+    float getOutputMeterDb() const noexcept { return outputMeterDb.load(); }
 
 private:
     static APVTS::ParameterLayout createParameterLayout();
@@ -69,6 +71,7 @@ private:
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> eighthDelayL { 192000 };
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> eighthDelayR { 192000 };
     double currentSampleRate = 44100.0;
+    std::atomic<float> outputMeterDb { -60.0f };
 
     // Hidden de-esser interno (broadband reduction guidata dalla banda sibilante)
     juce::dsp::IIR::Filter<float> deEsserBandL;

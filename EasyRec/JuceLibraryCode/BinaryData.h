@@ -30,7 +30,7 @@ namespace BinaryData
     const int            compB_pngSize = 40329;
 
     extern const char*   Gameboy_2_png;
-    const int            Gameboy_2_pngSize = 18805570;
+    const int            Gameboy_2_pngSize = 19769681;
 
     extern const char*   gamevoice_svg;
     const int            gamevoice_svgSize = 1680;
@@ -39,7 +39,7 @@ namespace BinaryData
     const int            cat_pngSize = 145201;
 
     extern const char*   Gameboy2_prova_png;
-    const int            Gameboy2_prova_pngSize = 18843338;
+    const int            Gameboy2_prova_pngSize = 19805481;
 
     extern const char*   nomi_svg;
     const int            nomi_svgSize = 1546;
@@ -51,7 +51,7 @@ namespace BinaryData
     const int            satB_pngSize = 29239;
 
     extern const char*   Gameboy_intro_png;
-    const int            Gameboy_intro_pngSize = 7654385;
+    const int            Gameboy_intro_pngSize = 19917712;
 
     extern const char*   eqon_png;
     const int            eqon_pngSize = 3195;

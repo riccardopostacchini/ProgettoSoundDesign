@@ -77,6 +77,12 @@ void EasyRecAudioProcessor::changeProgramName (int index, const juce::String& ne
 void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentSampleRate = sampleRate;
+    const float nyquist = juce::jmax(100.0f, 0.5f * (float) sampleRate);
+    const auto clampFreq = [nyquist](float hz)
+    {
+        return juce::jlimit(10.0f, nyquist - 1.0f, hz);
+    };
+
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -101,8 +107,8 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     deEsserBandR.prepare(spec);
     deEsserBandL.reset();
     deEsserBandR.reset();
-    deEsserBandL.coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, 7000.0f, 2.2f);
-    deEsserBandR.coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, 7000.0f, 2.2f);
+    deEsserBandL.coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, clampFreq(7000.0f), 2.2f);
+    deEsserBandR.coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, clampFreq(7000.0f), 2.2f);
 
     deEssEnv = 0.0f;
     deEssGainSmoothed = 1.0f;
@@ -120,10 +126,10 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     safetyLpL.reset();
     safetyLpR.reset();
     // Hidden profile: aggressive pop
-    safetyHpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 45.0f, 0.72f);
-    safetyHpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 45.0f, 0.72f);
-    safetyLpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 17000.0f, 0.72f);
-    safetyLpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 17000.0f, 0.72f);
+    safetyHpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(45.0f), 0.72f);
+    safetyHpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(45.0f), 0.72f);
+    safetyLpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(17000.0f), 0.72f);
+    safetyLpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(17000.0f), 0.72f);
 
     hiddenLimiterGain = 1.0f;
     hiddenLimiterAttackCoeff = std::exp(-1.0f / (0.001f * 0.3f * (float) sampleRate));
@@ -369,6 +375,25 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     }
 
     output.processBlock(buffer);
+
+    // Output meter (post-chain).
+    float peak = 0.0f;
+    const int channels = buffer.getNumChannels();
+    const int samples = buffer.getNumSamples();
+    for (int ch = 0; ch < channels; ++ch)
+    {
+        const float* read = buffer.getReadPointer(ch);
+        for (int i = 0; i < samples; ++i)
+            peak = juce::jmax(peak, std::abs(read[i]));
+    }
+
+    float peakDb = juce::Decibels::gainToDecibels(peak, -60.0f);
+    peakDb = juce::jlimit(-60.0f, 6.0f, peakDb);
+
+    const float previousDb = outputMeterDb.load();
+    constexpr float meterReleaseDbPerBlock = 0.8f;
+    const float smoothedDb = (peakDb > previousDb) ? peakDb : juce::jmax(peakDb, previousDb - meterReleaseDbPerBlock);
+    outputMeterDb.store(smoothedDb);
 }
 
 //==============================================================================

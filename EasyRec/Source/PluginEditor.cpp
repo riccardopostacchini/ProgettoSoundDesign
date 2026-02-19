@@ -542,6 +542,66 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
     if (currentBg.isValid())
         g.drawImage(currentBg, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
 
+    const auto drawOutputMeter = [this, &g]()
+    {
+        const auto meterBounds = juce::Rectangle<float>(584.0f, 110.0f, 10.0f, 240.0f);
+        const auto meterPanel = juce::Rectangle<float>(578.0f, 100.0f, 38.0f, 260.0f);
+        const auto dbToY = [&meterBounds](float db)
+        {
+            const float linearNorm = juce::jlimit(0.0f, 1.0f, juce::jmap(db, -60.0f, 0.0f, 0.0f, 1.0f));
+            constexpr float meterCurve = 2.2f; // espande la zona vicina a 0 dB
+            const float n = std::pow(linearNorm, meterCurve);
+            return meterBounds.getBottom() - meterBounds.getHeight() * n;
+        };
+
+        g.setColour(juce::Colour::fromString("ff1A1A1D"));
+        g.fillRoundedRectangle(meterPanel, 4.0f);
+
+        g.setColour(juce::Colour::fromString("662D2933"));
+        g.fillRoundedRectangle(meterBounds, 3.0f);
+
+        // Clip area: rosso in alto (-3..0 dB).
+        const float clipTopY = dbToY(0.0f);
+        const float clipBottomY = dbToY(-3.0f);
+        g.setColour(juce::Colour::fromString("99C73A3A"));
+        g.fillRoundedRectangle(meterBounds.withY(clipTopY).withHeight(clipBottomY - clipTopY), 3.0f);
+
+        const float meterDb = audioProcessor.getOutputMeterDb();
+        const float meterY = dbToY(meterDb);
+        const auto fill = meterBounds.withY(meterY).withHeight(meterBounds.getBottom() - meterY);
+
+        g.setGradientFill(juce::ColourGradient(juce::Colour::fromString("ff6C8E2A"),
+                                               fill.getCentreX(), fill.getBottom(),
+                                               juce::Colour::fromString("ffA8D34A"),
+                                               fill.getCentreX(), fill.getY(), false));
+        g.fillRoundedRectangle(fill, 3.0f);
+
+        // Scala numerica visibile.
+        const juce::Font meterFont(
+            juce::FontOptions()
+                .withName("")
+                .withStyle("")
+                .withTypeface(earlyGameBoyFont)
+                .withHeight(8.0f));
+        g.setFont(meterFont);
+
+        static constexpr std::array<float, 6> meterTicks { 0.0f, -3.0f, -6.0f, -10.0f, -20.0f, -40.0f };
+        for (float db : meterTicks)
+        {
+            const float y = dbToY(db);
+            const auto tickRect = juce::Rectangle<float>(meterBounds.getRight() + 2.0f, y - 0.5f, 4.0f, 1.0f);
+            g.setColour(juce::Colour::fromString("ff2D2933"));
+            g.fillRect(tickRect);
+
+            g.setColour(juce::Colours::white);
+            const juce::String label = (db == 0.0f) ? "0" : juce::String((int) db);
+            g.drawText(label, juce::Rectangle<int>((int) meterBounds.getRight() + 8, (int) y - 7, 24, 14),
+                       juce::Justification::centredLeft);
+        }
+    };
+
+    drawOutputMeter();
+
     if (isScreenB && catImage.isValid())
     {
         // Stessa animazione di compA (fase + halfPi, stessa ampiezza).
@@ -686,6 +746,9 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
             auto scaled = bounds.withSizeKeepingCentre(bounds.getWidth() * nomiScale, bounds.getHeight() * nomiScale);
             introNomiDrawable->drawWithin(g, scaled, juce::RectanglePlacement::centred, alpha);
         }
+
+        // Meter sempre sopra l'intro.
+        drawOutputMeter();
     }
 }
 
