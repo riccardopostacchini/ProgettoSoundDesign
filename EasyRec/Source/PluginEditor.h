@@ -124,6 +124,19 @@ private:
     juce::TextButton eqOnOffButton;
     juce::TextButton animOnOffButton;
     bool animationsEnabled = true;
+    juce::TextButton presetSwitchButton;
+    juce::Label presetNameLabel;
+    int currentPresetIndex = 0;
+    bool presetDirty = false;
+
+    struct PresetValues
+    {
+        const char* name;
+        float tone, comp, lowCut, satur, out;
+        bool eqOn, compOn, satOn, compSoft, satSoft;
+        float room, church, slap, eighth;
+        bool roomOn, churchOn, slapOn, eighthOn;
+    };
 
     // Toggle Soft/Hard Comp
     juce::DrawableButton toggleCompButton { "ToggleComp", juce::DrawableButton::ImageRaw };
@@ -146,6 +159,10 @@ private:
     void timerCallback() override;
 
     void updateEQ();
+    void applyPreset (int presetIndex);
+    void updatePresetLabel();
+    PresetValues getPresetValues (int presetIndex) const;
+    bool isCurrentStateMatchingPreset (int presetIndex) const;
 
     // Micro-movimento stile Game Boy (interfaccia B)
     float spritePhase = 0.0f;

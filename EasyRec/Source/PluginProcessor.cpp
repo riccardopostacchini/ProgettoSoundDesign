@@ -94,6 +94,26 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     output.prepare(spec);
     roomReverb.reset();
     churchReverb.reset();
+    roomPreDelayL.prepare(spec);
+    roomPreDelayR.prepare(spec);
+    churchPreDelayL.prepare(spec);
+    churchPreDelayR.prepare(spec);
+    roomPreDelayL.reset();
+    roomPreDelayR.reset();
+    churchPreDelayL.reset();
+    churchPreDelayR.reset();
+    roomHpL.prepare(spec); roomHpR.prepare(spec); roomLpL.prepare(spec); roomLpR.prepare(spec);
+    churchHpL.prepare(spec); churchHpR.prepare(spec); churchLpL.prepare(spec); churchLpR.prepare(spec);
+    roomHpL.reset(); roomHpR.reset(); roomLpL.reset(); roomLpR.reset();
+    churchHpL.reset(); churchHpR.reset(); churchLpL.reset(); churchLpR.reset();
+    roomHpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(180.0f), 0.707f);
+    roomHpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(180.0f), 0.707f);
+    roomLpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(9000.0f), 0.707f);
+    roomLpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(9000.0f), 0.707f);
+    churchHpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(140.0f), 0.707f);
+    churchHpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(140.0f), 0.707f);
+    churchLpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(7200.0f), 0.707f);
+    churchLpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(7200.0f), 0.707f);
     slapDelayL.prepare(spec);
     slapDelayR.prepare(spec);
     eighthDelayL.prepare(spec);
@@ -125,11 +145,11 @@ void EasyRecAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     safetyHpR.reset();
     safetyLpL.reset();
     safetyLpR.reset();
-    // Hidden profile: aggressive pop
-    safetyHpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(45.0f), 0.72f);
-    safetyHpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(45.0f), 0.72f);
-    safetyLpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(17000.0f), 0.72f);
-    safetyLpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(17000.0f), 0.72f);
+    // Hidden profile: more neutral than pop-aggressive.
+    safetyHpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(30.0f), 0.72f);
+    safetyHpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, clampFreq(30.0f), 0.72f);
+    safetyLpL.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(19000.0f), 0.72f);
+    safetyLpR.coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, clampFreq(19000.0f), 0.72f);
 
     hiddenLimiterGain = 1.0f;
     hiddenLimiterAttackCoeff = std::exp(-1.0f / (0.001f * 0.3f * (float) sampleRate));
@@ -144,6 +164,12 @@ void EasyRecAudioProcessor::releaseResources()
     output.reset();
     roomReverb.reset();
     churchReverb.reset();
+    roomPreDelayL.reset();
+    roomPreDelayR.reset();
+    churchPreDelayL.reset();
+    churchPreDelayR.reset();
+    roomHpL.reset(); roomHpR.reset(); roomLpL.reset(); roomLpR.reset();
+    churchHpL.reset(); churchHpR.reset(); churchLpL.reset(); churchLpR.reset();
     slapDelayL.reset();
     slapDelayR.reset();
     eighthDelayL.reset();
@@ -250,9 +276,12 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const float outDb = normToDb(outNorm);
     const auto sliderNormToSend = [](float paramNorm) -> float
     {
-        const float dbValue = juce::jmap(paramNorm, 0.0f, 1.0f, -10.0f, 10.0f);
-        const float send = juce::jmap(dbValue, -10.0f, 10.0f, 0.0f, 1.0f);
-        return juce::jlimit(0.0f, 1.0f, std::pow(send, 1.2f));
+        // Wet-only send: dry sempre pieno, questo controlla solo quanto effetto aggiungere.
+        const float amountDb = juce::jmap(paramNorm, 0.0f, 1.0f, -10.0f, 10.0f);
+        const float norm = juce::jmap(amountDb, -10.0f, 10.0f, 0.0f, 1.0f);
+        constexpr float minAudibleSend = 0.06f; // udibile anche a -10
+        const float curved = std::pow(norm, 1.3f);
+        return juce::jlimit(0.0f, 1.0f, juce::jmap(curved, 0.0f, 1.0f, minAudibleSend, 1.0f));
     };
     const float roomSend = roomOn ? sliderNormToSend(roomNorm) : 0.0f;
     const float churchSend = churchOn ? sliderNormToSend(churchNorm) : 0.0f;
@@ -267,9 +296,9 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     eq.setBassAmount(lowOn ? eqBassDb : 0.0f);
     eq.setTrebleAmount(trebleOn ? eqTrebleDb : 0.0f);
 
-    // Saturazione analogica nascosta (profilo pop: piu' evidente).
+    // Saturazione analogica nascosta (profilo piu' neutro).
     saturation.setSoftMode(true);
-    saturation.setAmount(0.18f);
+    saturation.setAmount(0.10f);
 
     if (outIsMute)
         output.setGainDb(-100.0f);
@@ -293,28 +322,61 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const int numChannels = buffer.getNumChannels();
     if (numSamples > 0 && numChannels > 0)
     {
-        juce::AudioBuffer<float> dry(buffer);
+        juce::AudioBuffer<float> dry(numChannels, numSamples);
+        dry.makeCopyOf(buffer, true);
         juce::AudioBuffer<float> fxBuffer(numChannels, numSamples);
         fxBuffer.clear();
 
         // Room reverb (short/medium ambience)
         if (roomSend > 0.0001f)
         {
-            juce::AudioBuffer<float> roomIn(dry);
+            juce::AudioBuffer<float> roomIn(numChannels, numSamples);
+            roomIn.makeCopyOf(dry, true);
             roomIn.applyGain(roomSend);
+
+            // Predelay room
+            const float roomPreDelaySamples = (float) (currentSampleRate * 0.018); // 18 ms
+            roomPreDelayL.setDelay(roomPreDelaySamples);
+            roomPreDelayR.setDelay(roomPreDelaySamples);
+            for (int i = 0; i < numSamples; ++i)
+            {
+                const float inL = roomIn.getSample(0, i);
+                const float inR = (numChannels > 1) ? roomIn.getSample(1, i) : inL;
+                const float dL = roomPreDelayL.popSample(0);
+                const float dR = roomPreDelayR.popSample(0);
+                roomPreDelayL.pushSample(0, inL);
+                roomPreDelayR.pushSample(0, inR);
+                roomIn.setSample(0, i, dL);
+                if (numChannels > 1)
+                    roomIn.setSample(1, i, dR);
+            }
 
             juce::dsp::Reverb::Parameters roomParams;
             roomParams.roomSize = 0.42f;
-            roomParams.damping = 0.48f;
+            roomParams.damping = 0.55f;
             roomParams.width = 1.0f;
             roomParams.freezeMode = 0.0f;
-            roomParams.wetLevel = 0.30f;
+            roomParams.wetLevel = 0.5f;
             roomParams.dryLevel = 0.0f;
             roomReverb.setParameters(roomParams);
 
             juce::dsp::AudioBlock<float> roomBlock(roomIn);
             juce::dsp::ProcessContextReplacing<float> roomContext(roomBlock);
             roomReverb.process(roomContext);
+
+            // Return EQ: trim low mud + soften top for intelligibility.
+            for (int i = 0; i < numSamples; ++i)
+            {
+                float l = roomIn.getSample(0, i);
+                l = roomLpL.processSample(roomHpL.processSample(l));
+                roomIn.setSample(0, i, l);
+                if (numChannels > 1)
+                {
+                    float r = roomIn.getSample(1, i);
+                    r = roomLpR.processSample(roomHpR.processSample(r));
+                    roomIn.setSample(1, i, r);
+                }
+            }
             for (int ch = 0; ch < numChannels; ++ch)
                 fxBuffer.addFrom(ch, 0, roomIn, ch, 0, numSamples);
         }
@@ -322,21 +384,53 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         // Church reverb (longer tail)
         if (churchSend > 0.0001f)
         {
-            juce::AudioBuffer<float> churchIn(dry);
+            juce::AudioBuffer<float> churchIn(numChannels, numSamples);
+            churchIn.makeCopyOf(dry, true);
             churchIn.applyGain(churchSend);
 
+            // Predelay church (longer for depth without masking dry vocal).
+            const float churchPreDelaySamples = (float) (currentSampleRate * 0.032); // 32 ms
+            churchPreDelayL.setDelay(churchPreDelaySamples);
+            churchPreDelayR.setDelay(churchPreDelaySamples);
+            for (int i = 0; i < numSamples; ++i)
+            {
+                const float inL = churchIn.getSample(0, i);
+                const float inR = (numChannels > 1) ? churchIn.getSample(1, i) : inL;
+                const float dL = churchPreDelayL.popSample(0);
+                const float dR = churchPreDelayR.popSample(0);
+                churchPreDelayL.pushSample(0, inL);
+                churchPreDelayR.pushSample(0, inR);
+                churchIn.setSample(0, i, dL);
+                if (numChannels > 1)
+                    churchIn.setSample(1, i, dR);
+            }
+
             juce::dsp::Reverb::Parameters churchParams;
-            churchParams.roomSize = 0.86f;
-            churchParams.damping = 0.35f;
+            churchParams.roomSize = 0.78f;
+            churchParams.damping = 0.50f;
             churchParams.width = 1.0f;
             churchParams.freezeMode = 0.0f;
-            churchParams.wetLevel = 0.38f;
+            churchParams.wetLevel = 0.5f;
             churchParams.dryLevel = 0.0f;
             churchReverb.setParameters(churchParams);
 
             juce::dsp::AudioBlock<float> churchBlock(churchIn);
             juce::dsp::ProcessContextReplacing<float> churchContext(churchBlock);
             churchReverb.process(churchContext);
+
+            // Return EQ: keep church dark enough to avoid sibilant wash.
+            for (int i = 0; i < numSamples; ++i)
+            {
+                float l = churchIn.getSample(0, i);
+                l = churchLpL.processSample(churchHpL.processSample(l));
+                churchIn.setSample(0, i, l);
+                if (numChannels > 1)
+                {
+                    float r = churchIn.getSample(1, i);
+                    r = churchLpR.processSample(churchHpR.processSample(r));
+                    churchIn.setSample(1, i, r);
+                }
+            }
             for (int ch = 0; ch < numChannels; ++ch)
                 fxBuffer.addFrom(ch, 0, churchIn, ch, 0, numSamples);
         }
@@ -355,43 +449,44 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
             return 120.0;
         }();
 
-        const int slapDelaySamples = (int) juce::jlimit(1.0, 2000.0, currentSampleRate * 0.11); // ~110ms
-        const int eighthDelaySamples = (int) juce::jlimit(1.0, 4000.0, currentSampleRate * (30.0 / bpm)); // 1/8 note
+        const int slapDelaySamples = (int) juce::jlimit(1.0, 90000.0, currentSampleRate * 0.11); // ~110ms
+        const int eighthDelaySamples = (int) juce::jlimit(1.0, 180000.0, currentSampleRate * (30.0 / bpm)); // 1/8 note
+        slapDelayL.setDelay((float) slapDelaySamples);
+        slapDelayR.setDelay((float) slapDelaySamples);
+        eighthDelayL.setDelay((float) eighthDelaySamples);
+        eighthDelayR.setDelay((float) eighthDelaySamples);
 
         for (int i = 0; i < numSamples; ++i)
         {
             const float inL = dry.getSample(0, i);
             const float inR = (numChannels > 1) ? dry.getSample(1, i) : inL;
 
-            // Slap delay (low feedback)
-            slapDelayL.setDelay((float) slapDelaySamples);
-            slapDelayR.setDelay((float) slapDelaySamples);
+            // Slap delay: un po' piu' presente.
             const float slapReadL = slapDelayL.popSample(0);
             const float slapReadR = slapDelayR.popSample(0);
-            slapDelayL.pushSample(0, inL * slapSend + slapReadL * 0.18f);
-            slapDelayR.pushSample(0, inR * slapSend + slapReadR * 0.18f);
-            fxBuffer.addSample(0, i, slapReadL * 0.55f);
+            const float slapMonoIn = 0.5f * (inL + inR);
+            slapDelayL.pushSample(0, slapMonoIn * (slapSend * 1.05f) + slapReadL * 0.16f);
+            slapDelayR.pushSample(0, slapMonoIn * (slapSend * 1.05f) + slapReadR * 0.16f);
+            fxBuffer.addSample(0, i, 0.5f * (slapReadL + slapReadR) * 0.9f);
             if (numChannels > 1)
-                fxBuffer.addSample(1, i, slapReadR * 0.55f);
+                fxBuffer.addSample(1, i, 0.5f * (slapReadL + slapReadR) * 0.9f);
 
-            // Eighth delay (moderate feedback, ping-pong feel)
-            eighthDelayL.setDelay((float) eighthDelaySamples);
-            eighthDelayR.setDelay((float) eighthDelaySamples);
+            // Eighth delay: ping-pong un po' piu' udibile.
             const float eighthReadL = eighthDelayL.popSample(0);
             const float eighthReadR = eighthDelayR.popSample(0);
-            const float pingL = inL * eighthSend + eighthReadR * 0.33f;
-            const float pingR = inR * eighthSend + eighthReadL * 0.33f;
+            const float pingL = inL * (eighthSend * 1.10f) + eighthReadR * 0.34f;
+            const float pingR = inR * (eighthSend * 1.10f) + eighthReadL * 0.34f;
             eighthDelayL.pushSample(0, pingL);
             eighthDelayR.pushSample(0, pingR);
-            fxBuffer.addSample(0, i, eighthReadL * 0.5f);
+            fxBuffer.addSample(0, i, eighthReadL * 0.9f);
             if (numChannels > 1)
-                fxBuffer.addSample(1, i, eighthReadR * 0.5f);
+                fxBuffer.addSample(1, i, eighthReadR * 0.9f);
         }
 
-        // Sum parallel FX with safety headroom.
-        buffer.addFrom(0, 0, fxBuffer, 0, 0, numSamples, 0.7f);
+        // Strict parallel sum: la dry resta invariata, qui aggiungiamo solo la wet.
+        buffer.addFrom(0, 0, fxBuffer, 0, 0, numSamples, 0.22f);
         if (numChannels > 1)
-            buffer.addFrom(1, 0, fxBuffer, 1, 0, numSamples, 0.7f);
+            buffer.addFrom(1, 0, fxBuffer, 1, 0, numSamples, 0.22f);
     }
 
     output.processBlock(buffer);
@@ -459,9 +554,9 @@ void EasyRecAudioProcessor::processHiddenDeEsser(juce::AudioBuffer<float>& buffe
     float* left = buffer.getWritePointer(0);
     float* right = (numChannels > 1) ? buffer.getWritePointer(1) : nullptr;
 
-    constexpr float thresholdDb = -30.0f;
-    constexpr float ratioOver = 3.0f;
-    constexpr float maxReductionDb = 8.0f;
+    constexpr float thresholdDb = -24.0f;
+    constexpr float ratioOver = 2.0f;
+    constexpr float maxReductionDb = 4.0f;
 
     for (int i = 0; i < numSamples; ++i)
     {
@@ -516,8 +611,8 @@ void EasyRecAudioProcessor::processHiddenPeakProtector(juce::AudioBuffer<float>&
     float* left = buffer.getWritePointer(0);
     float* right = (buffer.getNumChannels() > 1) ? buffer.getWritePointer(1) : nullptr;
 
-    const float limiterThreshold = juce::Decibels::decibelsToGain(-2.0f); // ~ -2 dBFS
-    const float satDrive = 1.15f;
+    const float limiterThreshold = juce::Decibels::decibelsToGain(-1.0f); // ~ -1 dBFS
+    const float satDrive = 1.05f;
     const float satNorm = std::tanh(satDrive);
 
     for (int i = 0; i < numSamples; ++i)

@@ -454,6 +454,27 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     };
     addAndMakeVisible(animOnOffButton);
 
+    // Preset switch + display
+    presetSwitchButton.setButtonText("");
+    presetSwitchButton.setAlpha(0.0f);
+    presetSwitchButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    presetSwitchButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    presetSwitchButton.onClick = [this]()
+    {
+        currentPresetIndex = (currentPresetIndex + 1) % 3;
+        applyPreset(currentPresetIndex);
+        updatePresetLabel();
+    };
+    addAndMakeVisible(presetSwitchButton);
+
+    presetNameLabel.setFont(font);
+    presetNameLabel.setJustificationType(juce::Justification::centred);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colour::fromString("ff82A942"));
+    presetNameLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff445E1A"));
+    presetNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::transparentBlack);
+    presetNameLabel.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(presetNameLabel);
+
     // === APVTS Attachments ===
     auto& apvts = audioProcessor.getAPVTS();
     compAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "comp", compKnob);
@@ -474,12 +495,6 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     churchOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "churchOn", churchOnOffButton);
     slapOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "slapOn", slapOnOffButton);
     eighthOnAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "eighthOn", eighthOnOffButton);
-
-    // Richiesta UX: schermata 2 sempre OFF all'apertura dell'editor.
-    if (auto* p = apvts.getParameter("roomOn"))   p->setValueNotifyingHost(0.0f);
-    if (auto* p = apvts.getParameter("churchOn")) p->setValueNotifyingHost(0.0f);
-    if (auto* p = apvts.getParameter("slapOn"))   p->setValueNotifyingHost(0.0f);
-    if (auto* p = apvts.getParameter("eighthOn")) p->setValueNotifyingHost(0.0f);
 
     // Sincronizza lo stato iniziale dei toggle con i parametri
     isSoftMode = toggleCompButton.getToggleState();
@@ -522,6 +537,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     }
 
     resized();
+    updatePresetLabel();
     repaint();
 
 }
@@ -575,17 +591,22 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
                                                     juce::jmax(1.0f, (xR - xL) - segGap),
                                                     meterBounds.getHeight());
 
-            const bool isOn = (meterDb >= lowerDb);
             const bool isClipSeg = (upperDb > -3.0f);
+            const float segmentNorm = juce::jlimit(0.0f, 1.0f, (meterDb - lowerDb) / (upperDb - lowerDb));
 
-            if (isOn)
+            // Segmento spento (base).
+            g.setColour(isClipSeg ? juce::Colour::fromString("663B1A1A")
+                                  : juce::Colour::fromString("662A3A18"));
+            g.fillRoundedRectangle(seg, 1.8f);
+
+            // Segmento acceso in modo continuo (anche valori intermedi, es. -5 dB).
+            if (segmentNorm > 0.0f)
+            {
+                const auto lit = seg.withWidth(juce::jmax(1.0f, seg.getWidth() * segmentNorm));
                 g.setColour(isClipSeg ? juce::Colour::fromString("ffD94A4A")
                                       : juce::Colour::fromString("ffA8D34A"));
-            else
-                g.setColour(isClipSeg ? juce::Colour::fromString("663B1A1A")
-                                      : juce::Colour::fromString("662A3A18"));
-
-            g.fillRoundedRectangle(seg, 1.8f);
+                g.fillRoundedRectangle(lit, 1.8f);
+            }
         }
 
         if (withNumbers)
@@ -840,6 +861,8 @@ void EasyRecAudioProcessorEditor::resized()
     compOnOffButton.setBounds(compKnob.getX() + 49, compKnob.getY() + 6, 15, 15);
     eqOnOffButton.setBounds(toneKnob.getX() - 35, toneKnob.getY() - 21, 15, 15);
     animOnOffButton.setBounds(505, 448, 52, 52);
+    presetSwitchButton.setBounds(286, 446, 39, 46);
+    presetNameLabel.setBounds(340, 412, 100, 12);
 
     // bassknob.png centrato sul low knob
     const float scale = 1.25f;
@@ -878,6 +901,8 @@ void EasyRecAudioProcessorEditor::resized()
     toggleCompButton.setVisible(showUi);
     saturToggleButton.setVisible(showUi);
     animOnOffButton.setVisible(true);
+    presetSwitchButton.setVisible(true);
+    presetNameLabel.setVisible(true);
     screenToggleButton.setVisible(true);
     screenBackButton.setVisible(isScreenB);
     roomKnob.setVisible(isScreenB && isFxOn("roomOn"));
@@ -983,6 +1008,13 @@ void EasyRecAudioProcessorEditor::timerCallback()
         satLabel.setText(fmt(trebleDb), juce::dontSendNotification);
     }
 
+    const bool nowDirty = !isCurrentStateMatchingPreset(currentPresetIndex);
+    if (nowDirty != presetDirty)
+    {
+        presetDirty = nowDirty;
+        updatePresetLabel();
+    }
+
     repaint();
 }
 
@@ -992,4 +1024,108 @@ void EasyRecAudioProcessorEditor::updateEQ()
     const float trebleDb = ((float) satKnob.getValue() - 0.5f) * 20.0f;
 
     audioProcessor.updateEQFilters(bassDb, trebleDb);
+}
+
+void EasyRecAudioProcessorEditor::applyPreset (int presetIndex)
+{
+    const auto p = getPresetValues(presetIndex);
+    auto& apvts = audioProcessor.getAPVTS();
+
+    auto setParam = [&apvts](const char* id, float norm)
+    {
+        if (auto* param = apvts.getParameter(id))
+        {
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(norm);
+            param->endChangeGesture();
+        }
+    };
+
+    auto setBool = [&setParam](const char* id, bool v) { setParam(id, v ? 1.0f : 0.0f); };
+
+    setParam("tone", p.tone);
+    setParam("comp", p.comp);
+    setParam("lowCut", p.lowCut);
+    setParam("satur", p.satur);
+    setParam("out", p.out);
+
+    setBool("eqOn", p.eqOn);
+    setBool("compOn", p.compOn);
+    setBool("satOn", p.satOn);
+    setBool("compSoft", p.compSoft);
+    setBool("satSoft", p.satSoft);
+
+    setParam("room", p.room);
+    setParam("church", p.church);
+    setParam("slap", p.slap);
+    setParam("eighth", p.eighth);
+
+    setBool("roomOn", p.roomOn);
+    setBool("churchOn", p.churchOn);
+    setBool("slapOn", p.slapOn);
+    setBool("eighthOn", p.eighthOn);
+
+    presetDirty = false;
+    resized();
+    repaint();
+}
+
+void EasyRecAudioProcessorEditor::updatePresetLabel()
+{
+    const auto p = getPresetValues(currentPresetIndex);
+    const juce::String suffix = presetDirty ? "*" : "";
+    presetNameLabel.setText("\"" + juce::String(p.name) + suffix + "\"", juce::dontSendNotification);
+}
+
+EasyRecAudioProcessorEditor::PresetValues EasyRecAudioProcessorEditor::getPresetValues (int presetIndex) const
+{
+    static constexpr std::array<PresetValues, 3> presets
+    {{
+        { "Starter",      0.50f, 0.50f, 0.50f, 0.50f, 6.0f/9.0f, true, true, true,  true,  true,  0.50f, 0.50f, 0.50f, 0.50f, false, false, false, false },
+        { "Capopalestra", 0.58f, 0.60f, 0.54f, 0.62f, 6.2f/9.0f, true, true, true,  false, false, 0.52f, 0.46f, 0.58f, 0.54f, true,  false, true,  true  },
+        { "Campione",     0.64f, 0.68f, 0.57f, 0.66f, 6.4f/9.0f, true, true, true,  false, false, 0.56f, 0.50f, 0.62f, 0.58f, true,  true,  true,  true  }
+    }};
+
+    const int idx = juce::jlimit(0, (int) presets.size() - 1, presetIndex);
+    return presets[(size_t) idx];
+}
+
+bool EasyRecAudioProcessorEditor::isCurrentStateMatchingPreset (int presetIndex) const
+{
+    const auto p = getPresetValues(presetIndex);
+    const auto& apvts = audioProcessor.getAPVTS();
+    constexpr float tol = 0.0005f;
+
+    auto readFloat = [&apvts](const char* id)
+    {
+        if (auto* v = apvts.getRawParameterValue(id))
+            return v->load();
+        return 0.0f;
+    };
+    auto readBool = [&apvts](const char* id)
+    {
+        if (auto* v = apvts.getRawParameterValue(id))
+            return v->load() >= 0.5f;
+        return false;
+    };
+    auto near = [tol](float a, float b) { return std::abs(a - b) <= tol; };
+
+    return near(readFloat("tone"), p.tone)
+        && near(readFloat("comp"), p.comp)
+        && near(readFloat("lowCut"), p.lowCut)
+        && near(readFloat("satur"), p.satur)
+        && near(readFloat("out"), p.out)
+        && (readBool("eqOn") == p.eqOn)
+        && (readBool("compOn") == p.compOn)
+        && (readBool("satOn") == p.satOn)
+        && (readBool("compSoft") == p.compSoft)
+        && (readBool("satSoft") == p.satSoft)
+        && near(readFloat("room"), p.room)
+        && near(readFloat("church"), p.church)
+        && near(readFloat("slap"), p.slap)
+        && near(readFloat("eighth"), p.eighth)
+        && (readBool("roomOn") == p.roomOn)
+        && (readBool("churchOn") == p.churchOn)
+        && (readBool("slapOn") == p.slapOn)
+        && (readBool("eighthOn") == p.eighthOn);
 }

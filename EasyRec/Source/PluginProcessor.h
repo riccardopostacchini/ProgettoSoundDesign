@@ -67,6 +67,12 @@ private:
     // Screen 2 FX (CLA-style fixed engines with one send each)
     juce::dsp::Reverb roomReverb;
     juce::dsp::Reverb churchReverb;
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> roomPreDelayL { 96000 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> roomPreDelayR { 96000 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> churchPreDelayL { 96000 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> churchPreDelayR { 96000 };
+    juce::dsp::IIR::Filter<float> roomHpL, roomHpR, roomLpL, roomLpR;
+    juce::dsp::IIR::Filter<float> churchHpL, churchHpR, churchLpL, churchLpR;
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> slapDelayL { 96000 };
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> slapDelayR { 96000 };
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> eighthDelayL { 192000 };
