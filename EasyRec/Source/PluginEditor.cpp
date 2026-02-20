@@ -442,7 +442,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     eqOnOffButton.setToggleState(true, juce::dontSendNotification);
     addAndMakeVisible(eqOnOffButton);
 
-    // Animation ON/OFF (rosso, visibile)
+    // Animation ON/OFF 
     animOnOffButton.setClickingTogglesState(true);
     animOnOffButton.setAlpha(0.0f);
     animOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
@@ -544,8 +544,9 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
 
     const auto drawOutputMeter = [this, &g]()
     {
-        const auto meterBounds = juce::Rectangle<float>(584.0f, 110.0f, 10.0f, 240.0f);
-        const auto meterPanel = juce::Rectangle<float>(578.0f, 100.0f, 38.0f, 260.0f);
+        const auto meterBounds = juce::Rectangle<float>(590.0f, 125.0f, 20.0f, 230.0f);
+        const auto meterOuterPanel = juce::Rectangle<float>(577.0f, 100.0f, 40.0f, 290.0f);
+        const auto meterPanel = juce::Rectangle<float>(583.0f, 115.0f, 28.0f, 260.0f);
         const auto dbToY = [&meterBounds](float db)
         {
             const float linearNorm = juce::jlimit(0.0f, 1.0f, juce::jmap(db, -60.0f, 0.0f, 0.0f, 1.0f));
@@ -555,26 +556,35 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         };
 
         g.setColour(juce::Colour::fromString("ff1A1A1D"));
-        g.fillRoundedRectangle(meterPanel, 4.0f);
+        g.fillRoundedRectangle(meterOuterPanel, 10.0f);
 
-        g.setColour(juce::Colour::fromString("662D2933"));
-        g.fillRoundedRectangle(meterBounds, 3.0f);
-
-        // Clip area: rosso in alto (-3..0 dB).
-        const float clipTopY = dbToY(0.0f);
-        const float clipBottomY = dbToY(-3.0f);
-        g.setColour(juce::Colour::fromString("99C73A3A"));
-        g.fillRoundedRectangle(meterBounds.withY(clipTopY).withHeight(clipBottomY - clipTopY), 3.0f);
+        g.setColour(juce::Colour::fromString("ff8D9842"));
+        g.fillRoundedRectangle(meterPanel, 0.0f);
 
         const float meterDb = audioProcessor.getOutputMeterDb();
+        g.setColour(juce::Colour::fromString("662A3A18"));
+        g.fillRoundedRectangle(meterBounds, 2.0f);
+
+        const float clipTopY = dbToY(0.0f);
+        const float clipBottomY = dbToY(-3.0f);
+        g.setColour(juce::Colour::fromString("663B1A1A"));
+        g.fillRoundedRectangle(meterBounds.withY(clipTopY).withHeight(clipBottomY - clipTopY), 2.0f);
+
         const float meterY = dbToY(meterDb);
         const auto fill = meterBounds.withY(meterY).withHeight(meterBounds.getBottom() - meterY);
-
         g.setGradientFill(juce::ColourGradient(juce::Colour::fromString("ff6C8E2A"),
                                                fill.getCentreX(), fill.getBottom(),
                                                juce::Colour::fromString("ffA8D34A"),
                                                fill.getCentreX(), fill.getY(), false));
-        g.fillRoundedRectangle(fill, 3.0f);
+        g.fillRoundedRectangle(fill, 2.0f);
+
+        if (meterDb > -3.0f)
+        {
+            const float redY = dbToY(meterDb);
+            const auto redFill = meterBounds.withY(redY).withHeight(clipBottomY - redY);
+            g.setColour(juce::Colour::fromString("ffD94A4A"));
+            g.fillRoundedRectangle(redFill, 2.0f);
+        }
 
         // Scala numerica visibile.
         const juce::Font meterFont(
@@ -589,14 +599,10 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         for (float db : meterTicks)
         {
             const float y = dbToY(db);
-            const auto tickRect = juce::Rectangle<float>(meterBounds.getRight() + 2.0f, y - 0.5f, 4.0f, 1.0f);
-            g.setColour(juce::Colour::fromString("ff2D2933"));
-            g.fillRect(tickRect);
-
             g.setColour(juce::Colours::white);
-            const juce::String label = (db == 0.0f) ? "0" : juce::String((int) db);
-            g.drawText(label, juce::Rectangle<int>((int) meterBounds.getRight() + 8, (int) y - 7, 24, 14),
-                       juce::Justification::centredLeft);
+            const juce::String label = (db == 0.0f) ? "0 -" : "-" + juce::String((int) std::abs(db)) + " -";
+            g.drawText(label, juce::Rectangle<int>((int) meterBounds.getX() + 0, (int) y - 7, 34, 14),
+                       juce::Justification::centredRight);
         }
     };
 
@@ -765,8 +771,8 @@ void EasyRecAudioProcessorEditor::resized()
     lowKnob.setBounds(371, 309, 38, 38);
     toneKnob.setBounds(435, 309, 38, 38);
     outKnob.setBounds(496, 309, 38, 38);
-    screenToggleButton.setBounds(330, 460, 60, 40);
-    screenBackButton.setBounds(460, 285, 85, 70);
+    screenToggleButton.setBounds(320, 490, 50, 40);
+    screenBackButton.setBounds(458, 285, 85, 70);
     catRect = { 326, 104, 120, 120 };
     roomKnob.setBounds(250, 95, 80, 70);
     churchKnob.setBounds(250, 185, 80, 70);
@@ -807,7 +813,7 @@ void EasyRecAudioProcessorEditor::resized()
     satOnOffButton.setBounds(satKnob.getX() + 57, satKnob.getY() + 6, 15, 15);
     compOnOffButton.setBounds(compKnob.getX() + 49, compKnob.getY() + 6, 15, 15);
     eqOnOffButton.setBounds(toneKnob.getX() - 35, toneKnob.getY() - 21, 15, 15);
-    animOnOffButton.setBounds(510, 420, 60, 60);
+    animOnOffButton.setBounds(487, 457, 48, 48);
 
     // bassknob.png centrato sul low knob
     const float scale = 1.25f;
