@@ -61,6 +61,7 @@ private:
     juce::Rectangle<int> catRect;
     bool isScreenB = false;
     juce::TextButton screenToggleButton;
+    juce::TextButton screenToggleButtonLeft;
     juce::TextButton screenBackButton;
     ResettableSlider roomKnob { 0.5f };
     ResettableSlider churchKnob { 0.5f };
@@ -125,6 +126,7 @@ private:
     juce::TextButton animOnOffButton;
     bool animationsEnabled = true;
     juce::TextButton presetSwitchButton;
+    juce::TextButton presetSwitchBackButton;
     juce::Label presetNameLabel;
     int currentPresetIndex = 0;
     bool presetDirty = false;

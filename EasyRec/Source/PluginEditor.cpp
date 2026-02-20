@@ -51,6 +51,19 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     };
     addAndMakeVisible(screenToggleButton);
 
+    screenToggleButtonLeft.setButtonText("");
+    screenToggleButtonLeft.setClickingTogglesState(false);
+    screenToggleButtonLeft.setAlpha(0.0f);
+    screenToggleButtonLeft.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    screenToggleButtonLeft.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    screenToggleButtonLeft.onClick = [this]()
+    {
+        isScreenB = !isScreenB;
+        resized();
+        repaint();
+    };
+    addAndMakeVisible(screenToggleButtonLeft);
+
     // Bottone di ritorno (solo schermata 2)
     screenBackButton.setButtonText("");
     screenBackButton.setClickingTogglesState(false);
@@ -467,6 +480,18 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     };
     addAndMakeVisible(presetSwitchButton);
 
+    presetSwitchBackButton.setButtonText("");
+    presetSwitchBackButton.setAlpha(0.0f);
+    presetSwitchBackButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    presetSwitchBackButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    presetSwitchBackButton.onClick = [this]()
+    {
+        currentPresetIndex = (currentPresetIndex + 2) % 3; // -1 con wrap
+        applyPreset(currentPresetIndex);
+        updatePresetLabel();
+    };
+    addAndMakeVisible(presetSwitchBackButton);
+
     presetNameLabel.setFont(font);
     presetNameLabel.setJustificationType(juce::Justification::centred);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colour::fromString("ff82A942"));
@@ -819,6 +844,7 @@ void EasyRecAudioProcessorEditor::resized()
     toneKnob.setBounds(435, 309, 38, 38);
     outKnob.setBounds(496, 309, 38, 38);
     screenToggleButton.setBounds(320, 490, 50, 40);
+    screenToggleButtonLeft.setBounds(248, 492, 50, 40);
     screenBackButton.setBounds(450, 285, 80, 50);
     catRect = { 326, 104, 120, 120 };
     roomKnob.setBounds(250, 95, 80, 70);
@@ -862,6 +888,7 @@ void EasyRecAudioProcessorEditor::resized()
     eqOnOffButton.setBounds(toneKnob.getX() - 35, toneKnob.getY() - 21, 15, 15);
     animOnOffButton.setBounds(505, 448, 52, 52);
     presetSwitchButton.setBounds(286, 446, 39, 46);
+    presetSwitchBackButton.setBounds(286, 525, 39, 46);
     presetNameLabel.setBounds(340, 412, 100, 12);
 
     // bassknob.png centrato sul low knob
@@ -902,8 +929,10 @@ void EasyRecAudioProcessorEditor::resized()
     saturToggleButton.setVisible(showUi);
     animOnOffButton.setVisible(true);
     presetSwitchButton.setVisible(true);
+    presetSwitchBackButton.setVisible(true);
     presetNameLabel.setVisible(true);
     screenToggleButton.setVisible(true);
+    screenToggleButtonLeft.setVisible(true);
     screenBackButton.setVisible(isScreenB);
     roomKnob.setVisible(isScreenB && isFxOn("roomOn"));
     churchKnob.setVisible(isScreenB && isFxOn("churchOn"));
@@ -989,6 +1018,9 @@ void EasyRecAudioProcessorEditor::timerCallback()
         lowLabelValue.setAlpha(uiAlpha);
         toneLabelValue.setAlpha(uiAlpha);
         outLabel.setAlpha(uiAlpha);
+        presetNameLabel.setColour(juce::Label::textColourId,
+                                  introActive ? juce::Colours::transparentBlack
+                                              : juce::Colour::fromString("ff445E1A"));
         // On/off buttons restano invisibili
     }
 
