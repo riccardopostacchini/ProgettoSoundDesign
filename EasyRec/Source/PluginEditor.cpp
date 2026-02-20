@@ -542,71 +542,98 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
     if (currentBg.isValid())
         g.drawImage(currentBg, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
 
-    const auto drawOutputMeter = [this, &g]()
+    if (isScreenB)
     {
-        const auto meterBounds = juce::Rectangle<float>(590.0f, 125.0f, 20.0f, 230.0f);
-        const auto meterOuterPanel = juce::Rectangle<float>(577.0f, 100.0f, 40.0f, 290.0f);
-        const auto meterPanel = juce::Rectangle<float>(583.0f, 115.0f, 28.0f, 260.0f);
-        const auto dbToY = [&meterBounds](float db)
+        g.setColour(juce::Colour::fromString("ff445E1A"));
+        g.fillRect(254, 345, 265, 2);
+    }
+
+    const auto drawMeterBar = [this, &g](juce::Rectangle<float> meterBounds, float meterDb, bool withNumbers)
+    {
+        const auto dbToX = [&meterBounds](float db)
         {
             const float linearNorm = juce::jlimit(0.0f, 1.0f, juce::jmap(db, -60.0f, 0.0f, 0.0f, 1.0f));
-            constexpr float meterCurve = 2.2f; // espande la zona vicina a 0 dB
+            constexpr float meterCurve = 2.2f;
             const float n = std::pow(linearNorm, meterCurve);
-            return meterBounds.getBottom() - meterBounds.getHeight() * n;
+            return meterBounds.getX() + meterBounds.getWidth() * n;
         };
 
-        g.setColour(juce::Colour::fromString("ff1A1A1D"));
-        g.fillRoundedRectangle(meterOuterPanel, 10.0f);
-
-        g.setColour(juce::Colour::fromString("ff8D9842"));
-        g.fillRoundedRectangle(meterPanel, 0.0f);
-
-        const float meterDb = audioProcessor.getOutputMeterDb();
         g.setColour(juce::Colour::fromString("662A3A18"));
         g.fillRoundedRectangle(meterBounds, 2.0f);
 
-        const float clipTopY = dbToY(0.0f);
-        const float clipBottomY = dbToY(-3.0f);
-        g.setColour(juce::Colour::fromString("663B1A1A"));
-        g.fillRoundedRectangle(meterBounds.withY(clipTopY).withHeight(clipBottomY - clipTopY), 2.0f);
-
-        const float meterY = dbToY(meterDb);
-        const auto fill = meterBounds.withY(meterY).withHeight(meterBounds.getBottom() - meterY);
-        g.setGradientFill(juce::ColourGradient(juce::Colour::fromString("ff6C8E2A"),
-                                               fill.getCentreX(), fill.getBottom(),
-                                               juce::Colour::fromString("ffA8D34A"),
-                                               fill.getCentreX(), fill.getY(), false));
-        g.fillRoundedRectangle(fill, 2.0f);
-
-        if (meterDb > -3.0f)
+        // Segmenti orizzontali separati tra un numero e l'altro.
+        static constexpr std::array<float, 7> meterRanges { -60.0f, -40.0f, -20.0f, -10.0f, -6.0f, -3.0f, 0.0f };
+        constexpr float segGap = 2.0f;
+        for (size_t i = 0; i + 1 < meterRanges.size(); ++i)
         {
-            const float redY = dbToY(meterDb);
-            const auto redFill = meterBounds.withY(redY).withHeight(clipBottomY - redY);
-            g.setColour(juce::Colour::fromString("ffD94A4A"));
-            g.fillRoundedRectangle(redFill, 2.0f);
+            const float lowerDb = meterRanges[i];
+            const float upperDb = meterRanges[i + 1];
+            const float xL = dbToX(lowerDb);
+            const float xR = dbToX(upperDb);
+            const auto seg = juce::Rectangle<float>(xL + segGap * 0.5f,
+                                                    meterBounds.getY(),
+                                                    juce::jmax(1.0f, (xR - xL) - segGap),
+                                                    meterBounds.getHeight());
+
+            const bool isOn = (meterDb >= lowerDb);
+            const bool isClipSeg = (upperDb > -3.0f);
+
+            if (isOn)
+                g.setColour(isClipSeg ? juce::Colour::fromString("ffD94A4A")
+                                      : juce::Colour::fromString("ffA8D34A"));
+            else
+                g.setColour(isClipSeg ? juce::Colour::fromString("663B1A1A")
+                                      : juce::Colour::fromString("662A3A18"));
+
+            g.fillRoundedRectangle(seg, 1.8f);
         }
 
-        // Scala numerica visibile.
-        const juce::Font meterFont(
+        if (withNumbers)
+        {
+            const juce::Font meterFont(
+                juce::FontOptions()
+                    .withName("")
+                    .withStyle("")
+                    .withTypeface(earlyGameBoyFont)
+                    .withHeight(8.0f));
+            g.setFont(meterFont);
+
+            static constexpr std::array<float, 6> meterTicks { 0.0f, -3.0f, -6.0f, -10.0f, -20.0f, -40.0f };
+            for (float db : meterTicks)
+            {
+                const float x = dbToX(db);
+                g.setColour(juce::Colour::fromString("ff445E1A"));
+                const juce::String label = (db == 0.0f) ? "0" : "-" + juce::String((int) std::abs(db));
+                g.drawText(label, juce::Rectangle<int>((int) x - 16, (int) meterBounds.getY() - 13, 32, 12),
+                           juce::Justification::centred);
+            }
+        }
+    };
+
+    const float meterAlpha = introActive ? juce::jlimit(0.0f, 1.0f, introImageFade) : 1.0f;
+    if (meterAlpha > 0.001f)
+    {
+        juce::Graphics::ScopedSaveState meterState(g);
+        g.setOpacity(meterAlpha);
+
+        const auto inputBounds = juce::Rectangle<float>(240.0f, 356.0f, 250.0f, 12.0f);
+        const auto outputBounds = juce::Rectangle<float>(240.0f, 382.0f, 250.0f, 12.0f);
+        drawMeterBar(outputBounds, audioProcessor.getOutputMeterDb(), true);
+        drawMeterBar(inputBounds, audioProcessor.getInputMeterDb(), false);
+
+        const juce::Font meterNameFont(
             juce::FontOptions()
                 .withName("")
                 .withStyle("")
                 .withTypeface(earlyGameBoyFont)
-                .withHeight(8.0f));
-        g.setFont(meterFont);
-
-        static constexpr std::array<float, 6> meterTicks { 0.0f, -3.0f, -6.0f, -10.0f, -20.0f, -40.0f };
-        for (float db : meterTicks)
-        {
-            const float y = dbToY(db);
-            g.setColour(juce::Colours::white);
-            const juce::String label = (db == 0.0f) ? "0 -" : "-" + juce::String((int) std::abs(db)) + " -";
-            g.drawText(label, juce::Rectangle<int>((int) meterBounds.getX() + 0, (int) y - 7, 34, 14),
-                       juce::Justification::centredRight);
-        }
-    };
-
-    drawOutputMeter();
+                .withHeight(9.0f));
+        g.setFont(meterNameFont);
+        g.setColour(juce::Colour::fromString("ff445E1A"));
+        g.drawText("output", juce::Rectangle<int>((int) outputBounds.getRight() + 5, (int) outputBounds.getY() - 4, 60, 20),
+                   juce::Justification::centredLeft);
+        g.drawText("input", juce::Rectangle<int>((int) inputBounds.getRight() + 5, (int) inputBounds.getY() - 4, 60, 20),
+                   juce::Justification::centredLeft);
+    }
 
     if (isScreenB && catImage.isValid())
     {
@@ -740,7 +767,7 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         if (introGamevoiceDrawable)
         {
             const float gwScale = (1.0f / 6.0f) * 1.7f;
-            auto bounds = getLocalBounds().toFloat().translated(-25.0f, -110.0f);
+            auto bounds = getLocalBounds().toFloat().translated(-25.0f, -90.0f);
             auto scaled = bounds.withSizeKeepingCentre(bounds.getWidth() * gwScale, bounds.getHeight() * gwScale);
             introGamevoiceDrawable->drawWithin(g, scaled, juce::RectanglePlacement::centred, alpha);
         }
@@ -748,13 +775,12 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         if (introNomiDrawable)
         {
             const float nomiScale = (1.0f / 6.0f) * 1.2f;
-            auto bounds = getLocalBounds().toFloat().translated(-25.0f, -75.0f);
+            auto bounds = getLocalBounds().toFloat().translated(-25.0f, -55.0f);
             auto scaled = bounds.withSizeKeepingCentre(bounds.getWidth() * nomiScale, bounds.getHeight() * nomiScale);
             introNomiDrawable->drawWithin(g, scaled, juce::RectanglePlacement::centred, alpha);
         }
 
-        // Meter sempre sopra l'intro.
-        drawOutputMeter();
+        // Intro: meter nascosto.
     }
 }
 
@@ -772,7 +798,7 @@ void EasyRecAudioProcessorEditor::resized()
     toneKnob.setBounds(435, 309, 38, 38);
     outKnob.setBounds(496, 309, 38, 38);
     screenToggleButton.setBounds(320, 490, 50, 40);
-    screenBackButton.setBounds(458, 285, 85, 70);
+    screenBackButton.setBounds(450, 285, 80, 50);
     catRect = { 326, 104, 120, 120 };
     roomKnob.setBounds(250, 95, 80, 70);
     churchKnob.setBounds(250, 185, 80, 70);
@@ -813,7 +839,7 @@ void EasyRecAudioProcessorEditor::resized()
     satOnOffButton.setBounds(satKnob.getX() + 57, satKnob.getY() + 6, 15, 15);
     compOnOffButton.setBounds(compKnob.getX() + 49, compKnob.getY() + 6, 15, 15);
     eqOnOffButton.setBounds(toneKnob.getX() - 35, toneKnob.getY() - 21, 15, 15);
-    animOnOffButton.setBounds(487, 457, 48, 48);
+    animOnOffButton.setBounds(505, 448, 52, 52);
 
     // bassknob.png centrato sul low knob
     const float scale = 1.25f;

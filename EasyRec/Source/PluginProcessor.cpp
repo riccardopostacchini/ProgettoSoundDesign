@@ -187,6 +187,26 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
+    // Input meter (pre-chain)
+    {
+        float peak = 0.0f;
+        const int channels = juce::jmin(buffer.getNumChannels(), juce::jmax(1, totalNumInputChannels));
+        const int samples = buffer.getNumSamples();
+        for (int ch = 0; ch < channels; ++ch)
+        {
+            const float* read = buffer.getReadPointer(ch);
+            for (int i = 0; i < samples; ++i)
+                peak = juce::jmax(peak, std::abs(read[i]));
+        }
+
+        float peakDb = juce::Decibels::gainToDecibels(peak, -60.0f);
+        peakDb = juce::jlimit(-60.0f, 6.0f, peakDb);
+        const float previousDb = inputMeterDb.load();
+        constexpr float meterReleaseDbPerBlock = 0.8f;
+        const float smoothedDb = (peakDb > previousDb) ? peakDb : juce::jmax(peakDb, previousDb - meterReleaseDbPerBlock);
+        inputMeterDb.store(smoothedDb);
+    }
+
     // === Parametri (APVTS) ===
     const float eqBassNorm = *parameters.getRawParameterValue("lowCut");
     const float inputNorm  = *parameters.getRawParameterValue("tone");
