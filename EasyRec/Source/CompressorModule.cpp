@@ -62,9 +62,10 @@ void CompressorModule::processBlock(juce::AudioBuffer<float>& buffer)
     const float effectiveRatio = juce::jmap(intensity, 0.0f, 1.0f, 1.20f, ratio);
     const float effectiveKnee = juce::jmap(intensity, 0.0f, 1.0f, 10.0f, kneeDb);
     const float makeupFactor = softMode ? 0.62f : 0.80f;
-    // CLA-style input: pre-gain nel detector+segnale, con trim parziale per non esplodere di livello.
+    // Input control: cambia davvero il livello percepito (in basso scende, in alto sale)
+    // mantenendo una compensazione molto leggera.
     const float inputDriveGain = juce::Decibels::decibelsToGain(inputDriveDb);
-    const float inputTrimGain = juce::Decibels::decibelsToGain(-inputDriveDb * 0.7f);
+    const float inputTrimGain = juce::Decibels::decibelsToGain(inputDriveDb * 0.15f);
 
     for (int i = 0; i < numSamples; ++i)
     {

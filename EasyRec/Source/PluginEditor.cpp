@@ -474,7 +474,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     presetSwitchButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     presetSwitchButton.onClick = [this]()
     {
-        currentPresetIndex = (currentPresetIndex + 1) % 3;
+        currentPresetIndex = (currentPresetIndex + 1) % 4;
         applyPreset(currentPresetIndex);
         updatePresetLabel();
     };
@@ -486,7 +486,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     presetSwitchBackButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     presetSwitchBackButton.onClick = [this]()
     {
-        currentPresetIndex = (currentPresetIndex + 2) % 3; // -1 con wrap
+        currentPresetIndex = (currentPresetIndex + 3) % 4; // -1 con wrap
         applyPreset(currentPresetIndex);
         updatePresetLabel();
     };
@@ -1075,11 +1075,9 @@ void EasyRecAudioProcessorEditor::applyPreset (int presetIndex)
 
     auto setBool = [&setParam](const char* id, bool v) { setParam(id, v ? 1.0f : 0.0f); };
 
-    setParam("tone", p.tone);
     setParam("comp", p.comp);
     setParam("lowCut", p.lowCut);
     setParam("satur", p.satur);
-    setParam("out", p.out);
 
     setBool("eqOn", p.eqOn);
     setBool("compOn", p.compOn);
@@ -1111,15 +1109,28 @@ void EasyRecAudioProcessorEditor::updatePresetLabel()
 
 EasyRecAudioProcessorEditor::PresetValues EasyRecAudioProcessorEditor::getPresetValues (int presetIndex) const
 {
-    static constexpr std::array<PresetValues, 3> presets
+    // Riga preset:
+    // { "Nome", input, comp, lowCut, satur, out, eqOn, compOn, satOn, compSoft, satSoft, room, church, slap, eighth, roomOn, churchOn, slapOn, eighthOn }
+    static constexpr std::array<PresetValues, 4> presets
     {{
-        { "Starter",      0.50f, 0.50f, 0.50f, 0.50f, 6.0f/9.0f, true, true, true,  true,  true,  0.50f, 0.50f, 0.50f, 0.50f, false, false, false, false },
-        { "Capopalestra", 0.58f, 0.60f, 0.54f, 0.62f, 6.2f/9.0f, true, true, true,  false, false, 0.52f, 0.46f, 0.58f, 0.54f, true,  false, true,  true  },
-        { "Campione",     0.64f, 0.68f, 0.57f, 0.66f, 6.4f/9.0f, true, true, true,  false, false, 0.56f, 0.50f, 0.62f, 0.58f, true,  true,  true,  true  }
+        { "Starter",      0.5f, 0.50f, 0.50f, 0.50f, 6.0f/9.0f, true, true, true,  true,  true,  0.50f, 0.50f, 0.50f, 0.50f, true, false, true, false },
+        { "Capopalestra", 0.5f, 0.65f, 0.35f, 0.65f, 6.2f/9.0f, true, true, true,  true, true, 0.30f, 0.50f, 0.60f, 0.50f, true,  false, true,  false  },
+        { "Campione",     0.5f, 0.9f, 0.5f, 0.25f, 6.4f/9.0f, true, true, true,  true, false, 0.50f, 0.30f, 0.5f, 0.5f, false,  true,  true,  false  },
+        { "Rivale",     0.5f, 0.85f, 0.35f, 0.8f, 6.4f/9.0f, true, true, true,  false, false, 0.50f, 0.65f, 0.50f, 0.8f, false,  true,  false,  true  }
     }};
 
-    const int idx = juce::jlimit(0, (int) presets.size() - 1, presetIndex);
-    return presets[(size_t) idx];
+    if (presets.empty())
+        return PresetValues{};
+
+    int idx = presetIndex;
+    if (idx < 0)
+        idx = 0;
+
+    const int maxIndex = static_cast<int> (presets.size()) - 1;
+    if (idx > maxIndex)
+        idx = maxIndex;
+
+    return presets[static_cast<size_t> (idx)];
 }
 
 bool EasyRecAudioProcessorEditor::isCurrentStateMatchingPreset (int presetIndex) const
@@ -1142,11 +1153,9 @@ bool EasyRecAudioProcessorEditor::isCurrentStateMatchingPreset (int presetIndex)
     };
     auto near = [tol](float a, float b) { return std::abs(a - b) <= tol; };
 
-    return near(readFloat("tone"), p.tone)
-        && near(readFloat("comp"), p.comp)
+    return near(readFloat("comp"), p.comp)
         && near(readFloat("lowCut"), p.lowCut)
         && near(readFloat("satur"), p.satur)
-        && near(readFloat("out"), p.out)
         && (readBool("eqOn") == p.eqOn)
         && (readBool("compOn") == p.compOn)
         && (readBool("satOn") == p.satOn)

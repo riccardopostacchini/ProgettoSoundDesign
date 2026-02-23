@@ -74,7 +74,7 @@ void EQModule::setSoftPreset(bool softPreset)
 void EQModule::updateFilters(float bassDb, float trebleDb)
 {
     // Rumble roll-off leggero, più vicino al comportamento "vocal bass" tipo CLA.
-    *filterChain.get<0>().state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 75.0f, 0.72f);
+    *filterChain.get<0>().state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 60.0f, 0.72f);
 
     // Bass control "CLA-like": body su 115 Hz + anti-mud su 280 Hz.
     const float bassNorm = juce::jlimit(-1.0f, 1.0f, bassDb / 10.0f);
@@ -84,19 +84,21 @@ void EQModule::updateFilters(float bassDb, float trebleDb)
     else
         bassCurve = -std::pow(std::abs(bassNorm), 0.90f);
 
-    const float bassShelfDb = juce::jmap(bassCurve, -1.0f, 1.0f, -6.0f, 9.0f);
+    // Range piu' esteso per rendere il controllo low chiaramente udibile.
+    const float bassShelfDb = juce::jmap(bassCurve, -1.0f, 1.0f, -10.0f, 18.0f);
     const float bassGain = juce::Decibels::decibelsToGain(bassShelfDb);
     *filterChain.get<1>().state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate, 105.0f, 0.68f, bassGain);
 
     // Mud control: attivo soprattutto quando il bass e' in boost.
-    const float mudCutDb = (bassCurve > 0.0f) ? (-3.2f * std::pow(bassCurve, 0.9f))
-                                              : (0.6f * bassCurve);
+    // Anti-mud meno aggressivo, per non "mangiare" il boost percepito.
+    const float mudCutDb = (bassCurve > 0.0f) ? (-1.0f * std::pow(bassCurve, 0.9f))
+                                              : (0.4f * bassCurve);
     *filterChain.get<2>().state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(
         sampleRate, 260.0f, 1.0f, juce::Decibels::decibelsToGain(mudCutDb));
 
     // Treble in stile vocal-strip: presence + air, con risposta musicale.
     const bool soft = isSoftPreset;
-    const float presetScale = soft ? 0.75f : 1.0f;
+    const float presetScale = soft ? 0.90f : 1.05f;
     const float trebleNorm = juce::jlimit(-1.0f, 1.0f, trebleDb / 10.0f);
 
     // Curva: piu' dolce vicino a 0, piu' incisiva salendo.
@@ -107,8 +109,8 @@ void EQModule::updateFilters(float bassDb, float trebleDb)
         trebleCurve = -std::pow(std::abs(trebleNorm), 1.0f);
 
     // Range target "CLA-like"
-    float presenceDb = juce::jmap(trebleCurve, -1.0f, 1.0f, -2.5f, 5.0f) * presetScale;
-    float shelfDb = juce::jmap(trebleCurve, -1.0f, 1.0f, -4.0f, 10.0f) * presetScale;
+    float presenceDb = juce::jmap(trebleCurve, -1.0f, 1.0f, -4.0f, 7.0f) * presetScale;
+    float shelfDb = juce::jmap(trebleCurve, -1.0f, 1.0f, -6.0f, 14.0f) * presetScale;
 
     // Protezione sibilanti: oltre +5 riduce leggermente la presence.
     if (trebleDb > 5.0f)

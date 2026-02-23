@@ -134,9 +134,14 @@ private:
     struct PresetValues
     {
         const char* name;
+        // tone/out sono mantenuti per compatibilita' ma NON vengono applicati dai preset.
+        // Ordine campi float: tone, comp, lowCut, satur, out
         float tone, comp, lowCut, satur, out;
+        // Ordine bool: eqOn, compOn, satOn, compSoft, satSoft
         bool eqOn, compOn, satOn, compSoft, satSoft;
+        // Ordine fx float: room, church, slap, eighth
         float room, church, slap, eighth;
+        // Ordine fx bool: roomOn, churchOn, slapOn, eighthOn
         bool roomOn, churchOn, slapOn, eighthOn;
     };
 
