@@ -474,7 +474,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     presetSwitchButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     presetSwitchButton.onClick = [this]()
     {
-        currentPresetIndex = (currentPresetIndex + 1) % 4;
+        currentPresetIndex = (currentPresetIndex + 1) % 5;
         applyPreset(currentPresetIndex);
         updatePresetLabel();
     };
@@ -486,7 +486,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     presetSwitchBackButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     presetSwitchBackButton.onClick = [this]()
     {
-        currentPresetIndex = (currentPresetIndex + 3) % 4; // -1 con wrap
+        currentPresetIndex = (currentPresetIndex + 4) % 5; // -1 con wrap
         applyPreset(currentPresetIndex);
         updatePresetLabel();
     };
@@ -1111,12 +1111,13 @@ EasyRecAudioProcessorEditor::PresetValues EasyRecAudioProcessorEditor::getPreset
 {
     // Riga preset:
     // { "Nome", input, comp, lowCut, satur, out, eqOn, compOn, satOn, compSoft, satSoft, room, church, slap, eighth, roomOn, churchOn, slapOn, eighthOn }
-    static constexpr std::array<PresetValues, 4> presets
+    static constexpr std::array<PresetValues, 5> presets
     {{
         { "Starter",      0.5f, 0.50f, 0.50f, 0.50f, 6.0f/9.0f, true, true, true,  true,  true,  0.50f, 0.50f, 0.50f, 0.50f, true, false, true, false },
+        { "Evo",      0.5f, 0.8f, 0.4f, 0.9f, 6.0f/9.0f, true, true, true,  false,  false,  0.60f, 0.50f, 0.50f, 0.25f, true, false, false, true },
         { "Capopalestra", 0.5f, 0.65f, 0.35f, 0.65f, 6.2f/9.0f, true, true, true,  true, true, 0.30f, 0.50f, 0.60f, 0.50f, true,  false, true,  false  },
         { "Campione",     0.5f, 0.9f, 0.5f, 0.25f, 6.4f/9.0f, true, true, true,  true, false, 0.50f, 0.30f, 0.5f, 0.5f, false,  true,  true,  false  },
-        { "Rivale",     0.5f, 0.85f, 0.35f, 0.8f, 6.4f/9.0f, true, true, true,  false, false, 0.50f, 0.65f, 0.50f, 0.8f, false,  true,  false,  true  }
+        { "Rivale",     0.5f, 0.85f, 0.35f, 0.8f, 6.4f/9.0f, true, true, true,  false, true, 0.50f, 0.65f, 0.50f, 0.8f, false,  true,  false,  true  }
     }};
 
     if (presets.empty())

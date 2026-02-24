@@ -14,8 +14,8 @@
             filePath = "../../Source/PluginEditor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1119"
-            endingLineNumber = "1119"
+            startingLineNumber = "1120"
+            endingLineNumber = "1120"
             landmarkName = "EasyRecAudioProcessorEditor::getPresetValues(presetIndex)"
             landmarkType = "7">
          </BreakpointContent>
