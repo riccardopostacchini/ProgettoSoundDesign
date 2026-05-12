@@ -82,22 +82,22 @@ private:
 
     
     //EQ KNOB
-    ResettableSlider lowKnob { 0.5f };
-    KnoblookAndFeel lowKnobLookAndFeel;
-    std::unique_ptr<juce::Drawable> lowKnobDrawable;
-    juce::Label lowLabelDescription;
-    juce::Label lowLabelValue;
+    ResettableSlider bassKnob { 0.5f };
+    KnoblookAndFeel bassKnobLookAndFeel;
+    std::unique_ptr<juce::Drawable> bassKnobDrawable;
+    juce::Label bassLabelDescription;
+    juce::Label bassLabelValue;
 
-    ResettableSlider toneKnob { 0.5f };
-    KnoblookAndFeel toneKnobLookAndFeel;
-    std::unique_ptr<juce::Drawable> toneKnobDrawable;
-    juce::Label toneLabelDescription;
-    juce::Label toneLabelValue;
+    ResettableSlider inputKnob { 0.5f };
+    KnoblookAndFeel inputKnobLookAndFeel;
+    std::unique_ptr<juce::Drawable> inputKnobDrawable;
+    juce::Label inputLabelDescription;
+    juce::Label inputLabelValue;
 
 
-    //SATURATOR SLIDER
-    ResettableSlider satKnob { 0.5f };
-    juce::Label satLabel;
+    //TREBLE SLIDER
+    ResettableSlider trebleKnob { 0.5f };
+    juce::Label trebleLabel;
 
     //OUTPUT KNOB
     ResettableSlider outKnob { 6.0f / 9.0f };
@@ -105,7 +105,7 @@ private:
     std::unique_ptr<juce::Drawable> outKnobDrawable;
     juce::Label outLabel;
     juce::Image buttonSliderImage;
-    juce::Rectangle<int> satSliderBaseRect;
+    juce::Rectangle<int> trebleSliderBaseRect;
     juce::Rectangle<int> compSliderBaseRect;
     juce::Image eqOnImage;
     juce::Rectangle<int> eqOnRect;
@@ -120,7 +120,7 @@ private:
     bool introPaused = false;
 
     // On/Off buttons (B)
-    juce::TextButton satOnOffButton;
+    juce::TextButton trebleOnOffButton;
     juce::TextButton compOnOffButton;
     juce::TextButton eqOnOffButton;
     juce::TextButton animOnOffButton;
@@ -131,14 +131,14 @@ private:
     int currentPresetIndex = 0;
     bool presetDirty = false;
 
-    struct PresetValues
+    struct PresetDefinition
     {
         const char* name;
-        // tone/out sono mantenuti per compatibilita' ma NON vengono applicati dai preset.
-        // Ordine campi float: tone, comp, lowCut, satur, out
-        float tone, comp, lowCut, satur, out;
-        // Ordine bool: eqOn, compOn, satOn, compSoft, satSoft
-        bool eqOn, compOn, satOn, compSoft, satSoft;
+        // input/output sono mantenuti per compatibilita' ma NON vengono applicati dai preset.
+        // Ordine campi float: input, comp, eqBass, eqTreble, output
+        float input, comp, eqBass, eqTreble, output;
+        // Ordine bool: bassEqOn, compOn, trebleOn, compSoft, trebleSoft
+        bool bassEqOn, compOn, trebleOn, compSoft, trebleSoft;
         // Ordine fx float: room, church, slap, eighth
         float room, church, slap, eighth;
         // Ordine fx bool: roomOn, churchOn, slapOn, eighthOn
@@ -149,15 +149,15 @@ private:
     juce::DrawableButton toggleCompButton { "ToggleComp", juce::DrawableButton::ImageRaw };
     bool isSoftMode = true;
 
-    // Toggle Soft/Hard Satur
-    bool isSoftSaturMode = true;
-    juce::TextButton saturToggleButton;
+    // Toggle Soft/Hard Treble
+    bool isSoftTrebleMode = true;
+    juce::TextButton trebleModeToggleButton;
     std::unique_ptr<juce::Drawable> compBDrawable;
-    std::unique_ptr<juce::Drawable> satBDrawable;
+    std::unique_ptr<juce::Drawable> trebleHardDrawable;
     std::unique_ptr<juce::Drawable> compADrawable;
-    std::unique_ptr<juce::Drawable> satADrawable;
+    std::unique_ptr<juce::Drawable> trebleSoftDrawable;
     juce::Rectangle<int> compBRect;
-    juce::Rectangle<int> satBRect;
+    juce::Rectangle<int> trebleModeRect;
 
     // FONT
     juce::Typeface::Ptr earlyGameBoyFont;
@@ -168,7 +168,7 @@ private:
     void updateEQ();
     void applyPreset (int presetIndex);
     void updatePresetLabel();
-    PresetValues getPresetValues (int presetIndex) const;
+    PresetDefinition getPresetValues (int presetIndex) const;
     bool isCurrentStateMatchingPreset (int presetIndex) const;
 
     // Micro-movimento stile Game Boy (interfaccia B)
@@ -178,14 +178,14 @@ private:
 
     // APVTS attachments
     std::unique_ptr<APVTS::SliderAttachment> compAttachment;
-    std::unique_ptr<APVTS::SliderAttachment> lowAttachment;
-    std::unique_ptr<APVTS::SliderAttachment> toneAttachment;
-    std::unique_ptr<APVTS::SliderAttachment> satAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> bassAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> inputAttachment;
+    std::unique_ptr<APVTS::SliderAttachment> trebleAttachment;
     std::unique_ptr<APVTS::SliderAttachment> outAttachment;
     std::unique_ptr<APVTS::ButtonAttachment> compSoftAttachment;
-    std::unique_ptr<APVTS::ButtonAttachment> satSoftAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> trebleSoftAttachment;
     std::unique_ptr<APVTS::ButtonAttachment> compOnAttachment;
-    std::unique_ptr<APVTS::ButtonAttachment> satOnAttachment;
+    std::unique_ptr<APVTS::ButtonAttachment> trebleOnAttachment;
     std::unique_ptr<APVTS::ButtonAttachment> eqOnAttachment;
     std::unique_ptr<APVTS::SliderAttachment> roomAttachment;
     std::unique_ptr<APVTS::SliderAttachment> churchAttachment;

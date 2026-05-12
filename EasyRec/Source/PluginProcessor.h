@@ -43,7 +43,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    void updateEQFilters(float lowCutFreq, float toneAmount);
+    void updateEQFilters(float bassAmountDb, float trebleAmountDb);
     void setCompressorAmount(float amount);
     void setCompressorSoftMode(bool soft);
     void setSaturationAmount(float amount);

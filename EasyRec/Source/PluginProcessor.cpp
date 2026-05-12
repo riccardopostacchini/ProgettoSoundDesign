@@ -237,11 +237,11 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const float eqBassNorm = *parameters.getRawParameterValue("lowCut");
     const float inputNorm  = *parameters.getRawParameterValue("tone");
     const float compAmtNorm = *parameters.getRawParameterValue("comp");
-    const float compSoftV  = *parameters.getRawParameterValue("compSoft");
+    const float compSoftValue = *parameters.getRawParameterValue("compSoft");
     const float eqTrebleNorm = *parameters.getRawParameterValue("satur");
-    const float eqOnV = *parameters.getRawParameterValue("eqOn");
-    const float compOnV = *parameters.getRawParameterValue("compOn");
-    const float satOnV = *parameters.getRawParameterValue("satOn");
+    const float bassEqOnValue = *parameters.getRawParameterValue("eqOn");
+    const float compOnValue = *parameters.getRawParameterValue("compOn");
+    const float trebleOnValue = *parameters.getRawParameterValue("satOn");
     const float outNorm    = *parameters.getRawParameterValue("out");
     const float roomNorm = *parameters.getRawParameterValue("room");
     const float churchNorm = *parameters.getRawParameterValue("church");
@@ -256,9 +256,9 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const float compAmtDb = juce::jmap(compAmtNorm, 0.0f, 1.0f, -10.0f, 10.0f);
     const float eqBassDb = juce::jmap(eqBassNorm, 0.0f, 1.0f, -10.0f, 10.0f);
     const float eqTrebleDb = juce::jmap(eqTrebleNorm, 0.0f, 1.0f, -10.0f, 10.0f);
-    const bool lowOn = (eqOnV >= 0.5f);
-    const bool compOn = (compOnV >= 0.5f);
-    const bool trebleOn = (satOnV >= 0.5f);
+    const bool bassEqOn = (bassEqOnValue >= 0.5f);
+    const bool compOn = (compOnValue >= 0.5f);
+    const bool trebleOn = (trebleOnValue >= 0.5f);
     const bool outIsMute = (outNorm <= 0.0001f);
     const auto normToDb = [](float norm) -> float
     {
@@ -288,12 +288,12 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const float slapSend = slapOn ? sliderNormToSend(slapNorm) : 0.0f;
     const float eighthSend = eighthOn ? sliderNormToSend(eighthNorm) : 0.0f;
 
-    compressor.setSoftMode(compSoftV >= 0.5f);
+    compressor.setSoftMode(compSoftValue >= 0.5f);
     compressor.setInputDriveDb(inputDb);
     compressor.setAmount(compAmtDb);
 
-    eq.setSoftPreset(compSoftV >= 0.5f);
-    eq.setBassAmount(lowOn ? eqBassDb : 0.0f);
+    eq.setSoftPreset(compSoftValue >= 0.5f);
+    eq.setBassAmount(bassEqOn ? eqBassDb : 0.0f);
     eq.setTrebleAmount(trebleOn ? eqTrebleDb : 0.0f);
 
     // Saturazione analogica nascosta (profilo piu' neutro).
@@ -309,7 +309,7 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     if (compOn)
         compressor.processBlock(buffer);
 
-    if (lowOn || trebleOn)
+    if (bassEqOn || trebleOn)
         eq.processBlock(buffer);
 
     processHiddenDeEsser(buffer);
@@ -512,10 +512,10 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 }
 
 //==============================================================================
-void EasyRecAudioProcessor::updateEQFilters(float lowCutFreq, float toneAmount)
+void EasyRecAudioProcessor::updateEQFilters(float bassAmountDb, float trebleAmountDb)
 {
-    eq.setBassAmount(lowCutFreq);
-    eq.setTrebleAmount(toneAmount);
+    eq.setBassAmount(bassAmountDb);
+    eq.setTrebleAmount(trebleAmountDb);
 }
 
 

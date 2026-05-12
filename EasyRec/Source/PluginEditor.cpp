@@ -146,63 +146,63 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     // === EQ KNOBS ===
     
     // === LOW KNOB ===
-    lowKnobDrawable = juce::Drawable::createFromImageData(BinaryData::LowEq_Knob_svg, BinaryData::LowEq_Knob_svgSize);
-    lowKnobLookAndFeel.knobImage = lowKnobDrawable.get();
-    lowKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    lowKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    lowKnob.setRange(0.0, 1.0, 0.01);
-    lowKnob.setValue(0.5);
-    lowKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
-    lowKnob.setLookAndFeel(&lowKnobLookAndFeel);
-    addAndMakeVisible(lowKnob);
+    bassKnobDrawable = juce::Drawable::createFromImageData(BinaryData::LowEq_Knob_svg, BinaryData::LowEq_Knob_svgSize);
+    bassKnobLookAndFeel.knobImage = bassKnobDrawable.get();
+    bassKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    bassKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    bassKnob.setRange(0.0, 1.0, 0.01);
+    bassKnob.setValue(0.5);
+    bassKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
+    bassKnob.setLookAndFeel(&bassKnobLookAndFeel);
+    addAndMakeVisible(bassKnob);
 
-    lowLabelDescription.setText("Low Cut", juce::dontSendNotification);
-    lowLabelDescription.setFont(font);
-    lowLabelDescription.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
-    //addAndMakeVisible(lowLabelDescription);
+    bassLabelDescription.setText("Low Cut", juce::dontSendNotification);
+    bassLabelDescription.setFont(font);
+    bassLabelDescription.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+    //addAndMakeVisible(bassLabelDescription);
 
-    lowLabelValue.setFont(font);
-    lowLabelValue.setColour(juce::Label::textColourId, juce::Colours::black);
-    lowLabelValue.setJustificationType(juce::Justification::centred);
-    lowLabelValue.setEditable(false, false, false);
-    lowLabelValue.setInterceptsMouseClicks(false, false);
-    addAndMakeVisible(lowLabelValue);
+    bassLabelValue.setFont(font);
+    bassLabelValue.setColour(juce::Label::textColourId, juce::Colours::black);
+    bassLabelValue.setJustificationType(juce::Justification::centred);
+    bassLabelValue.setEditable(false, false, false);
+    bassLabelValue.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(bassLabelValue);
 
-    lowLabelValue.setText(formatValue((lowKnob.getValue() - 0.5f) * 20.0f), juce::dontSendNotification);
+    bassLabelValue.setText(formatValue((bassKnob.getValue() - 0.5f) * 20.0f), juce::dontSendNotification);
 
-    // === TONE KNOB ===
-    toneKnobDrawable = juce::Drawable::createFromImageData(BinaryData::ToneEq_Knob_svg, BinaryData::ToneEq_Knob_svgSize);
-    toneKnobLookAndFeel.knobImage = toneKnobDrawable.get();
-    toneKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    toneKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    toneKnob.setRange(0.0, 1.0, 0.01);
-    toneKnob.setValue(0.5);
-    toneKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
-    toneKnob.setLookAndFeel(&toneKnobLookAndFeel);
-    addAndMakeVisible(toneKnob);
+    // === INPUT KNOB ===
+    inputKnobDrawable = juce::Drawable::createFromImageData(BinaryData::ToneEq_Knob_svg, BinaryData::ToneEq_Knob_svgSize);
+    inputKnobLookAndFeel.knobImage = inputKnobDrawable.get();
+    inputKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    inputKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    inputKnob.setRange(0.0, 1.0, 0.01);
+    inputKnob.setValue(0.5);
+    inputKnob.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.74f, true);
+    inputKnob.setLookAndFeel(&inputKnobLookAndFeel);
+    addAndMakeVisible(inputKnob);
 
-    toneLabelDescription.setText("Tone", juce::dontSendNotification);
-    toneLabelDescription.setFont(font);
-    toneLabelDescription.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
-    //addAndMakeVisible(toneLabelDescription);
+    inputLabelDescription.setText("Tone", juce::dontSendNotification);
+    inputLabelDescription.setFont(font);
+    inputLabelDescription.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+    //addAndMakeVisible(inputLabelDescription);
 
-    toneLabelValue.setFont(font);
-    toneLabelValue.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
-    toneLabelValue.setJustificationType(juce::Justification::centred);
-    toneLabelValue.setEditable(false, false, false);
-    toneLabelValue.setInterceptsMouseClicks(false, false);
-    addAndMakeVisible(toneLabelValue);
+    inputLabelValue.setFont(font);
+    inputLabelValue.setColour(juce::Label::textColourId, juce::Colour::fromString("ff82A942"));
+    inputLabelValue.setJustificationType(juce::Justification::centred);
+    inputLabelValue.setEditable(false, false, false);
+    inputLabelValue.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(inputLabelValue);
 
-    toneLabelValue.setText(formatValue((toneKnob.getValue() - 0.5f) * 20.0f), juce::dontSendNotification);
+    inputLabelValue.setText(formatValue((inputKnob.getValue() - 0.5f) * 20.0f), juce::dontSendNotification);
 
 
-    // === SATURATION SLIDER ===
-    satKnob.setSliderStyle(juce::Slider::LinearHorizontal);
-    satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    satKnob.setRange(0.0, 1.0, 0.01);
-    satKnob.setValue(0.5);
-    satKnob.setLookAndFeel(nullptr);
-    addAndMakeVisible(satKnob);
+    // === TREBLE SLIDER ===
+    trebleKnob.setSliderStyle(juce::Slider::LinearHorizontal);
+    trebleKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    trebleKnob.setRange(0.0, 1.0, 0.01);
+    trebleKnob.setValue(0.5);
+    trebleKnob.setLookAndFeel(nullptr);
+    addAndMakeVisible(trebleKnob);
 
     // === OUTPUT KNOB ===
     outKnobDrawable = juce::Drawable::createFromImageData(BinaryData::Output_Knob_svg, BinaryData::Output_Knob_svgSize);
@@ -269,7 +269,7 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
             double displayedValue;
 
             if (type == FormatterType::FormatHz)
-                displayedValue = slider.getValue(); // lowKnob: valore già in Hz
+                displayedValue = slider.getValue(); // valore raw del controllo
             else
                 displayedValue = (slider.getValue() - 0.5) * 20.0; // gli altri: scala
 
@@ -282,23 +282,23 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     // Usa le funzioni per tutte le label e slider
     setupLabel(compLabel, compKnob);
-    setupLabel(lowLabelValue, lowKnob);
-    setupLabel(toneLabelValue, toneKnob);
-    setupLabel(satLabel, satKnob);
+    setupLabel(bassLabelValue, bassKnob);
+    setupLabel(inputLabelValue, inputKnob);
+    setupLabel(trebleLabel, trebleKnob);
     setupLabel(outLabel, outKnob);
 
 
     addListener(compKnob, compLabel, formatValue, FormatterType::FormatValue);
-    addListener(lowKnob, lowLabelValue, formatValue, FormatterType::FormatValue);
-    addListener(toneKnob, toneLabelValue, formatValue, FormatterType::FormatValue);
-    addListener(satKnob, satLabel, formatValue, FormatterType::FormatValue);
+    addListener(bassKnob, bassLabelValue, formatValue, FormatterType::FormatValue);
+    addListener(inputKnob, inputLabelValue, formatValue, FormatterType::FormatValue);
+    addListener(trebleKnob, trebleLabel, formatValue, FormatterType::FormatValue);
     addListener(outKnob, outLabel, formatValue, FormatterType::FormatValue);
 
     // Label slider comp/treble in scala -10..+10 con suffisso /10.
     auto updateBLabels = [this, formatMinMax]()
     {
         const float compDb = ((float) compKnob.getValue() - 0.5f) * 20.0f;
-        const float trebleDb = ((float) satKnob.getValue() - 0.5f) * 20.0f;
+        const float trebleDb = ((float) trebleKnob.getValue() - 0.5f) * 20.0f;
 
         auto withSuffix = [formatMinMax](float valueDb) -> juce::String
         {
@@ -311,34 +311,34 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         };
 
         compLabel.setText(withSuffix(compDb), juce::dontSendNotification);
-        satLabel.setText(withSuffix(trebleDb), juce::dontSendNotification);
+        trebleLabel.setText(withSuffix(trebleDb), juce::dontSendNotification);
     };
 
     compKnob.onValueChange = [updateBLabels]() { updateBLabels(); };
-    satKnob.onValueChange = [updateBLabels]() { updateBLabels(); };
+    trebleKnob.onValueChange = [updateBLabels]() { updateBLabels(); };
     updateBLabels();
 
-    // Low EQ label: minimo -10, massimo max.
-    auto updateLowLabel = [this, formatValue]()
+    // Bass EQ label: minimo -10, massimo max.
+    auto updateBassLabel = [this, formatValue]()
     {
-        const float lowDb = ((float) lowKnob.getValue() - 0.5f) * 20.0f;
-        if (lowDb <= -9.95f)
-            lowLabelValue.setText("-10", juce::dontSendNotification);
-        else if (lowDb >= 9.95f)
-            lowLabelValue.setText("+10", juce::dontSendNotification);
+        const float bassDb = ((float) bassKnob.getValue() - 0.5f) * 20.0f;
+        if (bassDb <= -9.95f)
+            bassLabelValue.setText("-10", juce::dontSendNotification);
+        else if (bassDb >= 9.95f)
+            bassLabelValue.setText("+10", juce::dontSendNotification);
         else
-            lowLabelValue.setText(formatValue(lowDb), juce::dontSendNotification);
+            bassLabelValue.setText(formatValue(bassDb), juce::dontSendNotification);
     };
-    lowKnob.onValueChange = [updateLowLabel]() { updateLowLabel(); };
-    updateLowLabel();
+    bassKnob.onValueChange = [updateBassLabel]() { updateBassLabel(); };
+    updateBassLabel();
 
     // Input label: mostra sempre la scala reale -10..+10 (senza min/max).
     auto updateInputLabel = [this, formatValue]()
     {
-        const float inputDb = ((float) toneKnob.getValue() - 0.5f) * 20.0f;
-        toneLabelValue.setText(formatValue(inputDb), juce::dontSendNotification);
+        const float inputDb = ((float) inputKnob.getValue() - 0.5f) * 20.0f;
+        inputLabelValue.setText(formatValue(inputDb), juce::dontSendNotification);
     };
-    toneKnob.onValueChange = [updateInputLabel]() { updateInputLabel(); };
+    inputKnob.onValueChange = [updateInputLabel]() { updateInputLabel(); };
     updateInputLabel();
 
     auto outputValueToDb = [](double norm) -> double
@@ -407,39 +407,39 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
         }
     };
 
-    // === TOGGLE SATURAZIONE ===
-    saturToggleButton.setAlpha(0.0f);
-    saturToggleButton.setClickingTogglesState(true);
-    saturToggleButton.setToggleState(isSoftSaturMode, juce::dontSendNotification);
-    addAndMakeVisible(saturToggleButton);
+    // === TOGGLE TREBLE ===
+    trebleModeToggleButton.setAlpha(0.0f);
+    trebleModeToggleButton.setClickingTogglesState(true);
+    trebleModeToggleButton.setToggleState(isSoftTrebleMode, juce::dontSendNotification);
+    addAndMakeVisible(trebleModeToggleButton);
 
     compBDrawable = juce::Drawable::createFromImageData(BinaryData::compB_png, BinaryData::compB_pngSize);
-    satBDrawable = juce::Drawable::createFromImageData(BinaryData::satB_png, BinaryData::satB_pngSize);
+    trebleHardDrawable = juce::Drawable::createFromImageData(BinaryData::satB_png, BinaryData::satB_pngSize);
     compADrawable = juce::Drawable::createFromImageData(BinaryData::compA_png, BinaryData::compA_pngSize);
-    satADrawable = juce::Drawable::createFromImageData(BinaryData::satA_png, BinaryData::satA_pngSize);
+    trebleSoftDrawable = juce::Drawable::createFromImageData(BinaryData::satA_png, BinaryData::satA_pngSize);
 
-    saturToggleButton.onClick = [this]()
+    trebleModeToggleButton.onClick = [this]()
     {
-        isSoftSaturMode = saturToggleButton.getToggleState();
+        isSoftTrebleMode = trebleModeToggleButton.getToggleState();
     };
-    saturToggleButton.onStateChange = [this]()
+    trebleModeToggleButton.onStateChange = [this]()
     {
-        const bool newMode = saturToggleButton.getToggleState();
-        if (newMode != isSoftSaturMode)
+        const bool newMode = trebleModeToggleButton.getToggleState();
+        if (newMode != isSoftTrebleMode)
         {
-            isSoftSaturMode = newMode;
+            isSoftTrebleMode = newMode;
         }
     };
-    //saturToggleButton.setEnabled(false);
+    //trebleModeToggleButton.setEnabled(false);
 
 
     // On/Off buttons (B)
-    satOnOffButton.setClickingTogglesState(true);
-    satOnOffButton.setAlpha(0.0f);
-    satOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
-    satOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
-    satOnOffButton.setToggleState(true, juce::dontSendNotification);
-    addAndMakeVisible(satOnOffButton);
+    trebleOnOffButton.setClickingTogglesState(true);
+    trebleOnOffButton.setAlpha(0.0f);
+    trebleOnOffButton.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    trebleOnOffButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    trebleOnOffButton.setToggleState(true, juce::dontSendNotification);
+    addAndMakeVisible(trebleOnOffButton);
 
     compOnOffButton.setClickingTogglesState(true);
     compOnOffButton.setAlpha(0.0f);
@@ -503,14 +503,14 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     // === APVTS Attachments ===
     auto& apvts = audioProcessor.getAPVTS();
     compAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "comp", compKnob);
-    lowAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "lowCut", lowKnob);
-    toneAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "tone", toneKnob);
-    satAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "satur", satKnob);
+    bassAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "lowCut", bassKnob);
+    inputAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "tone", inputKnob);
+    trebleAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "satur", trebleKnob);
     outAttachment  = std::make_unique<APVTS::SliderAttachment>(apvts, "out", outKnob);
     compSoftAttachment = std::make_unique<APVTS::ButtonAttachment>(apvts, "compSoft", toggleCompButton);
-    satSoftAttachment  = std::make_unique<APVTS::ButtonAttachment>(apvts, "satSoft", saturToggleButton);
+    trebleSoftAttachment  = std::make_unique<APVTS::ButtonAttachment>(apvts, "satSoft", trebleModeToggleButton);
     compOnAttachment   = std::make_unique<APVTS::ButtonAttachment>(apvts, "compOn", compOnOffButton);
-    satOnAttachment    = std::make_unique<APVTS::ButtonAttachment>(apvts, "satOn", satOnOffButton);
+    trebleOnAttachment    = std::make_unique<APVTS::ButtonAttachment>(apvts, "satOn", trebleOnOffButton);
     eqOnAttachment     = std::make_unique<APVTS::ButtonAttachment>(apvts, "eqOn", eqOnOffButton);
     roomAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "room", roomKnob);
     churchAttachment = std::make_unique<APVTS::SliderAttachment>(apvts, "church", churchKnob);
@@ -523,14 +523,14 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
     // Sincronizza lo stato iniziale dei toggle con i parametri
     isSoftMode = toggleCompButton.getToggleState();
-    isSoftSaturMode = saturToggleButton.getToggleState();
+    isSoftTrebleMode = trebleModeToggleButton.getToggleState();
 
     compOnOffButton.onStateChange = [this]()
     {
         resized();
         repaint();
     };
-    satOnOffButton.onStateChange = [this]()
+    trebleOnOffButton.onStateChange = [this]()
     {
         resized();
         repaint();
@@ -549,15 +549,15 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
     if (introActive)
     {
         const float uiAlpha = 0.0f;
-        satKnob.setAlpha(uiAlpha);
+        trebleKnob.setAlpha(uiAlpha);
         compKnob.setAlpha(uiAlpha);
-        lowKnob.setAlpha(uiAlpha);
-        toneKnob.setAlpha(uiAlpha);
+        bassKnob.setAlpha(uiAlpha);
+        inputKnob.setAlpha(uiAlpha);
         outKnob.setAlpha(uiAlpha);
-        satLabel.setAlpha(uiAlpha);
+        trebleLabel.setAlpha(uiAlpha);
         compLabel.setAlpha(uiAlpha);
-        lowLabelValue.setAlpha(uiAlpha);
-        toneLabelValue.setAlpha(uiAlpha);
+        bassLabelValue.setAlpha(uiAlpha);
+        inputLabelValue.setAlpha(uiAlpha);
         outLabel.setAlpha(uiAlpha);
     }
 
@@ -569,8 +569,8 @@ EasyRecAudioProcessorEditor::EasyRecAudioProcessorEditor (EasyRecAudioProcessor&
 
 EasyRecAudioProcessorEditor::~EasyRecAudioProcessorEditor()
 {
-    lowKnob.setLookAndFeel(nullptr);
-    toneKnob.setLookAndFeel(nullptr);
+    bassKnob.setLookAndFeel(nullptr);
+    inputKnob.setLookAndFeel(nullptr);
     outKnob.setLookAndFeel(nullptr);
 }
 
@@ -727,20 +727,20 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         const int satOffset = (int)std::round(std::sin(spritePhase) * spriteAmplitudePx);
         const int compOffset = (int)std::round(std::sin(spritePhase + juce::MathConstants<float>::halfPi) * spriteAmplitudePx);
 
-        auto satRect = satBRect.translated(0, satOffset);
+        auto satRect = trebleModeRect.translated(0, satOffset);
         auto compRect = compBRect.translated(0, compOffset);
 
-        if (satOnOffButton.getToggleState())
+        if (trebleOnOffButton.getToggleState())
         {
-            if (isSoftSaturMode)
+            if (isSoftTrebleMode)
             {
-                if (satADrawable)
-                    satADrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+                if (trebleSoftDrawable)
+                    trebleSoftDrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
             }
             else
             {
-                if (satBDrawable)
-                    satBDrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
+                if (trebleHardDrawable)
+                    trebleHardDrawable->drawWithin(g, satRect.toFloat(), juce::RectanglePlacement::centred, 1.0f);
             }
         }
 
@@ -772,13 +772,13 @@ void EasyRecAudioProcessorEditor::paint (juce::Graphics& g)
         // Base sotto gli slider (buttonSlider.png)
         if (buttonSliderImage.isValid())
         {
-            if (satOnOffButton.getToggleState())
+            if (trebleOnOffButton.getToggleState())
             {
                 g.drawImageWithin(buttonSliderImage,
-                                  satSliderBaseRect.getX(),
-                                  satSliderBaseRect.getY(),
-                                  satSliderBaseRect.getWidth(),
-                                  satSliderBaseRect.getHeight(),
+                                  trebleSliderBaseRect.getX(),
+                                  trebleSliderBaseRect.getY(),
+                                  trebleSliderBaseRect.getWidth(),
+                                  trebleSliderBaseRect.getHeight(),
                                   juce::RectanglePlacement::stretchToFit);
             }
 
@@ -840,8 +840,8 @@ void EasyRecAudioProcessorEditor::resized()
     };
 
     // EQ + Output
-    lowKnob.setBounds(371, 309, 38, 38);
-    toneKnob.setBounds(435, 309, 38, 38);
+    bassKnob.setBounds(371, 309, 38, 38);
+    inputKnob.setBounds(435, 309, 38, 38);
     outKnob.setBounds(496, 309, 38, 38);
     screenToggleButton.setBounds(320, 490, 50, 40);
     screenToggleButtonLeft.setBounds(248, 492, 50, 40);
@@ -869,23 +869,23 @@ void EasyRecAudioProcessorEditor::resized()
     compKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
     compKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
 
-    satKnob.setSliderStyle(juce::Slider::LinearHorizontal);
-    satKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    satKnob.setLookAndFeel(nullptr);
-    satKnob.setBounds(288, 89, 100, 60);
-    satKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
-    satKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
-    satKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
+    trebleKnob.setSliderStyle(juce::Slider::LinearHorizontal);
+    trebleKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    trebleKnob.setLookAndFeel(nullptr);
+    trebleKnob.setBounds(288, 89, 100, 60);
+    trebleKnob.setColour(juce::Slider::backgroundColourId, juce::Colour::fromString("ff445E1A"));
+    trebleKnob.setColour(juce::Slider::trackColourId, juce::Colour::fromString("ff82A942"));
+    trebleKnob.setColour(juce::Slider::thumbColourId, juce::Colour::fromString("ff82A942"));
 
     // buttonSlider.png subito sotto agli slider
     const int baseH = 12;
-    satSliderBaseRect = { satKnob.getX() - 5, satKnob.getBottom() - 36, satKnob.getWidth(), baseH };
+    trebleSliderBaseRect = { trebleKnob.getX() - 5, trebleKnob.getBottom() - 36, trebleKnob.getWidth(), baseH };
     compSliderBaseRect = { compKnob.getX() - 5, compKnob.getBottom() - 36, compKnob.getWidth(), baseH };
 
     // On/Off buttons
-    satOnOffButton.setBounds(satKnob.getX() + 57, satKnob.getY() + 6, 15, 15);
+    trebleOnOffButton.setBounds(trebleKnob.getX() + 57, trebleKnob.getY() + 6, 15, 15);
     compOnOffButton.setBounds(compKnob.getX() + 49, compKnob.getY() + 6, 15, 15);
-    eqOnOffButton.setBounds(toneKnob.getX() - 35, toneKnob.getY() - 21, 15, 15);
+    eqOnOffButton.setBounds(inputKnob.getX() - 35, inputKnob.getY() - 21, 15, 15);
     animOnOffButton.setBounds(505, 448, 52, 52);
     presetSwitchButton.setBounds(286, 446, 39, 46);
     presetSwitchBackButton.setBounds(286, 525, 39, 46);
@@ -893,40 +893,40 @@ void EasyRecAudioProcessorEditor::resized()
 
     // bassknob.png centrato sul low knob
     const float scale = 1.25f;
-    const int eqBaseW = lowKnob.getWidth();
-    const int eqBaseH = lowKnob.getHeight();
+    const int eqBaseW = bassKnob.getWidth();
+    const int eqBaseH = bassKnob.getHeight();
     const int newW = (int)std::round(eqBaseW * scale);
     const int newH = (int)std::round(eqBaseH * scale);
-    eqOnRect = { lowKnob.getX() + (eqBaseW - newW) / 2,
-                 lowKnob.getY() + (eqBaseH - newH) / 2,
+    eqOnRect = { bassKnob.getX() + (eqBaseW - newW) / 2,
+                 bassKnob.getY() + (eqBaseH - newH) / 2,
                  newW, newH };
     
     // Aree cliccabili Soft/Hard sui personaggi
-    saturToggleButton.setBounds(418, 98, 90, 90);
+    trebleModeToggleButton.setBounds(418, 98, 90, 90);
     toggleCompButton.setBounds(265, 197, 80, 80);
-    satBRect = saturToggleButton.getBounds();
+    trebleModeRect = trebleModeToggleButton.getBounds();
     compBRect = toggleCompButton.getBounds();
 
     const bool showUi = !isScreenB;
-    const bool lowOn = eqOnOffButton.getToggleState();
+    const bool bassOn = eqOnOffButton.getToggleState();
     const bool compOn = compOnOffButton.getToggleState();
-    const bool trebleOn = satOnOffButton.getToggleState();
+    const bool trebleOn = trebleOnOffButton.getToggleState();
 
-    satKnob.setVisible(showUi && trebleOn);
-    satLabel.setVisible(showUi && trebleOn);
+    trebleKnob.setVisible(showUi && trebleOn);
+    trebleLabel.setVisible(showUi && trebleOn);
     compKnob.setVisible(showUi && compOn);
     compLabel.setVisible(showUi && compOn);
-    lowKnob.setVisible(showUi && lowOn);
-    toneKnob.setVisible(showUi);
-    lowLabelValue.setVisible(showUi && lowOn);
-    toneLabelValue.setVisible(showUi);
+    bassKnob.setVisible(showUi && bassOn);
+    inputKnob.setVisible(showUi);
+    bassLabelValue.setVisible(showUi && bassOn);
+    inputLabelValue.setVisible(showUi);
     outKnob.setVisible(showUi);
     outLabel.setVisible(showUi);
-    satOnOffButton.setVisible(showUi);
+    trebleOnOffButton.setVisible(showUi);
     compOnOffButton.setVisible(showUi);
     eqOnOffButton.setVisible(showUi);
     toggleCompButton.setVisible(showUi);
-    saturToggleButton.setVisible(showUi);
+    trebleModeToggleButton.setVisible(showUi);
     animOnOffButton.setVisible(true);
     presetSwitchButton.setVisible(true);
     presetSwitchBackButton.setVisible(true);
@@ -948,12 +948,12 @@ void EasyRecAudioProcessorEditor::resized()
     eighthOnOffButton.setVisible(isScreenB);
 
     // Label placement
-    lowLabelValue.setBounds(lowKnob.getBounds().translated(1, 0));
-    toneLabelValue.setBounds(toneKnob.getBounds().translated(1, 0));
+    bassLabelValue.setBounds(bassKnob.getBounds().translated(1, 0));
+    inputLabelValue.setBounds(inputKnob.getBounds().translated(1, 0));
     outLabel.setBounds(outKnob.getBounds().translated(1, 0));
-    satLabel.setBounds(satKnob.getX() + 25, satKnob.getBottom() - 24, satKnob.getWidth(), 16);
+    trebleLabel.setBounds(trebleKnob.getX() + 25, trebleKnob.getBottom() - 24, trebleKnob.getWidth(), 16);
     compLabel.setBounds(compKnob.getX() + 25, compKnob.getBottom() - 24, compKnob.getWidth(), 16);
-    satLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
+    trebleLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
     compLabel.setColour(juce::Label::textColourId, juce::Colour::fromString("ff2D2933"));
 }
 
@@ -1008,15 +1008,15 @@ void EasyRecAudioProcessorEditor::timerCallback()
     // Fade-in UI durante la dissolvenza di gameboy_intro
     {
         const float uiAlpha = introActive ? juce::jlimit(0.0f, 1.0f, introImageFade) : 1.0f;
-        satKnob.setAlpha(uiAlpha);
+        trebleKnob.setAlpha(uiAlpha);
         compKnob.setAlpha(uiAlpha);
-        lowKnob.setAlpha(uiAlpha);
-        toneKnob.setAlpha(uiAlpha);
+        bassKnob.setAlpha(uiAlpha);
+        inputKnob.setAlpha(uiAlpha);
         outKnob.setAlpha(uiAlpha);
-        satLabel.setAlpha(uiAlpha);
+        trebleLabel.setAlpha(uiAlpha);
         compLabel.setAlpha(uiAlpha);
-        lowLabelValue.setAlpha(uiAlpha);
-        toneLabelValue.setAlpha(uiAlpha);
+        bassLabelValue.setAlpha(uiAlpha);
+        inputLabelValue.setAlpha(uiAlpha);
         outLabel.setAlpha(uiAlpha);
         presetNameLabel.setColour(juce::Label::textColourId,
                                   introActive ? juce::Colours::transparentBlack
@@ -1035,9 +1035,9 @@ void EasyRecAudioProcessorEditor::timerCallback()
         };
 
         const float compDb = ((float) compKnob.getValue() - 0.5f) * 20.0f;
-        const float trebleDb = ((float) satKnob.getValue() - 0.5f) * 20.0f;
+        const float trebleDb = ((float) trebleKnob.getValue() - 0.5f) * 20.0f;
         compLabel.setText(fmt(compDb), juce::dontSendNotification);
-        satLabel.setText(fmt(trebleDb), juce::dontSendNotification);
+        trebleLabel.setText(fmt(trebleDb), juce::dontSendNotification);
     }
 
     const bool nowDirty = !isCurrentStateMatchingPreset(currentPresetIndex);
@@ -1052,8 +1052,8 @@ void EasyRecAudioProcessorEditor::timerCallback()
 
 void EasyRecAudioProcessorEditor::updateEQ()
 {
-    const float bassDb = ((float) lowKnob.getValue() - 0.5f) * 20.0f;
-    const float trebleDb = ((float) satKnob.getValue() - 0.5f) * 20.0f;
+    const float bassDb = ((float) bassKnob.getValue() - 0.5f) * 20.0f;
+    const float trebleDb = ((float) trebleKnob.getValue() - 0.5f) * 20.0f;
 
     audioProcessor.updateEQFilters(bassDb, trebleDb);
 }
@@ -1076,14 +1076,14 @@ void EasyRecAudioProcessorEditor::applyPreset (int presetIndex)
     auto setBool = [&setParam](const char* id, bool v) { setParam(id, v ? 1.0f : 0.0f); };
 
     setParam("comp", p.comp);
-    setParam("lowCut", p.lowCut);
-    setParam("satur", p.satur);
+    setParam("lowCut", p.eqBass);
+    setParam("satur", p.eqTreble);
 
-    setBool("eqOn", p.eqOn);
+    setBool("eqOn", p.bassEqOn);
     setBool("compOn", p.compOn);
-    setBool("satOn", p.satOn);
+    setBool("satOn", p.trebleOn);
     setBool("compSoft", p.compSoft);
-    setBool("satSoft", p.satSoft);
+    setBool("satSoft", p.trebleSoft);
 
     setParam("room", p.room);
     setParam("church", p.church);
@@ -1107,11 +1107,11 @@ void EasyRecAudioProcessorEditor::updatePresetLabel()
     presetNameLabel.setText("\"" + juce::String(p.name) + suffix + "\"", juce::dontSendNotification);
 }
 
-EasyRecAudioProcessorEditor::PresetValues EasyRecAudioProcessorEditor::getPresetValues (int presetIndex) const
+EasyRecAudioProcessorEditor::PresetDefinition EasyRecAudioProcessorEditor::getPresetValues (int presetIndex) const
 {
     // Riga preset:
-    // { "Nome", input, comp, lowCut, satur, out, eqOn, compOn, satOn, compSoft, satSoft, room, church, slap, eighth, roomOn, churchOn, slapOn, eighthOn }
-    static constexpr std::array<PresetValues, 5> presets
+    // { "Nome", input, comp, eqBass, eqTreble, output, bassEqOn, compOn, trebleOn, compSoft, trebleSoft, room, church, slap, eighth, roomOn, churchOn, slapOn, eighthOn }
+    static constexpr std::array<PresetDefinition, 5> presets
     {{
         { "Starter",      0.5f, 0.50f, 0.50f, 0.50f, 6.0f/9.0f, true, true, true,  true,  true,  0.50f, 0.50f, 0.50f, 0.50f, true, false, true, false },
         { "Evo",      0.5f, 0.8f, 0.4f, 0.9f, 6.0f/9.0f, true, true, true,  false,  false,  0.60f, 0.50f, 0.50f, 0.25f, true, false, false, true },
@@ -1121,7 +1121,7 @@ EasyRecAudioProcessorEditor::PresetValues EasyRecAudioProcessorEditor::getPreset
     }};
 
     if (presets.empty())
-        return PresetValues{};
+        return PresetDefinition{};
 
     int idx = presetIndex;
     if (idx < 0)
@@ -1155,13 +1155,13 @@ bool EasyRecAudioProcessorEditor::isCurrentStateMatchingPreset (int presetIndex)
     auto near = [tol](float a, float b) { return std::abs(a - b) <= tol; };
 
     return near(readFloat("comp"), p.comp)
-        && near(readFloat("lowCut"), p.lowCut)
-        && near(readFloat("satur"), p.satur)
-        && (readBool("eqOn") == p.eqOn)
+        && near(readFloat("lowCut"), p.eqBass)
+        && near(readFloat("satur"), p.eqTreble)
+        && (readBool("eqOn") == p.bassEqOn)
         && (readBool("compOn") == p.compOn)
-        && (readBool("satOn") == p.satOn)
+        && (readBool("satOn") == p.trebleOn)
         && (readBool("compSoft") == p.compSoft)
-        && (readBool("satSoft") == p.satSoft)
+        && (readBool("satSoft") == p.trebleSoft)
         && near(readFloat("room"), p.room)
         && near(readFloat("church"), p.church)
         && near(readFloat("slap"), p.slap)
