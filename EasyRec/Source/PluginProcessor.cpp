@@ -238,6 +238,7 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const float inputNorm  = *parameters.getRawParameterValue("tone");
     const float compAmtNorm = *parameters.getRawParameterValue("comp");
     const float compSoftValue = *parameters.getRawParameterValue("compSoft");
+    const float trebleSoftValue = *parameters.getRawParameterValue("satSoft");
     const float eqTrebleNorm = *parameters.getRawParameterValue("satur");
     const float bassEqOnValue = *parameters.getRawParameterValue("eqOn");
     const float compOnValue = *parameters.getRawParameterValue("compOn");
@@ -292,7 +293,7 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     compressor.setInputDriveDb(inputDb);
     compressor.setAmount(compAmtDb);
 
-    eq.setSoftPreset(compSoftValue >= 0.5f);
+    eq.setSoftPreset(trebleSoftValue >= 0.5f);
     eq.setBassAmount(bassEqOn ? eqBassDb : 0.0f);
     eq.setTrebleAmount(trebleOn ? eqTrebleDb : 0.0f);
 
