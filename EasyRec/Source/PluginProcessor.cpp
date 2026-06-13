@@ -7,9 +7,9 @@ EasyRecAudioProcessor::EasyRecAudioProcessor()
      : AudioProcessor (BusesProperties()
 #if ! JucePlugin_IsMidiEffect
 #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+                       .withInput  ("Input",  juce::AudioChannelSet::mono(), true)
 #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+                       .withOutput ("Output", juce::AudioChannelSet::mono(), true)
 #endif
                        ),
        parameters(*this, nullptr, "PARAMETERS", createParameterLayout())
@@ -188,13 +188,17 @@ bool EasyRecAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
     const auto mainOut = layouts.getMainOutputChannelSet();
     const auto mainIn = layouts.getMainInputChannelSet();
 
-    // Supporta mono e stereo
-    if (mainOut != juce::AudioChannelSet::mono()
-        && mainOut != juce::AudioChannelSet::stereo())
+    const bool outIsMono = (mainOut == juce::AudioChannelSet::mono());
+    const bool outIsStereo = (mainOut == juce::AudioChannelSet::stereo());
+    if (! outIsMono && ! outIsStereo)
         return false;
 
 #if ! JucePlugin_IsSynth
-    if (mainIn != mainOut)
+    const bool inIsMono = (mainIn == juce::AudioChannelSet::mono());
+    const bool inIsStereo = (mainIn == juce::AudioChannelSet::stereo());
+
+    // Logic usa spesso mono->stereo sulle tracce vocali mono.
+    if (! ((inIsMono && outIsMono) || (inIsMono && outIsStereo) || (inIsStereo && outIsStereo)))
         return false;
 #endif
 
@@ -212,6 +216,9 @@ void EasyRecAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
+
+    if (totalNumInputChannels == 1 && totalNumOutputChannels > 1)
+        buffer.copyFrom(1, 0, buffer, 0, 0, buffer.getNumSamples());
 
     // Input meter (pre-chain)
     {
