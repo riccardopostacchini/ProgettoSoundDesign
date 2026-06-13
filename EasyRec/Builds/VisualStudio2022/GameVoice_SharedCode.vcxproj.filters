@@ -3706,6 +3706,9 @@
     <ClCompile Include="..\..\JuceLibraryCode\BinaryData3.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData4.cpp">
+      <Filter>JUCE Library Code</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -3772,9 +3775,6 @@
       <Filter>GameVoice\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\CompressorModule.h">
-      <Filter>GameVoice\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\DeEsserModule.h">
       <Filter>GameVoice\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\EQModule.h">
@@ -7985,13 +7985,22 @@
     <None Include="..\..\Resources\compB.png">
       <Filter>GameVoice\Resources</Filter>
     </None>
+    <None Include="..\..\Resources\Gameboy_2.png">
+      <Filter>GameVoice\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\gamevoice.svg">
+      <Filter>GameVoice\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\cat.png">
       <Filter>GameVoice\Resources</Filter>
     </None>
     <None Include="..\..\Resources\Gameboy2_prova.png">
       <Filter>GameVoice\Resources</Filter>
     </None>
     <None Include="..\..\Resources\nomi.svg">
+      <Filter>GameVoice\Resources</Filter>
+    </None>
+    <None Include="..\..\Resources\bassknob.png">
       <Filter>GameVoice\Resources</Filter>
     </None>
     <None Include="..\..\Resources\satB.png">
